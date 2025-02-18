@@ -200,7 +200,7 @@ const Rapports = () => {
                         <SelectTrigger className="w-[200px] bg-gray-200 border-0">
                           <SelectValue placeholder="Année scolaire" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-gray-100">
                           <SelectGroup>
                             <SelectLabel>Sélectionner une année scolaire</SelectLabel>
                             <SelectItem value="all">Toutes les années scolaires</SelectItem>
@@ -305,7 +305,7 @@ const Rapports = () => {
                     <SelectTrigger className="w-[200px] bg-gray-200 border-0">
                       <SelectValue placeholder="Année scolaire" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-gray-100">
                       <SelectGroup>
                         <SelectLabel>Année scolaire</SelectLabel>
                         {anneesDisponibles.map((annee) => (
