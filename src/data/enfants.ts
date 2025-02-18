@@ -16,6 +16,8 @@ export type Enfant = {
   prenom: string;
   dateNaissance?: string;
   classe?: Classe;
+  gsmMaman?: string;
+  gsmPapa?: string;
   fraisInscription?: {
     montantTotal: number;
     montantPaye: number;
@@ -39,6 +41,8 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       prenom: "Sophie",
       dateNaissance: "2020-03-15",
       classe: "MS",
+      gsmMaman: "0612345678",
+      gsmPapa: "0687654321",
       fraisInscription: {
         montantTotal: 300,
         montantPaye: 300,
