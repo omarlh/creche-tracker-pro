@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +20,13 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/components/ui/use-toast";
 import { useEnfantStore } from "@/data/enfants";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Paiement = {
   id: number;
@@ -62,18 +68,31 @@ const paiementsInitiaux: Paiement[] = [
   },
 ];
 
+const anneesDisponibles = [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026",
+];
+
 const Paiements = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [paiements, setPaiements] = useState<Paiement[]>(paiementsInitiaux);
   const [selectedPaiement, setSelectedPaiement] = useState<Paiement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [anneeScolaire, setAnneeScolaire] = useState("2023-2024");
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
   const filteredEnfants = enfants.filter(enfant => 
+    enfant.anneeScolaire === anneeScolaire &&
     `${enfant.prenom} ${enfant.nom}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const filteredPaiements = paiements.filter(paiement => {
+    const enfant = enfants.find(e => e.id === paiement.enfantId);
+    return enfant && enfant.anneeScolaire === anneeScolaire;
+  });
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'F2' && isSheetOpen) {
@@ -135,8 +154,25 @@ const Paiements = () => {
         <AppSidebar />
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-semibold">Gestion des Paiements</h1>
+            <div className="flex justify-between items-start mb-6">
+              <div className="space-y-2">
+                <h1 className="text-3xl font-semibold">Gestion des Paiements</h1>
+                <Select
+                  value={anneeScolaire}
+                  onValueChange={setAnneeScolaire}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Année scolaire" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {anneesDisponibles.map((annee) => (
+                      <SelectItem key={annee} value={annee}>
+                        {annee}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Button onClick={handleAddClick}>
                 <Plus className="w-5 h-5 mr-2" />
                 Ajouter un paiement
@@ -157,7 +193,7 @@ const Paiements = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paiements.map((paiement) => {
+                  {filteredPaiements.map((paiement) => {
                     const enfant = enfants.find(e => e.id === paiement.enfantId);
                     return (
                       <TableRow key={paiement.id}>
@@ -246,7 +282,6 @@ const Paiements = () => {
                     className="w-full"
                     onFocus={() => setIsSearchFocused(true)}
                     onBlur={() => {
-                      // Petit délai pour permettre la sélection
                       setTimeout(() => setIsSearchFocused(false), 200);
                     }}
                   />
