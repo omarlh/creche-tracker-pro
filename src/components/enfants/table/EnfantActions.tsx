@@ -26,10 +26,10 @@ interface EnfantActionsProps {
 export const EnfantActions = ({ enfant, onEdit, onPrint }: EnfantActionsProps) => {
   const [password, setPassword] = useState("");
   const [isPasswordError, setIsPasswordError] = useState(false);
+  const supprimerEnfant = useEnfantStore((state) => state.supprimerEnfant);
 
   const handleDelete = () => {
     if (password === "radia") {
-      const { supprimerEnfant } = useEnfantStore.getState();
       supprimerEnfant(enfant.id);
       toast({
         title: "Suppression réussie",
