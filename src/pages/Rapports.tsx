@@ -18,6 +18,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { FileText, Download, Filter, BadgeCheck, AlertCircle } from "lucide-react";
 import { useEnfantStore, type Enfant } from "@/data/enfants";
+import { useToast } from "@/components/ui/use-toast";
 
 type RapportMensuel = {
   mois: string;
@@ -30,7 +31,6 @@ type RapportMensuel = {
   enfantsNonPaye: number[];
 };
 
-// Données de test pour les rapports mensuels
 const rapportsMensuels: RapportMensuel[] = [
   {
     mois: "2024-02",
@@ -71,10 +71,63 @@ const Rapports = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const { enfants } = useEnfantStore();
+  const { toast } = useToast();
 
   const handleExportRapport = () => {
-    // TODO: Implémenter l'export en PDF ou Excel
-    console.log("Export du rapport pour", moisSelectionne);
+    try {
+      const headers = [
+        "Mois",
+        "Total des paiements (DH)",
+        "Nombre d'enfants",
+        "Paiements complétés",
+        "Paiements en attente",
+        "Taux de recouvrement (%)"
+      ].join(",");
+
+      const rows = rapportsMensuels.map(rapport => {
+        const moisFormate = new Date(rapport.mois).toLocaleDateString("fr-FR", {
+          month: "long",
+          year: "numeric"
+        });
+        return [
+          moisFormate,
+          rapport.totalPaiements,
+          rapport.nombreEnfants,
+          rapport.paiementsComplets,
+          rapport.paiementsAttente,
+          rapport.tauxRecouvrement
+        ].join(",");
+      });
+
+      const csvContent = [headers, ...rows].join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute("href", url);
+      link.setAttribute("download", `rapport_mensuel_${new Date().toISOString().slice(0, 7)}.csv`);
+      document.body.appendChild(link);
+      
+      link.click();
+      
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export réussi",
+        description: "Le rapport a été exporté avec succès",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'export:", error);
+      toast({
+        title: "Erreur d'export",
+        description: "Une erreur est survenue lors de l'export du rapport",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   const handleDetailsClick = (rapport: RapportMensuel) => {
@@ -106,7 +159,6 @@ const Rapports = () => {
               </div>
             </div>
 
-            {/* Résumé du mois en cours */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
@@ -128,7 +180,6 @@ const Rapports = () => {
               </div>
             </div>
 
-            {/* Tableau des rapports mensuels */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100">
               <Table>
                 <TableHeader>
@@ -218,7 +269,6 @@ const Rapports = () => {
                     <p className="text-lg font-semibold mt-1">{rapportSelectionne.tauxRecouvrement}%</p>
                   </div>
 
-                  {/* Liste des enfants ayant payé */}
                   <div className="mt-6">
                     <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
                       <BadgeCheck className="w-4 h-4 mr-2 text-success" />
@@ -241,7 +291,6 @@ const Rapports = () => {
                     </div>
                   </div>
 
-                  {/* Liste des enfants n'ayant pas payé */}
                   <div className="mt-6">
                     <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
                       <AlertCircle className="w-4 h-4 mr-2 text-warning" />
