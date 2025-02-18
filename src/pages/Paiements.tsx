@@ -96,6 +96,7 @@ const Paiements = () => {
 
   const handleAddClick = () => {
     setSelectedPaiement(null);
+    setSearchTerm("");
     setIsSheetOpen(true);
   };
 
@@ -160,7 +161,10 @@ const Paiements = () => {
                 <h1 className="text-3xl font-semibold">Gestion des Paiements</h1>
                 <Select
                   value={anneeScolaire}
-                  onValueChange={setAnneeScolaire}
+                  onValueChange={(value) => {
+                    setAnneeScolaire(value);
+                    setSearchTerm("");
+                  }}
                 >
                   <SelectTrigger className="w-[180px] bg-[#F6F6F7] text-gray-700 border-gray-200">
                     <SelectValue placeholder="Année scolaire" />
@@ -323,7 +327,10 @@ const Paiements = () => {
                 </label>
                 <Select
                   value={anneeScolaire}
-                  onValueChange={setAnneeScolaire}
+                  onValueChange={(value) => {
+                    setAnneeScolaire(value);
+                    setSearchTerm("");
+                  }}
                 >
                   <SelectTrigger className="w-full bg-blue-50 text-blue-900 border-blue-200">
                     <SelectValue placeholder="Année scolaire" />
@@ -385,7 +392,7 @@ const Paiements = () => {
                           </div>
                         ))
                       ) : (
-                        <div className="p-2 text-gray-500">Aucun résultat</div>
+                        <div className="p-2 text-gray-500">Aucun résultat trouvé pour cette année scolaire</div>
                       )}
                     </div>
                   )}
