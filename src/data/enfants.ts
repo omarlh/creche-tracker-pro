@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 
 export type Classe = "TPS" | "PS" | "MS" | "GS";
@@ -36,7 +35,7 @@ type EnfantStore = {
   supprimerEnfant: (id: number) => void;
 };
 
-export const useEnfantStore = create<EnfantStore>((set) => ({
+export const useEnfantStore = create<EnfantStore>((set, get) => ({
   enfants: [
     {
       id: 1,
@@ -138,10 +137,13 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
     })),
   supprimerEnfant: (id) =>
     set((state) => {
-      console.log("Suppression de l'enfant avec l'ID:", id);
-      console.log("Enfants avant suppression:", state.enfants);
-      const newEnfants = state.enfants.filter((enfant) => enfant.id !== id);
-      console.log("Enfants après suppression:", newEnfants);
-      return { enfants: newEnfants };
+      const enfantASupprimer = state.enfants.find(e => e.id === id);
+      if (enfantASupprimer) {
+        console.log(`Suppression de l'enfant: ${enfantASupprimer.prenom} ${enfantASupprimer.nom}`);
+        return {
+          enfants: state.enfants.filter(e => e.id !== id)
+        };
+      }
+      return state;
     }),
 }));

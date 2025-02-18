@@ -25,11 +25,11 @@ import {
 const Enfants = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedEnfant, setSelectedEnfant] = useState<Enfant | null>(null);
-  const { enfants, ajouterEnfant, modifierEnfant } = useEnfantStore();
-  const { toast } = useToast();
-  const [showPaiementForm, setShowPaiementForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchedEnfant, setSearchedEnfant] = useState<Enfant | null>(null);
+  const enfants = useEnfantStore((state) => state.enfants);
+  const { toast } = useToast();
+  const [showPaiementForm, setShowPaiementForm] = useState(false);
 
   const handleAddClick = () => {
     setSelectedEnfant(null);
@@ -246,6 +246,11 @@ const Enfants = () => {
       printWindow.print();
       printWindow.close();
     }
+  };
+
+  const handleEnfantDelete = (enfantId: number) => {
+    console.log("Enfant supprimé de l'interface, ID:", enfantId);
+    // La mise à jour de l'interface sera automatique grâce à Zustand
   };
 
   return (
