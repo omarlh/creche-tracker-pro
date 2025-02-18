@@ -159,7 +159,7 @@ const Rapports = () => {
                     defaultValue="all"
                     onValueChange={setAnneeSelectionnee}
                   >
-                    <SelectTrigger className="w-[120px]">
+                    <SelectTrigger className="w-[120px] bg-white">
                       <SelectValue placeholder="Année" />
                     </SelectTrigger>
                     <SelectContent>
@@ -179,7 +179,7 @@ const Rapports = () => {
                     defaultValue="all"
                     onValueChange={setMoisSelectionne}
                   >
-                    <SelectTrigger className="w-[140px]">
+                    <SelectTrigger className="w-[140px] bg-white">
                       <SelectValue placeholder="Mois" />
                     </SelectTrigger>
                     <SelectContent>
