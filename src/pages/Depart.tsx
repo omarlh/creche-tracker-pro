@@ -97,57 +97,59 @@ export default function Depart() {
 
   return (
     <SidebarProvider>
-      <div className="grid lg:grid-cols-5 min-h-screen w-full">
+      <div className="grid lg:grid-cols-5 h-screen w-full">
         <AppSidebar />
-        <div className="col-span-4 p-8">
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight">Départ</h2>
-              <p className="text-muted-foreground">
-                Liste des enfants qui ont quitté l'établissement par année scolaire
-              </p>
-            </div>
-            <Separator className="my-2" />
-            <div className="w-[250px]">
-              <Select
-                value={selectedAnnee}
-                onValueChange={setSelectedAnnee}
-              >
-                <SelectTrigger className="bg-gray-100/80 backdrop-blur-sm border-gray-300">
-                  <SelectValue placeholder="Sélectionner une année scolaire" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-50 border-gray-300">
-                  <SelectItem value="all">Toutes les années</SelectItem>
-                  <SelectItem value="reset">Réinitialiser la sélection</SelectItem>
-                  <Separator className="my-2" />
-                  {anneesDisponibles.map((annee) => (
-                    <SelectItem key={annee} value={annee}>
-                      Année {annee}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-4">
-              {enfantsParAnnee.length === 0 ? (
+        <div className="col-span-4 overflow-y-auto">
+          <div className="p-6">
+            <div className="space-y-4 max-w-[1200px]">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">Départ</h2>
                 <p className="text-muted-foreground">
-                  Aucun enfant n'a quitté l'établissement pour le moment.
+                  Liste des enfants qui ont quitté l'établissement par année scolaire
                 </p>
-              ) : (
-                enfantsParAnnee.map(([anneeScolaire, enfants]) => (
-                  <div key={anneeScolaire}>
-                    <h3 className="text-lg font-semibold mb-2">
-                      Année scolaire {anneeScolaire}
-                    </h3>
-                    <EnfantTableau 
-                      enfants={enfants}
-                      onEdit={handleEdit}
-                      onView={handleView}
-                      calculerMontantRestant={calculerMontantRestant}
-                    />
-                  </div>
-                ))
-              )}
+              </div>
+              <Separator className="my-2" />
+              <div className="w-[250px]">
+                <Select
+                  value={selectedAnnee}
+                  onValueChange={setSelectedAnnee}
+                >
+                  <SelectTrigger className="bg-gray-100/80 backdrop-blur-sm border-gray-300">
+                    <SelectValue placeholder="Sélectionner une année scolaire" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-50 border-gray-300">
+                    <SelectItem value="all">Toutes les années</SelectItem>
+                    <SelectItem value="reset">Réinitialiser la sélection</SelectItem>
+                    <Separator className="my-2" />
+                    {anneesDisponibles.map((annee) => (
+                      <SelectItem key={annee} value={annee}>
+                        Année {annee}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-4">
+                {enfantsParAnnee.length === 0 ? (
+                  <p className="text-muted-foreground">
+                    Aucun enfant n'a quitté l'établissement pour le moment.
+                  </p>
+                ) : (
+                  enfantsParAnnee.map(([anneeScolaire, enfants]) => (
+                    <div key={anneeScolaire}>
+                      <h3 className="text-lg font-semibold mb-2">
+                        Année scolaire {anneeScolaire}
+                      </h3>
+                      <EnfantTableau 
+                        enfants={enfants}
+                        onEdit={handleEdit}
+                        onView={handleView}
+                        calculerMontantRestant={calculerMontantRestant}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
