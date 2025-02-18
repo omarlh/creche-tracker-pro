@@ -33,6 +33,8 @@ export default function Depart() {
   // Obtenir la liste des années scolaires disponibles
   const anneesDisponibles = useMemo(() => {
     const annees = new Set<string>();
+    
+    // Ajouter les années des enfants existants
     allEnfants
       .filter(e => e.statut === "inactif" && e.dernierPaiement)
       .forEach(enfant => {
@@ -40,6 +42,19 @@ export default function Depart() {
           annees.add(getAnneeScolaire(enfant.dernierPaiement));
         }
       });
+
+    // Ajouter les années futures prédéfinies
+    const anneesFutures = [
+      "2024-2025",
+      "2025-2026",
+      "2026-2027",
+      "2027-2028",
+      "2028-2029",
+      "2029-2030"
+    ];
+    
+    anneesFutures.forEach(annee => annees.add(annee));
+    
     return Array.from(annees).sort((a, b) => b.localeCompare(a));
   }, [allEnfants, getAnneeScolaire]);
 
