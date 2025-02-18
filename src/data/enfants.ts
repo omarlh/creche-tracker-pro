@@ -7,7 +7,7 @@ export type PaiementFraisInscription = {
   id: number;
   montant: number;
   datePaiement: string;
-  methodePaiement: "carte" | "especes" | "cheque";
+  methodePaiement: "carte" | "especes" | "cheque" | "virement";
 };
 
 export type Enfant = {
