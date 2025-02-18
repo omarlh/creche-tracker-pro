@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -94,7 +93,6 @@ const anneesDisponibles = [
 ];
 
 const Rapports = () => {
-  const [moisSelectionne, setMoisSelectionne] = useState<string>("all");
   const [anneeScolaireSelectionnee, setAnneeScolaireSelectionnee] = useState<string>("all");
   const [anneeScolaire, setAnneeScolaire] = useState<string>("2024/2025");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -121,10 +119,8 @@ const Rapports = () => {
   };
 
   const rapportsFiltres = rapportsMensuels.filter(rapport => {
-    const [annee, mois] = rapport.mois.split("-");
-    const matchMois = moisSelectionne === "all" ? true : mois === moisSelectionne;
-    const matchAnnee = anneeScolaireSelectionnee === "all" ? true : annee === anneeScolaireSelectionnee;
-    return matchMois && matchAnnee;
+    const [annee] = rapport.mois.split("-");
+    return anneeScolaireSelectionnee === "all" ? true : annee === anneeScolaireSelectionnee;
   });
 
   const generateYearsList = () => {
@@ -213,33 +209,6 @@ const Rapports = () => {
                                 {annee}
                               </SelectItem>
                             ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-
-                      <Select 
-                        defaultValue="all"
-                        onValueChange={setMoisSelectionne}
-                      >
-                        <SelectTrigger className="w-[140px] bg-white">
-                          <SelectValue placeholder="Mois" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Sélectionner un mois</SelectLabel>
-                            <SelectItem value="all">Tous les mois</SelectItem>
-                            <SelectItem value="01">Janvier</SelectItem>
-                            <SelectItem value="02">Février</SelectItem>
-                            <SelectItem value="03">Mars</SelectItem>
-                            <SelectItem value="04">Avril</SelectItem>
-                            <SelectItem value="05">Mai</SelectItem>
-                            <SelectItem value="06">Juin</SelectItem>
-                            <SelectItem value="07">Juillet</SelectItem>
-                            <SelectItem value="08">Août</SelectItem>
-                            <SelectItem value="09">Septembre</SelectItem>
-                            <SelectItem value="10">Octobre</SelectItem>
-                            <SelectItem value="11">Novembre</SelectItem>
-                            <SelectItem value="12">Décembre</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
