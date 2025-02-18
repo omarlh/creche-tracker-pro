@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { FileText, Download, BadgeCheck, AlertCircle, Printer } from "lucide-react";
+import { FileText, Download, BadgeCheck, AlertCircle, Printer, Users, Calculator } from "lucide-react";
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
@@ -31,6 +31,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 type RapportMensuel = {
   mois: string;
@@ -76,13 +83,42 @@ const rapportsMensuels: RapportMensuel[] = [
   },
 ];
 
+const anneesDisponibles = ["2023-2024", "2024-2025", "2025-2026"];
+
 const Rapports = () => {
   const [moisSelectionne, setMoisSelectionne] = useState<string>("all");
   const [anneeSelectionnee, setAnneeSelectionnee] = useState<string>("all");
+  const [anneeScolaireSelectionnee, setAnneeScolaireSelectionnee] = useState<string>("2023-2024");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
+
+  const enfantsParAnneeScolaire = anneesDisponibles.reduce((acc, annee) => {
+    acc[annee] = enfants.filter(enfant => enfant.anneeScolaire === annee);
+    return acc;
+  }, {} as Record<string, Enfant[]>);
+
+  const getStatistiquesAnnee = (annee: string) => {
+    const enfantsAnnee = enfantsParAnneeScolaire[annee] || [];
+    const total = enfantsAnnee.length;
+    const actifs = enfantsAnnee.filter(e => e.statut === "actif").length;
+    const inactifs = total - actifs;
+    
+    const parClasse = {
+      TPS: enfantsAnnee.filter(e => e.classe === "TPS").length,
+      PS: enfantsAnnee.filter(e => e.classe === "PS").length,
+      MS: enfantsAnnee.filter(e => e.classe === "MS").length,
+      GS: enfantsAnnee.filter(e => e.classe === "GS").length,
+    };
+
+    return {
+      total,
+      actifs,
+      inactifs,
+      parClasse,
+    };
+  };
 
   const rapportsFiltres = rapportsMensuels.filter(rapport => {
     const [annee, mois] = rapport.mois.split("-");
@@ -159,22 +195,156 @@ const Rapports = () => {
         <AppSidebar />
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Select 
-                    defaultValue="all"
-                    onValueChange={setAnneeSelectionnee}
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-2xl font-semibold mb-6">Rapports Mensuels</h2>
+                <div className="flex justify-between items-center mb-6">
+                  <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Select 
+                        defaultValue="all"
+                        onValueChange={setAnneeSelectionnee}
+                      >
+                        <SelectTrigger className="w-[120px] bg-white">
+                          <SelectValue placeholder="Année" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Sélectionner une année</SelectLabel>
+                            <SelectItem value="all">Toutes les années</SelectItem>
+                            {annees.map(annee => (
+                              <SelectItem key={annee} value={annee}>
+                                {annee}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+
+                      <Select 
+                        defaultValue="all"
+                        onValueChange={setMoisSelectionne}
+                      >
+                        <SelectTrigger className="w-[140px] bg-white">
+                          <SelectValue placeholder="Mois" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Sélectionner un mois</SelectLabel>
+                            <SelectItem value="all">Tous les mois</SelectItem>
+                            <SelectItem value="01">Janvier</SelectItem>
+                            <SelectItem value="02">Février</SelectItem>
+                            <SelectItem value="03">Mars</SelectItem>
+                            <SelectItem value="04">Avril</SelectItem>
+                            <SelectItem value="05">Mai</SelectItem>
+                            <SelectItem value="06">Juin</SelectItem>
+                            <SelectItem value="07">Juillet</SelectItem>
+                            <SelectItem value="08">Août</SelectItem>
+                            <SelectItem value="09">Septembre</SelectItem>
+                            <SelectItem value="10">Octobre</SelectItem>
+                            <SelectItem value="11">Novembre</SelectItem>
+                            <SelectItem value="12">Décembre</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button onClick={handleExportRapport}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Exporter
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">
+                      Total des paiements
+                    </h3>
+                    <p className="text-2xl font-semibold">
+                      {rapportsFiltres.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
+                    </p>
+                  </div>
+                  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">
+                      Nombre d'enfants
+                    </h3>
+                    <p className="text-2xl font-semibold">
+                      {rapportsFiltres[0]?.nombreEnfants || 0}
+                    </p>
+                  </div>
+                  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">
+                      Taux de recouvrement
+                    </h3>
+                    <p className="text-2xl font-semibold">
+                      {rapportsFiltres[0]?.tauxRecouvrement || 0}%
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Mois</TableHead>
+                        <TableHead>Total des paiements</TableHead>
+                        <TableHead>Nombre d'enfants</TableHead>
+                        <TableHead>Paiements complétés</TableHead>
+                        <TableHead>Paiements en attente</TableHead>
+                        <TableHead>Taux de recouvrement</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {rapportsFiltres.map((rapport) => (
+                        <TableRow key={rapport.mois}>
+                          <TableCell>
+                            {new Date(rapport.mois).toLocaleDateString("fr-FR", {
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </TableCell>
+                          <TableCell>{rapport.totalPaiements} DH</TableCell>
+                          <TableCell>{rapport.nombreEnfants}</TableCell>
+                          <TableCell>
+                            <span className="text-success">{rapport.paiementsComplets}</span>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-warning">{rapport.paiementsAttente}</span>
+                          </TableCell>
+                          <TableCell>{rapport.tauxRecouvrement}%</TableCell>
+                          <TableCell className="text-right">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleDetailsClick(rapport)}
+                            >
+                              <FileText className="w-4 h-4 mr-2" />
+                              Détails
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-semibold">Inscriptions par Année Scolaire</h2>
+                  <Select
+                    value={anneeScolaireSelectionnee}
+                    onValueChange={setAnneeScolaireSelectionnee}
                   >
-                    <SelectTrigger className="w-[120px] bg-white">
-                      <SelectValue placeholder="Année" />
+                    <SelectTrigger className="w-[180px] bg-gray-100">
+                      <SelectValue placeholder="Année scolaire" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectLabel>Sélectionner une année</SelectLabel>
-                        <SelectItem value="all">Toutes les années</SelectItem>
-                        {annees.map(annee => (
+                        <SelectLabel>Année scolaire</SelectLabel>
+                        {anneesDisponibles.map((annee) => (
                           <SelectItem key={annee} value={annee}>
                             {annee}
                           </SelectItem>
@@ -182,113 +352,106 @@ const Rapports = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-
-                  <Select 
-                    defaultValue="all"
-                    onValueChange={setMoisSelectionne}
-                  >
-                    <SelectTrigger className="w-[140px] bg-white">
-                      <SelectValue placeholder="Mois" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Sélectionner un mois</SelectLabel>
-                        <SelectItem value="all">Tous les mois</SelectItem>
-                        <SelectItem value="01">Janvier</SelectItem>
-                        <SelectItem value="02">Février</SelectItem>
-                        <SelectItem value="03">Mars</SelectItem>
-                        <SelectItem value="04">Avril</SelectItem>
-                        <SelectItem value="05">Mai</SelectItem>
-                        <SelectItem value="06">Juin</SelectItem>
-                        <SelectItem value="07">Juillet</SelectItem>
-                        <SelectItem value="08">Août</SelectItem>
-                        <SelectItem value="09">Septembre</SelectItem>
-                        <SelectItem value="10">Octobre</SelectItem>
-                        <SelectItem value="11">Novembre</SelectItem>
-                        <SelectItem value="12">Décembre</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
                 </div>
-                <Button onClick={handleExportRapport}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Exporter
-                </Button>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  Total des paiements
-                </h3>
-                <p className="text-2xl font-semibold">
-                  {rapportsFiltres.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  Nombre d'enfants
-                </h3>
-                <p className="text-2xl font-semibold">
-                  {rapportsFiltres[0]?.nombreEnfants || 0}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  Taux de recouvrement
-                </h3>
-                <p className="text-2xl font-semibold">
-                  {rapportsFiltres[0]?.tauxRecouvrement || 0}%
-                </p>
-              </div>
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        Total des inscriptions
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {getStatistiquesAnnee(anneeScolaireSelectionnee).total}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        Élèves actifs
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-green-600">
+                        {getStatistiquesAnnee(anneeScolaireSelectionnee).actifs}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        Élèves inactifs
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-gray-500">
+                        {getStatistiquesAnnee(anneeScolaireSelectionnee).inactifs}
+                      </div>
+                    </CardContent>
+                  </Card>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Mois</TableHead>
-                    <TableHead>Total des paiements</TableHead>
-                    <TableHead>Nombre d'enfants</TableHead>
-                    <TableHead>Paiements complétés</TableHead>
-                    <TableHead>Paiements en attente</TableHead>
-                    <TableHead>Taux de recouvrement</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rapportsFiltres.map((rapport) => (
-                    <TableRow key={rapport.mois}>
-                      <TableCell>
-                        {new Date(rapport.mois).toLocaleDateString("fr-FR", {
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </TableCell>
-                      <TableCell>{rapport.totalPaiements} DH</TableCell>
-                      <TableCell>{rapport.nombreEnfants}</TableCell>
-                      <TableCell>
-                        <span className="text-success">{rapport.paiementsComplets}</span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-warning">{rapport.paiementsAttente}</span>
-                      </TableCell>
-                      <TableCell>{rapport.tauxRecouvrement}%</TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleDetailsClick(rapport)}
-                        >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Détails
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        Taux d'activité
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {getStatistiquesAnnee(anneeScolaireSelectionnee).total > 0 
+                          ? Math.round((getStatistiquesAnnee(anneeScolaireSelectionnee).actifs / 
+                              getStatistiquesAnnee(anneeScolaireSelectionnee).total) * 100)
+                          : 0}%
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nom</TableHead>
+                        <TableHead>Prénom</TableHead>
+                        <TableHead>Classe</TableHead>
+                        <TableHead>Date de naissance</TableHead>
+                        <TableHead>GSM Maman</TableHead>
+                        <TableHead>GSM Papa</TableHead>
+                        <TableHead>Statut</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {enfantsParAnneeScolaire[anneeScolaireSelectionnee]?.map((enfant) => (
+                        <TableRow key={enfant.id}>
+                          <TableCell>{enfant.nom}</TableCell>
+                          <TableCell>{enfant.prenom}</TableCell>
+                          <TableCell>{enfant.classe}</TableCell>
+                          <TableCell>
+                            {new Date(enfant.dateNaissance || "").toLocaleDateString("fr-FR")}
+                          </TableCell>
+                          <TableCell>{enfant.gsmMaman || "-"}</TableCell>
+                          <TableCell>{enfant.gsmPapa || "-"}</TableCell>
+                          <TableCell>
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                enfant.statut === "actif"
+                                  ? "bg-success/10 text-success"
+                                  : "bg-gray-100 text-gray-600"
+                              }`}
+                            >
+                              {enfant.statut === "actif" ? "Actif" : "Inactif"}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             </div>
           </div>
         </main>
