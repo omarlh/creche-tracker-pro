@@ -126,7 +126,7 @@ export const EnfantFormulaire = ({
           <div className="space-y-4 border-t pt-4">
             <div className="space-y-2">
               <label htmlFor="montantPaiement" className="text-sm font-medium">
-                Montant du paiement
+                Montant du paiement des Frais d'Inscription & Assurances & Fournitures
               </label>
               <Input
                 id="montantPaiement"
