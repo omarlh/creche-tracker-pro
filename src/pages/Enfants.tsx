@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +57,7 @@ const Enfants = () => {
       nom: formData.get("nom") as string,
       prenom: formData.get("prenom") as string,
       dateNaissance: formData.get("dateNaissance") as string,
+      classe: formData.get("classe") as "TPS" | "PS" | "MS" | "GS",
       fraisInscription: {
         montantTotal,
         montantPaye: montantPaiement,
@@ -126,6 +126,7 @@ const Enfants = () => {
                   <TableRow>
                     <TableHead>Nom</TableHead>
                     <TableHead>Prénom</TableHead>
+                    <TableHead>Classe</TableHead>
                     <TableHead>Date de naissance</TableHead>
                     <TableHead>Frais d'inscription</TableHead>
                     <TableHead>Statut</TableHead>
@@ -138,6 +139,7 @@ const Enfants = () => {
                     <TableRow key={enfant.id}>
                       <TableCell className="font-medium">{enfant.nom}</TableCell>
                       <TableCell>{enfant.prenom}</TableCell>
+                      <TableCell>{enfant.classe}</TableCell>
                       <TableCell>
                         {new Date(enfant.dateNaissance || "").toLocaleDateString("fr-FR")}
                       </TableCell>
@@ -229,17 +231,36 @@ const Enfants = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="dateNaissance" className="text-sm font-medium">
-                  Date de naissance
-                </label>
-                <Input
-                  id="dateNaissance"
-                  name="dateNaissance"
-                  type="date"
-                  defaultValue={selectedEnfant?.dateNaissance}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="classe" className="text-sm font-medium">
+                    Classe
+                  </label>
+                  <select
+                    id="classe"
+                    name="classe"
+                    defaultValue={selectedEnfant?.classe}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2"
+                    required
+                  >
+                    <option value="TPS">TPS</option>
+                    <option value="PS">PS</option>
+                    <option value="MS">MS</option>
+                    <option value="GS">GS</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="dateNaissance" className="text-sm font-medium">
+                    Date de naissance
+                  </label>
+                  <Input
+                    id="dateNaissance"
+                    name="dateNaissance"
+                    type="date"
+                    defaultValue={selectedEnfant?.dateNaissance}
+                    required
+                  />
+                </div>
               </div>
 
               <div className="space-y-4">

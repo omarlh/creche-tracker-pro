@@ -1,6 +1,8 @@
 
 import { create } from 'zustand';
 
+export type Classe = "TPS" | "PS" | "MS" | "GS";
+
 export type PaiementFraisInscription = {
   id: number;
   montant: number;
@@ -13,6 +15,7 @@ export type Enfant = {
   nom: string;
   prenom: string;
   dateNaissance?: string;
+  classe?: Classe;
   fraisInscription?: {
     montantTotal: number;
     montantPaye: number;
@@ -35,6 +38,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       nom: "Dubois",
       prenom: "Sophie",
       dateNaissance: "2020-03-15",
+      classe: "MS",
       fraisInscription: {
         montantTotal: 300,
         montantPaye: 300,
@@ -53,6 +57,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       nom: "Martin",
       prenom: "Lucas",
       dateNaissance: "2021-05-20",
+      classe: "PS",
       fraisInscription: {
         montantTotal: 300,
         montantPaye: 150,
@@ -71,6 +76,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       nom: "Bernard",
       prenom: "Emma",
       dateNaissance: "2020-11-08",
+      classe: "MS",
       fraisInscription: {
         montantTotal: 300,
         montantPaye: 0,
@@ -84,6 +90,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       nom: "BENNANI",
       prenom: "Youssef",
       dateNaissance: "2020-01-01",
+      classe: "GS",
       fraisInscription: {
         montantTotal: 300,
         montantPaye: 300,
