@@ -72,18 +72,17 @@ const Rapports = () => {
       const rapportsGeneres: RapportMensuel[] = [];
       
       const anneeSelectionnee = anneeScolaireSelectionnee === "all" 
-        ? "2024/2025" 
+        ? anneesDisponibles[0]
         : anneeScolaireSelectionnee;
       
       const [anneeDebut, anneeFin] = anneeSelectionnee.split("/");
       
-      const dateDebut = new Date(parseInt(anneeDebut), 8, 1);
-      const dateFin = new Date(parseInt(anneeFin), 5, 30);
-      
-      let currentDate = new Date(dateDebut);
-
       const moisAGenerer = [];
-      while (currentDate <= dateFin) {
+      const debutAnneeScolaire = new Date(parseInt(anneeDebut), 8, 1);
+      const finAnneeScolaire = new Date(parseInt(anneeFin), 5, 30);
+      
+      let currentDate = new Date(debutAnneeScolaire);
+      while (currentDate <= finAnneeScolaire) {
         moisAGenerer.push(new Date(currentDate));
         currentDate.setMonth(currentDate.getMonth() + 1);
       }
@@ -93,10 +92,17 @@ const Rapports = () => {
         
         const enfantsDuMois = enfants.filter(enfant => {
           if (!enfant.dernierPaiement) return false;
-          const anneeMois = enfant.dernierPaiement.slice(0, 7);
-          const anneeEnfant = enfant.anneeScolaire;
-          return anneeMois === moisCourant && 
-                 (anneeScolaireSelectionnee === "all" || anneeEnfant === anneeScolaireSelectionnee);
+          
+          const datePaiement = new Date(enfant.dernierPaiement);
+          const moisPaiement = datePaiement.getMonth();
+          const anneePaiement = datePaiement.getFullYear();
+          
+          const moisDate = date.getMonth();
+          const anneeDate = date.getFullYear();
+          
+          return moisPaiement === moisDate && 
+                 anneePaiement === anneeDate &&
+                 (anneeScolaireSelectionnee === "all" || enfant.anneeScolaire === anneeScolaireSelectionnee);
         });
 
         const paiementsComplets = enfantsDuMois.filter(enfant => 
