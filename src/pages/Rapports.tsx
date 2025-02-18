@@ -9,6 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { FileText, Download, Filter } from "lucide-react";
@@ -54,10 +60,17 @@ const Rapports = () => {
   const [moisSelectionne, setMoisSelectionne] = useState<string>(
     new Date().toISOString().slice(0, 7)
   );
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
 
   const handleExportRapport = () => {
     // TODO: Implémenter l'export en PDF ou Excel
     console.log("Export du rapport pour", moisSelectionne);
+  };
+
+  const handleDetailsClick = (rapport: RapportMensuel) => {
+    setRapportSelectionne(rapport);
+    setIsSheetOpen(true);
   };
 
   return (
@@ -135,7 +148,11 @@ const Rapports = () => {
                       </TableCell>
                       <TableCell>{rapport.tauxRecouvrement}%</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDetailsClick(rapport)}
+                        >
                           <FileText className="w-4 h-4 mr-2" />
                           Détails
                         </Button>
@@ -147,6 +164,51 @@ const Rapports = () => {
             </div>
           </div>
         </main>
+
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetContent className="w-full sm:max-w-xl">
+            <SheetHeader>
+              <SheetTitle>
+                Détails du rapport - {rapportSelectionne && new Date(rapportSelectionne.mois).toLocaleDateString("fr-FR", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </SheetTitle>
+            </SheetHeader>
+            <div className="py-6">
+              {rapportSelectionne && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Total des paiements</h4>
+                      <p className="text-lg font-semibold mt-1">{rapportSelectionne.totalPaiements} DH</p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Nombre d'enfants</h4>
+                      <p className="text-lg font-semibold mt-1">{rapportSelectionne.nombreEnfants}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Paiements complétés</h4>
+                      <p className="text-lg font-semibold text-success mt-1">{rapportSelectionne.paiementsComplets}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Paiements en attente</h4>
+                      <p className="text-lg font-semibold text-warning mt-1">{rapportSelectionne.paiementsAttente}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500">Taux de recouvrement</h4>
+                    <p className="text-lg font-semibold mt-1">{rapportSelectionne.tauxRecouvrement}%</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </SidebarProvider>
   );
