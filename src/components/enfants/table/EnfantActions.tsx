@@ -13,7 +13,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 interface EnfantActionsProps {
   enfant: Enfant;
@@ -22,13 +24,27 @@ interface EnfantActionsProps {
 }
 
 export const EnfantActions = ({ enfant, onEdit, onPrint }: EnfantActionsProps) => {
-  const handleDelete = (enfant: Enfant) => {
-    const { supprimerEnfant } = useEnfantStore.getState();
-    supprimerEnfant(enfant.id);
-    toast({
-      title: "Suppression réussie",
-      description: `${enfant.prenom} ${enfant.nom} a été supprimé(e) de la liste.`,
-    });
+  const [password, setPassword] = useState("");
+  const [isPasswordError, setIsPasswordError] = useState(false);
+
+  const handleDelete = () => {
+    if (password === "radia") {
+      const { supprimerEnfant } = useEnfantStore.getState();
+      supprimerEnfant(enfant.id);
+      toast({
+        title: "Suppression réussie",
+        description: `${enfant.prenom} ${enfant.nom} a été supprimé(e) de la liste.`,
+      });
+      setPassword("");
+      setIsPasswordError(false);
+    } else {
+      setIsPasswordError(true);
+      toast({
+        title: "Erreur de suppression",
+        description: "Le mot de passe est incorrect.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -62,11 +78,36 @@ export const EnfantActions = ({ enfant, onEdit, onPrint }: EnfantActionsProps) =
             <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cet enfant ?</AlertDialogTitle>
             <AlertDialogDescription>
               Cette action est irréversible. Toutes les informations concernant {enfant.prenom} {enfant.nom} seront définitivement supprimées.
+              <div className="mt-4">
+                <label className="block text-sm font-medium mb-2">
+                  Veuillez entrer le mot de passe pour confirmer la suppression
+                </label>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setIsPasswordError(false);
+                  }}
+                  className={isPasswordError ? "border-destructive" : ""}
+                  placeholder="Entrez le mot de passe"
+                />
+                {isPasswordError && (
+                  <p className="text-sm text-destructive mt-1">
+                    Mot de passe incorrect
+                  </p>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleDelete(enfant)}>
+            <AlertDialogCancel onClick={() => {
+              setPassword("");
+              setIsPasswordError(false);
+            }}>
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
               Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>
