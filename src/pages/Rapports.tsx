@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { FileText, Download, Filter, BadgeCheck, AlertCircle } from "lucide-react";
+import { FileText, Download, Filter, BadgeCheck, AlertCircle, Printer } from "lucide-react";
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
@@ -110,6 +110,10 @@ const Rapports = () => {
         duration: 3000,
       });
     }
+  };
+
+  const handlePrintRapport = () => {
+    window.print();
   };
 
   const handleDetailsClick = (rapport: RapportMensuel) => {
@@ -212,14 +216,23 @@ const Rapports = () => {
         </main>
 
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
-            <SheetHeader>
+          <SheetContent className="w-full sm:max-w-xl overflow-y-auto print:w-full print:max-w-none print:overflow-visible">
+            <SheetHeader className="flex justify-between items-center">
               <SheetTitle>
                 Détails du rapport - {rapportSelectionne && new Date(rapportSelectionne.mois).toLocaleDateString("fr-FR", {
                   month: "long",
                   year: "numeric",
                 })}
               </SheetTitle>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handlePrintRapport}
+                className="print:hidden"
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                Imprimer
+              </Button>
             </SheetHeader>
             <div className="py-6">
               {rapportSelectionne && (
