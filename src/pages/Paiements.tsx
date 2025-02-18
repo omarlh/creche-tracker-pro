@@ -55,7 +55,7 @@ const anneesDisponibles = [
 
 const Paiements = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const { paiements, supprimerPaiement } = usePaiementStore();
+  const { paiements, ajouterPaiement, modifierPaiement, supprimerPaiement } = usePaiementStore();
   const [selectedPaiement, setSelectedPaiement] = useState<Paiement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -103,8 +103,7 @@ const Paiements = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
-    const nouveauPaiement: Paiement = {
-      id: selectedPaiement?.id || paiements.length + 1,
+    const nouveauPaiement: Omit<Paiement, "id"> = {
       enfantId: Number(formData.get("enfantId")),
       montant: Number(formData.get("montant")),
       datePaiement: (formData.get("datePaiement") as string) || new Date().toISOString().split('T')[0],
@@ -114,13 +113,13 @@ const Paiements = () => {
     };
 
     if (selectedPaiement) {
-      setPaiements(paiements.map(p => p.id === selectedPaiement.id ? nouveauPaiement : p));
+      modifierPaiement({ ...nouveauPaiement, id: selectedPaiement.id });
       toast({
         title: "Modification réussie",
         description: "Le paiement a été mis à jour.",
       });
     } else {
-      setPaiements([...paiements, nouveauPaiement]);
+      ajouterPaiement(nouveauPaiement);
       toast({
         title: "Paiement enregistré",
         description: "Le nouveau paiement a été ajouté avec succès.",
