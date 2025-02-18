@@ -1,5 +1,4 @@
-
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -33,39 +32,6 @@ type RetardPaiement = {
   dernierRappel: string | null;
 };
 
-const retardsTest: RetardPaiement[] = [
-  {
-    id: 1,
-    enfantId: 1,
-    enfantNom: "Dubois",
-    enfantPrenom: "Sophie",
-    moisConcerne: "2024-02",
-    montantDu: 150,
-    joursRetard: 15,
-    dernierRappel: "2024-02-15",
-  },
-  {
-    id: 2,
-    enfantId: 2,
-    enfantNom: "Martin",
-    enfantPrenom: "Lucas",
-    moisConcerne: "2024-02",
-    montantDu: 150,
-    joursRetard: 10,
-    dernierRappel: null,
-  },
-  {
-    id: 3,
-    enfantId: 3,
-    enfantNom: "Bernard",
-    enfantPrenom: "Emma",
-    moisConcerne: "2024-01",
-    montantDu: 150,
-    joursRetard: 30,
-    dernierRappel: "2024-02-01",
-  },
-];
-
 const anneesDisponibles = [
   "2023-2024",
   "2024-2025",
@@ -75,7 +41,7 @@ const anneesDisponibles = [
 ];
 
 const Retards = () => {
-  const [retards, setRetards] = useState<RetardPaiement[]>(retardsTest);
+  const [retards, setRetards] = useState<RetardPaiement[]>([]);
   const [selectedAnnee, setSelectedAnnee] = useState<string>("2023-2024");
   const { toast } = useToast();
   const { enfants } = useEnfantStore();
@@ -91,6 +57,43 @@ const Retards = () => {
       return `${annee - 1}-${annee}`;
     }
   };
+
+  useEffect(() => {
+    const genererRetards = () => {
+      const retardsGeneres: RetardPaiement[] = [];
+      
+      enfants.forEach(enfant => {
+        if (enfant.statut === "actif") {
+          const montantDu = enfant.fraisInscription?.montantTotal || 0;
+          const montantPaye = enfant.fraisInscription?.montantPaye || 0;
+          const dernierPaiement = enfant.dernierPaiement;
+          
+          if (montantDu > montantPaye && dernierPaiement) {
+            const dateDernierPaiement = new Date(dernierPaiement);
+            const joursRetard = Math.floor((new Date().getTime() - dateDernierPaiement.getTime()) / (1000 * 3600 * 24));
+            
+            const anneeScolairePaiement = getAnneeScolaire(dernierPaiement);
+            if (anneeScolairePaiement === selectedAnnee) {
+              retardsGeneres.push({
+                id: Math.random(),
+                enfantId: enfant.id,
+                enfantNom: enfant.nom,
+                enfantPrenom: enfant.prenom,
+                moisConcerne: dernierPaiement,
+                montantDu: montantDu - montantPaye,
+                joursRetard,
+                dernierRappel: null,
+              });
+            }
+          }
+        }
+      });
+
+      setRetards(retardsGeneres);
+    };
+
+    genererRetards();
+  }, [selectedAnnee, enfants]);
 
   const retardsFiltres = useMemo(() => {
     return retards.filter(retard => {
