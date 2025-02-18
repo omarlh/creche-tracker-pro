@@ -71,12 +71,18 @@ const Rapports = () => {
   useEffect(() => {
     const genererRapportsMensuels = () => {
       const rapportsGeneres: RapportMensuel[] = [];
-      const maintenant = new Date();
-      const dateFin = new Date(maintenant.getFullYear(), maintenant.getMonth(), 1);
-      const dateDebut = new Date(dateFin.getFullYear() - 1, dateFin.getMonth(), 1);
-
-      for (let date = dateDebut; date <= dateFin; date.setMonth(date.getMonth() + 1)) {
-        const moisCourant = new Date(date).toISOString().slice(0, 7);
+      
+      const anneeSelectionnee = anneeScolaireSelectionnee === "all" 
+        ? "2024/2025" 
+        : anneeScolaireSelectionnee;
+      
+      const [anneeDebut, anneeFin] = anneeSelectionnee.split("/");
+      
+      const dateDebut = new Date(parseInt(anneeDebut), 8, 1);
+      const dateFin = new Date(parseInt(anneeFin), 5, 30);
+      
+      for (let date = new Date(dateDebut); date <= dateFin; date.setMonth(date.getMonth() + 1)) {
+        const moisCourant = date.toISOString().slice(0, 7);
         
         const enfantsDuMois = enfants.filter(enfant => {
           if (!enfant.dernierPaiement) return false;
