@@ -160,13 +160,6 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
                 >
                   Modifier
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => onView(enfant)}
-                >
-                  Voir
-                </Button>
                 <Button
                   variant="outline"
                   size="sm"
