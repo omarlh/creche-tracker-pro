@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +26,9 @@ import { fr } from "date-fns/locale";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -153,38 +156,44 @@ const Rapports = () => {
               <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <Select value={anneeSelectionnee} onValueChange={setAnneeSelectionnee}>
+                  <Select onValueChange={setAnneeSelectionnee}>
                     <SelectTrigger className="w-[120px]">
                       <SelectValue placeholder="Année" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Toutes les années</SelectItem>
-                      {annees.map(annee => (
-                        <SelectItem key={annee} value={annee}>
-                          {annee}
-                        </SelectItem>
-                      ))}
+                      <SelectGroup>
+                        <SelectLabel>Sélectionner une année</SelectLabel>
+                        <SelectItem value="">Toutes les années</SelectItem>
+                        {annees.map(annee => (
+                          <SelectItem key={annee} value={annee}>
+                            {annee}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
 
-                  <Select value={moisSelectionne} onValueChange={setMoisSelectionne}>
+                  <Select onValueChange={setMoisSelectionne}>
                     <SelectTrigger className="w-[140px]">
                       <SelectValue placeholder="Mois" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tous les mois</SelectItem>
-                      <SelectItem value="01">Janvier</SelectItem>
-                      <SelectItem value="02">Février</SelectItem>
-                      <SelectItem value="03">Mars</SelectItem>
-                      <SelectItem value="04">Avril</SelectItem>
-                      <SelectItem value="05">Mai</SelectItem>
-                      <SelectItem value="06">Juin</SelectItem>
-                      <SelectItem value="07">Juillet</SelectItem>
-                      <SelectItem value="08">Août</SelectItem>
-                      <SelectItem value="09">Septembre</SelectItem>
-                      <SelectItem value="10">Octobre</SelectItem>
-                      <SelectItem value="11">Novembre</SelectItem>
-                      <SelectItem value="12">Décembre</SelectItem>
+                      <SelectGroup>
+                        <SelectLabel>Sélectionner un mois</SelectLabel>
+                        <SelectItem value="">Tous les mois</SelectItem>
+                        <SelectItem value="01">Janvier</SelectItem>
+                        <SelectItem value="02">Février</SelectItem>
+                        <SelectItem value="03">Mars</SelectItem>
+                        <SelectItem value="04">Avril</SelectItem>
+                        <SelectItem value="05">Mai</SelectItem>
+                        <SelectItem value="06">Juin</SelectItem>
+                        <SelectItem value="07">Juillet</SelectItem>
+                        <SelectItem value="08">Août</SelectItem>
+                        <SelectItem value="09">Septembre</SelectItem>
+                        <SelectItem value="10">Octobre</SelectItem>
+                        <SelectItem value="11">Novembre</SelectItem>
+                        <SelectItem value="12">Décembre</SelectItem>
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                 </div>
