@@ -255,7 +255,7 @@ const Enfants = () => {
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
             <div className="mb-6">
-              <h1 className="text-3xl font-semibold tracking-tight">Inscription d'un Enfant</h1>
+              <h1 className="text-3xl font-semibold tracking-tight">Inscription d'un Enfant/ Frais d'inscription</h1>
             </div>
 
             <div className="flex items-center justify-between gap-4 mb-6">
