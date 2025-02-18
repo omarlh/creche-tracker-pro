@@ -91,27 +91,34 @@ const Rapports = () => {
     : rapportsMensuels;
 
   const handleMoisSelection = (date: Date | undefined) => {
-    setMoisTemporaire(date ? startOfMonth(date) : undefined);
+    console.log("Date sélectionnée:", date);
+    setMoisTemporaire(date);
   };
 
   const handleValiderMois = () => {
+    console.log("Validation avec moisTemporaire:", moisTemporaire);
     if (moisTemporaire) {
-      setMoisSelectionne(moisTemporaire);
+      const debutMois = startOfMonth(moisTemporaire);
+      console.log("Début du mois sélectionné:", debutMois);
+      setMoisSelectionne(debutMois);
       setIsPopoverOpen(false);
       toast({
         title: "Filtre appliqué",
-        description: `Les rapports sont maintenant filtrés pour ${format(moisTemporaire, 'MMMM yyyy', { locale: fr })}`,
+        description: `Les rapports sont maintenant filtrés pour ${format(debutMois, 'MMMM yyyy', { locale: fr })}`,
+        duration: 3000,
       });
     }
   };
 
   const handleResetFiltre = () => {
+    console.log("Réinitialisation des filtres");
     setMoisSelectionne(undefined);
     setMoisTemporaire(undefined);
     setIsPopoverOpen(false);
     toast({
       title: "Filtre réinitialisé",
       description: "Tous les rapports sont maintenant affichés",
+      duration: 3000,
     });
   };
 
@@ -207,6 +214,7 @@ const Rapports = () => {
                         size="sm" 
                         className="flex-1"
                         onClick={handleResetFiltre}
+                        type="button"
                       >
                         Réinitialiser
                       </Button>
@@ -215,6 +223,7 @@ const Rapports = () => {
                         className="flex-1"
                         onClick={handleValiderMois}
                         disabled={!moisTemporaire}
+                        type="button"
                       >
                         OK
                       </Button>
