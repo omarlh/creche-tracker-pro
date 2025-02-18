@@ -3,7 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useEnfantStore } from "@/data/enfants";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, RefreshCcw } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 const anneesDisponibles = [
   "2023-2024",
@@ -27,8 +28,9 @@ const anneesDisponibles = [
 ];
 
 const Index = () => {
-  const { enfants } = useEnfantStore();
+  const { enfants, modifierEnfant } = useEnfantStore();
   const [anneeScolaire, setAnneeScolaire] = useState("2023-2024");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const enfantsFiltres = enfants.filter(enfant => enfant.anneeScolaire === anneeScolaire);
 
@@ -48,6 +50,47 @@ const Index = () => {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleUpdateAll = () => {
+    setIsUpdating(true);
+    try {
+      // Mettre à jour les données de chaque enfant
+      enfants.forEach(enfant => {
+        // Calculer le montant total payé
+        const montantPaye = enfant.fraisInscription?.paiements.reduce(
+          (total, paiement) => total + paiement.montant, 
+          0
+        ) || 0;
+
+        // Trouver le dernier paiement
+        const dernierPaiement = enfant.fraisInscription?.paiements
+          .sort((a, b) => new Date(b.datePaiement).getTime() - new Date(a.datePaiement).getTime())[0];
+
+        // Mettre à jour l'enfant
+        modifierEnfant({
+          ...enfant,
+          fraisInscription: {
+            ...enfant.fraisInscription,
+            montantPaye: montantPaye
+          },
+          dernierPaiement: dernierPaiement?.datePaiement || enfant.dernierPaiement
+        });
+      });
+
+      toast({
+        title: "Mise à jour réussie",
+        description: "Toutes les données ont été mises à jour avec succès.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur lors de la mise à jour",
+        description: "Une erreur est survenue lors de la mise à jour des données.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -77,15 +120,25 @@ const Index = () => {
                   </Select>
                 </div>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handlePrint}
-                className="print:hidden"
-              >
-                <Printer className="w-4 h-4 mr-2" />
-                Imprimer
-              </Button>
+              <div className="space-x-2 print:hidden">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleUpdateAll}
+                  disabled={isUpdating}
+                >
+                  <RefreshCcw className={`w-4 h-4 mr-2 ${isUpdating ? 'animate-spin' : ''}`} />
+                  Mettre à jour les données
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handlePrint}
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  Imprimer
+                </Button>
+              </div>
             </div>
             
             {/* Statistiques générales */}
