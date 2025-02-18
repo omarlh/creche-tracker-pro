@@ -142,12 +142,12 @@ export const EnfantFormulaire = ({
             Année scolaire
           </label>
           <Select name="anneeScolaire" defaultValue="2023-2024">
-            <SelectTrigger>
+            <SelectTrigger className="bg-gray-100">
               <SelectValue placeholder="Sélectionner une année" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-gray-100">
               {anneesDisponibles.map((annee) => (
-                <SelectItem key={annee} value={annee}>
+                <SelectItem key={annee} value={annee} className="hover:bg-gray-200">
                   {annee}
                 </SelectItem>
               ))}
