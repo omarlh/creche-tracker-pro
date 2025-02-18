@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +25,6 @@ type RetardPaiement = {
   dernierRappel: string | null;
 };
 
-// Données de test pour les retards
 const retardsTest: RetardPaiement[] = [
   {
     id: 1,
@@ -72,7 +70,6 @@ const Retards = () => {
   };
 
   const envoyerRappel = (retardId: number) => {
-    // Simuler l'envoi d'un rappel
     const maintenant = new Date().toISOString().split('T')[0];
     setRetards(retards.map(retard => 
       retard.id === retardId 
@@ -93,10 +90,9 @@ const Retards = () => {
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-semibold">Gestion des Retards</h1>
+              <h1 className="text-3xl font-semibold">Gestion des Retards de Paiement</h1>
             </div>
 
-            {/* Résumé des retards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
@@ -124,7 +120,6 @@ const Retards = () => {
               </div>
             </div>
 
-            {/* Liste des retards */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100">
               <Table>
                 <TableHeader>
