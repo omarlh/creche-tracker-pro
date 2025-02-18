@@ -81,10 +81,16 @@ const Rapports = () => {
       const dateDebut = new Date(parseInt(anneeDebut), 8, 1);
       const dateFin = new Date(parseInt(anneeFin), 5, 30);
       
-      const currentDate = new Date(dateDebut);
+      let currentDate = new Date(dateDebut);
+
+      const moisAGenerer = [];
       while (currentDate <= dateFin) {
-        const moisCourant = currentDate.toISOString().slice(0, 7);
-        console.log("Mois courant:", moisCourant);
+        moisAGenerer.push(new Date(currentDate));
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+
+      moisAGenerer.forEach(date => {
+        const moisCourant = date.toISOString().slice(0, 7);
         
         const enfantsDuMois = enfants.filter(enfant => {
           if (!enfant.dernierPaiement) return false;
@@ -120,9 +126,7 @@ const Rapports = () => {
           enfantsPaye,
           enfantsNonPaye,
         });
-
-        currentDate.setMonth(currentDate.getMonth() + 1);
-      }
+      });
 
       rapportsGeneres.sort((a, b) => a.mois.localeCompare(b.mois));
       
