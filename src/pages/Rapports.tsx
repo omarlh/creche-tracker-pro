@@ -61,7 +61,6 @@ const anneesDisponibles = [
 
 const Rapports = () => {
   const [anneeScolaireSelectionnee, setAnneeScolaireSelectionnee] = useState<string>("all");
-  const [anneeScolaire, setAnneeScolaire] = useState<string>("2024/2025");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const [rapportsMensuels, setRapportsMensuels] = useState<RapportMensuel[]>([]);
@@ -320,24 +319,6 @@ const Rapports = () => {
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-semibold">Inscriptions par Année Scolaire</h2>
-                  <Select
-                    value={anneeScolaire}
-                    onValueChange={setAnneeScolaire}
-                  >
-                    <SelectTrigger className="w-[200px] bg-gray-200 border-0">
-                      <SelectValue placeholder="Année scolaire" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-100">
-                      <SelectGroup>
-                        <SelectLabel>Année scolaire</SelectLabel>
-                        {anneesDisponibles.map((annee) => (
-                          <SelectItem key={annee} value={annee}>
-                            Année scolaire {annee}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -349,7 +330,7 @@ const Rapports = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
-                        {getStatistiquesAnnee(anneeScolaire).total}
+                        {getStatistiquesAnnee(anneeScolaireSelectionnee).total}
                       </div>
                     </CardContent>
                   </Card>
@@ -362,7 +343,7 @@ const Rapports = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-green-600">
-                        {getStatistiquesAnnee(anneeScolaire).actifs}
+                        {getStatistiquesAnnee(anneeScolaireSelectionnee).actifs}
                       </div>
                     </CardContent>
                   </Card>
@@ -375,7 +356,7 @@ const Rapports = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-gray-500">
-                        {getStatistiquesAnnee(anneeScolaire).inactifs}
+                        {getStatistiquesAnnee(anneeScolaireSelectionnee).inactifs}
                       </div>
                     </CardContent>
                   </Card>
@@ -388,9 +369,9 @@ const Rapports = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
-                        {getStatistiquesAnnee(anneeScolaire).total > 0 
-                          ? Math.round((getStatistiquesAnnee(anneeScolaire).actifs / 
-                              getStatistiquesAnnee(anneeScolaire).total) * 100)
+                        {getStatistiquesAnnee(anneeScolaireSelectionnee).total > 0 
+                          ? Math.round((getStatistiquesAnnee(anneeScolaireSelectionnee).actifs / 
+                              getStatistiquesAnnee(anneeScolaireSelectionnee).total) * 100)
                           : 0}%
                       </div>
                     </CardContent>
@@ -411,7 +392,7 @@ const Rapports = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {enfantsParAnneeScolaire[anneeScolaire]?.map((enfant) => (
+                      {enfantsParAnneeScolaire[anneeScolaireSelectionnee]?.map((enfant) => (
                         <TableRow key={enfant.id}>
                           <TableCell>{enfant.nom}</TableCell>
                           <TableCell>{enfant.prenom}</TableCell>
