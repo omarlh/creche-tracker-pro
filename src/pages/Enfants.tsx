@@ -27,9 +27,12 @@ const Enfants = () => {
   const [selectedEnfant, setSelectedEnfant] = useState<Enfant | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchedEnfant, setSearchedEnfant] = useState<Enfant | null>(null);
-  const enfants = useEnfantStore((state) => state.enfants);
-  const { toast } = useToast();
   const [showPaiementForm, setShowPaiementForm] = useState(false);
+  
+  const enfants = useEnfantStore((state) => state.enfants);
+  const ajouterEnfant = useEnfantStore((state) => state.ajouterEnfant);
+  const modifierEnfant = useEnfantStore((state) => state.modifierEnfant);
+  const { toast } = useToast();
 
   const handleAddClick = () => {
     setSelectedEnfant(null);
