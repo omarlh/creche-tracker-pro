@@ -318,6 +318,27 @@ const Paiements = () => {
             </SheetHeader>
             <form onSubmit={handleSubmit} className="grid gap-4 py-4">
               <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Année scolaire
+                </label>
+                <Select
+                  value={anneeScolaire}
+                  onValueChange={setAnneeScolaire}
+                >
+                  <SelectTrigger className="w-full bg-blue-50 text-blue-900 border-blue-200">
+                    <SelectValue placeholder="Année scolaire" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {anneesDisponibles.map((annee) => (
+                      <SelectItem key={annee} value={annee} className="hover:bg-blue-50">
+                        {annee}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   Enfant
                   <span className="text-xs text-muted-foreground inline-flex items-center">
