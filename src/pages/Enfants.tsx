@@ -149,11 +149,11 @@ const Enfants = () => {
                               : "text-warning"
                           }`}>
                             <Wallet className="w-4 h-4 mr-1" />
-                            {enfant.fraisInscription?.montantPaye || 0} € / {enfant.fraisInscription?.montantTotal || 0} €
+                            {enfant.fraisInscription?.montantPaye || 0} DH / {enfant.fraisInscription?.montantTotal || 0} DH
                           </span>
                           {calculerMontantRestant(enfant) > 0 && (
                             <span className="text-xs text-muted-foreground">
-                              Reste à payer : {calculerMontantRestant(enfant)} €
+                              Reste à payer : {calculerMontantRestant(enfant)} DH
                             </span>
                           )}
                         </div>
