@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,7 +36,7 @@ type Enfant = {
   prenom: string;
 };
 
-// Données de test mises à jour pour inclure plus d'enfants
+// Données de test mises à jour pour inclure le nouvel enfant
 const enfantsTest: Enfant[] = [
   { id: 1, nom: "Dubois", prenom: "Sophie" },
   { id: 2, nom: "Martin", prenom: "Lucas" },
@@ -45,6 +44,7 @@ const enfantsTest: Enfant[] = [
   { id: 4, nom: "Petit", prenom: "Noah" },
   { id: 5, nom: "Robert", prenom: "Léa" },
   { id: 6, nom: "Moreau", prenom: "Louis" },
+  { id: 7, nom: "BENNANI", prenom: "Youssef" },
 ];
 
 const paiementsInitiaux: Paiement[] = [
