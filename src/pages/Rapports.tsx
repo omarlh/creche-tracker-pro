@@ -86,7 +86,7 @@ const Rapports = () => {
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
                   Total des paiements
                 </h3>
-                <p className="text-2xl font-semibold">1 500 €</p>
+                <p className="text-2xl font-semibold">1 500 DH</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
@@ -125,7 +125,7 @@ const Rapports = () => {
                           year: "numeric",
                         })}
                       </TableCell>
-                      <TableCell>{rapport.totalPaiements} €</TableCell>
+                      <TableCell>{rapport.totalPaiements} DH</TableCell>
                       <TableCell>{rapport.nombreEnfants}</TableCell>
                       <TableCell>
                         <span className="text-success">{rapport.paiementsComplets}</span>
