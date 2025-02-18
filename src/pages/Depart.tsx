@@ -98,14 +98,16 @@ export default function Depart() {
                 value={selectedAnnee}
                 onValueChange={setSelectedAnnee}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-gray-100/80 backdrop-blur-sm border-gray-300">
                   <SelectValue placeholder="Sélectionner une année scolaire" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-gray-50 border-gray-300">
                   <SelectItem value="all">Toutes les années</SelectItem>
+                  <SelectItem value="reset">Réinitialiser la sélection</SelectItem>
+                  <Separator className="my-2" />
                   {anneesDisponibles.map((annee) => (
                     <SelectItem key={annee} value={annee}>
-                      {annee}
+                      Année {annee}
                     </SelectItem>
                   ))}
                 </SelectContent>
