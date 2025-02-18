@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +22,13 @@ import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type RapportMensuel = {
   mois: string;
@@ -69,14 +75,26 @@ const rapportsMensuels: RapportMensuel[] = [
 ];
 
 const Rapports = () => {
+  const [moisSelectionne, setMoisSelectionne] = useState<string>("");
+  const [anneeSelectionnee, setAnneeSelectionnee] = useState<string>("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
+  const rapportsFiltres = rapportsMensuels.filter(rapport => {
+    const [annee, mois] = rapport.mois.split("-");
+    const matchMois = moisSelectionne ? mois === moisSelectionne : true;
+    const matchAnnee = anneeSelectionnee ? annee === anneeSelectionnee : true;
+    return matchMois && matchAnnee;
+  });
+
+  const annees = Array.from(new Set(rapportsMensuels.map(r => r.mois.split("-")[0])))
+    .sort((a, b) => b.localeCompare(a));
+
   const handleExportRapport = () => {
     try {
-      const data = rapportsMensuels.map(rapport => ({
+      const data = rapportsFiltres.map(rapport => ({
         "Mois": new Date(rapport.mois).toLocaleDateString("fr-FR", {
           month: "long",
           year: "numeric"
@@ -133,7 +151,43 @@ const Rapports = () => {
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Select value={anneeSelectionnee} onValueChange={setAnneeSelectionnee}>
+                    <SelectTrigger className="w-[120px]">
+                      <SelectValue placeholder="Année" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Toutes les années</SelectItem>
+                      {annees.map(annee => (
+                        <SelectItem key={annee} value={annee}>
+                          {annee}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={moisSelectionne} onValueChange={setMoisSelectionne}>
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue placeholder="Mois" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Tous les mois</SelectItem>
+                      <SelectItem value="01">Janvier</SelectItem>
+                      <SelectItem value="02">Février</SelectItem>
+                      <SelectItem value="03">Mars</SelectItem>
+                      <SelectItem value="04">Avril</SelectItem>
+                      <SelectItem value="05">Mai</SelectItem>
+                      <SelectItem value="06">Juin</SelectItem>
+                      <SelectItem value="07">Juillet</SelectItem>
+                      <SelectItem value="08">Août</SelectItem>
+                      <SelectItem value="09">Septembre</SelectItem>
+                      <SelectItem value="10">Octobre</SelectItem>
+                      <SelectItem value="11">Novembre</SelectItem>
+                      <SelectItem value="12">Décembre</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button onClick={handleExportRapport}>
                   <Download className="w-4 h-4 mr-2" />
                   Exporter
@@ -147,7 +201,7 @@ const Rapports = () => {
                   Total des paiements
                 </h3>
                 <p className="text-2xl font-semibold">
-                  {rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
+                  {rapportsFiltres.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -155,7 +209,7 @@ const Rapports = () => {
                   Nombre d'enfants
                 </h3>
                 <p className="text-2xl font-semibold">
-                  {rapportsMensuels[0]?.nombreEnfants || 0}
+                  {rapportsFiltres[0]?.nombreEnfants || 0}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -163,7 +217,7 @@ const Rapports = () => {
                   Taux de recouvrement
                 </h3>
                 <p className="text-2xl font-semibold">
-                  {rapportsMensuels[0]?.tauxRecouvrement || 0}%
+                  {rapportsFiltres[0]?.tauxRecouvrement || 0}%
                 </p>
               </div>
             </div>
@@ -182,7 +236,7 @@ const Rapports = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {rapportsMensuels.map((rapport) => (
+                  {rapportsFiltres.map((rapport) => (
                     <TableRow key={rapport.mois}>
                       <TableCell>
                         {new Date(rapport.mois).toLocaleDateString("fr-FR", {
