@@ -4,10 +4,18 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useEnfantStore } from "@/data/enfants";
 import { EnfantTableau } from "@/components/enfants/EnfantTableau";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function Depart() {
   const allEnfants = useEnfantStore((state) => state.enfants);
+  const [selectedAnnee, setSelectedAnnee] = useState<string>("");
 
   // Fonction pour obtenir l'année scolaire à partir d'une date
   const getAnneeScolaire = useCallback((date: string) => {
@@ -15,14 +23,25 @@ export default function Depart() {
     const mois = dateObj.getMonth(); // 0-11
     const annee = dateObj.getFullYear();
     
-    // Si nous sommes entre septembre et décembre, l'année scolaire commence cette année
-    // Sinon, l'année scolaire a commencé l'année précédente
-    if (mois >= 8) { // septembre et après
+    if (mois >= 8) {
       return `${annee}-${annee + 1}`;
     } else {
       return `${annee - 1}-${annee}`;
     }
   }, []);
+
+  // Obtenir la liste des années scolaires disponibles
+  const anneesDisponibles = useMemo(() => {
+    const annees = new Set<string>();
+    allEnfants
+      .filter(e => e.statut === "inactif" && e.dernierPaiement)
+      .forEach(enfant => {
+        if (enfant.dernierPaiement) {
+          annees.add(getAnneeScolaire(enfant.dernierPaiement));
+        }
+      });
+    return Array.from(annees).sort((a, b) => b.localeCompare(a));
+  }, [allEnfants, getAnneeScolaire]);
 
   // Grouper les enfants inactifs par année scolaire
   const enfantsParAnnee = useMemo(() => {
@@ -38,10 +57,15 @@ export default function Depart() {
       groupes.get(anneeScolaire)?.push(enfant);
     });
 
-    // Convertir la Map en array et trier par année scolaire décroissante
+    // Filtrer par année sélectionnée si une année est sélectionnée
+    if (selectedAnnee) {
+      return Array.from(groupes.entries())
+        .filter(([annee]) => annee === selectedAnnee);
+    }
+
     return Array.from(groupes.entries())
       .sort((a, b) => b[0].localeCompare(a[0]));
-  }, [allEnfants, getAnneeScolaire]);
+  }, [allEnfants, getAnneeScolaire, selectedAnnee]);
 
   const calculerMontantRestant = useCallback((enfant) => {
     if (!enfant.fraisInscription) return 0;
@@ -69,6 +93,24 @@ export default function Depart() {
               </p>
             </div>
             <Separator />
+            <div className="w-[250px]">
+              <Select
+                value={selectedAnnee}
+                onValueChange={setSelectedAnnee}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner une année scolaire" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Toutes les années</SelectItem>
+                  {anneesDisponibles.map((annee) => (
+                    <SelectItem key={annee} value={annee}>
+                      {annee}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="mt-6 space-y-8">
               {enfantsParAnnee.length === 0 ? (
                 <p className="text-muted-foreground">
