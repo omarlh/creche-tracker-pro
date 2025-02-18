@@ -161,7 +161,7 @@ const Paiements = () => {
                   value={anneeScolaire}
                   onValueChange={setAnneeScolaire}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[180px] bg-[#F6F6F7] text-gray-700 border-gray-200">
                     <SelectValue placeholder="Année scolaire" />
                   </SelectTrigger>
                   <SelectContent>
