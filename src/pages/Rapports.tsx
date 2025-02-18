@@ -19,6 +19,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { FileText, Download, Filter, BadgeCheck, AlertCircle } from "lucide-react";
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
+import * as XLSX from 'xlsx';
 
 type RapportMensuel = {
   mois: string;
@@ -75,48 +76,29 @@ const Rapports = () => {
 
   const handleExportRapport = () => {
     try {
-      const headers = [
-        "Mois",
-        "Total des paiements (DH)",
-        "Nombre d'enfants",
-        "Paiements complétés",
-        "Paiements en attente",
-        "Taux de recouvrement (%)"
-      ].join(",");
-
-      const rows = rapportsMensuels.map(rapport => {
-        const moisFormate = new Date(rapport.mois).toLocaleDateString("fr-FR", {
+      const data = rapportsMensuels.map(rapport => ({
+        "Mois": new Date(rapport.mois).toLocaleDateString("fr-FR", {
           month: "long",
           year: "numeric"
-        });
-        return [
-          moisFormate,
-          rapport.totalPaiements,
-          rapport.nombreEnfants,
-          rapport.paiementsComplets,
-          rapport.paiementsAttente,
-          rapport.tauxRecouvrement
-        ].join(",");
-      });
+        }),
+        "Total des paiements (DH)": rapport.totalPaiements,
+        "Nombre d'enfants": rapport.nombreEnfants,
+        "Paiements complétés": rapport.paiementsComplets,
+        "Paiements en attente": rapport.paiementsAttente,
+        "Taux de recouvrement (%)": rapport.tauxRecouvrement
+      }));
 
-      const csvContent = [headers, ...rows].join("\n");
-
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
+      const workbook = XLSX.utils.book_new();
       
-      link.setAttribute("href", url);
-      link.setAttribute("download", `rapport_mensuel_${new Date().toISOString().slice(0, 7)}.csv`);
-      document.body.appendChild(link);
+      const worksheet = XLSX.utils.json_to_sheet(data);
       
-      link.click();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Rapports Mensuels");
       
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      XLSX.writeFile(workbook, `rapport_mensuel_${new Date().toISOString().slice(0, 7)}.xlsx`);
 
       toast({
         title: "Export réussi",
-        description: "Le rapport a été exporté avec succès",
+        description: "Le rapport a été exporté avec succès au format Excel",
         duration: 3000,
       });
     } catch (error) {
