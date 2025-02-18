@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -172,9 +171,9 @@ const Paiements = () => {
                   <SelectTrigger className="w-[180px] bg-[#F6F6F7] text-gray-700 border-gray-200">
                     <SelectValue placeholder="Année scolaire" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#F6F6F7] border-gray-200">
                     {anneesDisponibles.map((annee) => (
-                      <SelectItem key={annee} value={annee}>
+                      <SelectItem key={annee} value={annee} className="hover:bg-gray-200">
                         {annee}
                       </SelectItem>
                     ))}
