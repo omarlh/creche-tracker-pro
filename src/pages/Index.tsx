@@ -60,7 +60,7 @@ const Index = () => {
                     <SelectTrigger className="w-[180px] bg-gray-100 border-gray-200 opacity-100">
                       <SelectValue placeholder="Année scolaire" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-gray-100 border-gray-200 opacity-100">
                       {anneesDisponibles.map((annee) => (
                         <SelectItem key={annee} value={annee}>
                           {annee}
