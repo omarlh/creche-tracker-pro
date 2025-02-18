@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,8 +77,8 @@ const rapportsMensuels: RapportMensuel[] = [
 ];
 
 const Rapports = () => {
-  const [moisSelectionne, setMoisSelectionne] = useState<string>("");
-  const [anneeSelectionnee, setAnneeSelectionnee] = useState<string>("");
+  const [moisSelectionne, setMoisSelectionne] = useState<string>("all");
+  const [anneeSelectionnee, setAnneeSelectionnee] = useState<string>("all");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const { enfants } = useEnfantStore();
@@ -87,8 +86,8 @@ const Rapports = () => {
 
   const rapportsFiltres = rapportsMensuels.filter(rapport => {
     const [annee, mois] = rapport.mois.split("-");
-    const matchMois = moisSelectionne ? mois === moisSelectionne : true;
-    const matchAnnee = anneeSelectionnee ? annee === anneeSelectionnee : true;
+    const matchMois = moisSelectionne === "all" ? true : mois === moisSelectionne;
+    const matchAnnee = anneeSelectionnee === "all" ? true : annee === anneeSelectionnee;
     return matchMois && matchAnnee;
   });
 
@@ -156,14 +155,17 @@ const Rapports = () => {
               <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <Select onValueChange={setAnneeSelectionnee}>
+                  <Select 
+                    defaultValue="all"
+                    onValueChange={setAnneeSelectionnee}
+                  >
                     <SelectTrigger className="w-[120px]">
                       <SelectValue placeholder="Année" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Sélectionner une année</SelectLabel>
-                        <SelectItem value="">Toutes les années</SelectItem>
+                        <SelectItem value="all">Toutes les années</SelectItem>
                         {annees.map(annee => (
                           <SelectItem key={annee} value={annee}>
                             {annee}
@@ -173,14 +175,17 @@ const Rapports = () => {
                     </SelectContent>
                   </Select>
 
-                  <Select onValueChange={setMoisSelectionne}>
+                  <Select 
+                    defaultValue="all"
+                    onValueChange={setMoisSelectionne}
+                  >
                     <SelectTrigger className="w-[140px]">
                       <SelectValue placeholder="Mois" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Sélectionner un mois</SelectLabel>
-                        <SelectItem value="">Tous les mois</SelectItem>
+                        <SelectItem value="all">Tous les mois</SelectItem>
                         <SelectItem value="01">Janvier</SelectItem>
                         <SelectItem value="02">Février</SelectItem>
                         <SelectItem value="03">Mars</SelectItem>
