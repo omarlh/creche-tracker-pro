@@ -2,6 +2,8 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useEnfantStore } from "@/data/enfants";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
 
 const Index = () => {
   const { enfants } = useEnfantStore();
@@ -20,25 +22,40 @@ const Index = () => {
     (enfant.fraisInscription?.montantTotal || 0) > (enfant.fraisInscription?.montantPaye || 0)
   ).length;
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full animate-fadeIn">
-        <AppSidebar />
+        <AppSidebar className="print:hidden" />
         <main className="flex-1 p-8">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-semibold mb-6">Tableau de bord</h1>
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-3xl font-semibold">Tableau de bord</h1>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handlePrint}
+                className="print:hidden"
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                Imprimer
+              </Button>
+            </div>
             
             {/* Statistiques générales */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 print:grid-cols-3">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 print:border print:shadow-none">
                 <h2 className="text-sm font-medium text-gray-500 mb-2">Total enfants actifs</h2>
                 <p className="text-2xl font-semibold text-primary">{nombreEnfantsActifs}</p>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 print:border print:shadow-none">
                 <h2 className="text-sm font-medium text-gray-500 mb-2">Retards de paiement</h2>
                 <p className="text-2xl font-semibold text-destructive">{nombreEnfantsAvecRetard}</p>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 print:border print:shadow-none">
                 <h2 className="text-sm font-medium text-gray-500 mb-2">Total des paiements du mois</h2>
                 <p className="text-2xl font-semibold text-success">
                   {enfants.reduce((total, enfant) => {
@@ -56,15 +73,15 @@ const Index = () => {
 
             {/* Statistiques des frais d'inscription */}
             <h2 className="text-xl font-semibold mb-4">Frais d'inscription</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 print:grid-cols-2">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 print:border print:shadow-none">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">Total à percevoir</h3>
                 <p className="text-2xl font-semibold text-primary">{totalFraisInscription} DH</p>
                 <div className="mt-2 text-sm text-gray-500">
                   Pour {enfants.length} enfants inscrits
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 print:border print:shadow-none">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">Total perçu</h3>
                 <p className="text-2xl font-semibold text-success">{totalFraisInscriptionPayes} DH</p>
                 <div className="mt-2 text-sm text-gray-500">
@@ -75,7 +92,7 @@ const Index = () => {
 
             {/* Détail des paiements par mois */}
             <h2 className="text-xl font-semibold mb-4">Paiements par mois</h2>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 print:border print:shadow-none">
               <table className="w-full">
                 <thead>
                   <tr className="text-left border-b">
