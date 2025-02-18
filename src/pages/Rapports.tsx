@@ -197,16 +197,16 @@ const Rapports = () => {
                         defaultValue="all"
                         onValueChange={setAnneeScolaireSelectionnee}
                       >
-                        <SelectTrigger className="w-[180px] bg-white">
+                        <SelectTrigger className="w-[200px] bg-gray-200 border-0">
                           <SelectValue placeholder="Année scolaire" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Sélectionner une année scolaire</SelectLabel>
-                            <SelectItem value="all">Toutes les années</SelectItem>
+                            <SelectItem value="all">Toutes les années scolaires</SelectItem>
                             {anneesDisponibles.map(annee => (
                               <SelectItem key={annee} value={annee}>
-                                {annee}
+                                Année scolaire {annee}
                               </SelectItem>
                             ))}
                           </SelectGroup>
@@ -302,7 +302,7 @@ const Rapports = () => {
                     value={anneeScolaire}
                     onValueChange={setAnneeScolaire}
                   >
-                    <SelectTrigger className="w-[180px] bg-gray-100">
+                    <SelectTrigger className="w-[200px] bg-gray-200 border-0">
                       <SelectValue placeholder="Année scolaire" />
                     </SelectTrigger>
                     <SelectContent>
@@ -310,7 +310,7 @@ const Rapports = () => {
                         <SelectLabel>Année scolaire</SelectLabel>
                         {anneesDisponibles.map((annee) => (
                           <SelectItem key={annee} value={annee}>
-                            {annee}
+                            Année scolaire {annee}
                           </SelectItem>
                         ))}
                       </SelectGroup>
