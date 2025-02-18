@@ -27,7 +27,7 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
             <TableHead>Nom</TableHead>
             <TableHead>Prénom</TableHead>
             <TableHead>Classe</TableHead>
-            <TableHead>Date de naissance</TableHead>
+            <TableHead>Date d'inscription</TableHead>
             <TableHead>Frais d'inscription</TableHead>
             <TableHead>Statut</TableHead>
             <TableHead>Dernier paiement</TableHead>
@@ -41,7 +41,7 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
               <TableCell>{enfant.prenom}</TableCell>
               <TableCell>{enfant.classe}</TableCell>
               <TableCell>
-                {new Date(enfant.dateNaissance || "").toLocaleDateString("fr-FR")}
+                {new Date(enfant.dateInscription || "").toLocaleDateString("fr-FR")}
               </TableCell>
               <TableCell>
                 <div className="flex flex-col gap-1">
