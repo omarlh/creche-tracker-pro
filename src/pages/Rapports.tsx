@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,20 +15,14 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { FileText, Download, Filter, BadgeCheck, AlertCircle, Printer } from "lucide-react";
+import { FileText, Download, BadgeCheck, AlertCircle, Printer } from "lucide-react";
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
-import { format, startOfMonth } from "date-fns";
+import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Calendar } from "@/components/ui/calendar";
 
 type RapportMensuel = {
   mois: string;
@@ -74,57 +69,14 @@ const rapportsMensuels: RapportMensuel[] = [
 ];
 
 const Rapports = () => {
-  const [moisSelectionne, setMoisSelectionne] = useState<Date | undefined>(undefined);
-  const [moisTemporaire, setMoisTemporaire] = useState<Date | undefined>(undefined);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
-  const rapportsFiltres = moisSelectionne
-    ? rapportsMensuels.filter(
-        (rapport) =>
-          format(new Date(rapport.mois), "yyyy-MM") ===
-          format(moisSelectionne, "yyyy-MM")
-      )
-    : rapportsMensuels;
-
-  const handleMoisSelection = (date: Date | undefined) => {
-    console.log("Date sélectionnée:", date);
-    setMoisTemporaire(date);
-  };
-
-  const handleValiderMois = () => {
-    console.log("Validation avec moisTemporaire:", moisTemporaire);
-    if (moisTemporaire) {
-      const debutMois = startOfMonth(moisTemporaire);
-      console.log("Début du mois sélectionné:", debutMois);
-      setMoisSelectionne(debutMois);
-      setIsPopoverOpen(false);
-      toast({
-        title: "Filtre appliqué",
-        description: `Les rapports sont maintenant filtrés pour ${format(debutMois, 'MMMM yyyy', { locale: fr })}`,
-        duration: 3000,
-      });
-    }
-  };
-
-  const handleResetFiltre = () => {
-    console.log("Réinitialisation des filtres");
-    setMoisSelectionne(undefined);
-    setMoisTemporaire(undefined);
-    setIsPopoverOpen(false);
-    toast({
-      title: "Filtre réinitialisé",
-      description: "Tous les rapports sont maintenant affichés",
-      duration: 3000,
-    });
-  };
-
   const handleExportRapport = () => {
     try {
-      const data = rapportsFiltres.map(rapport => ({
+      const data = rapportsMensuels.map(rapport => ({
         "Mois": new Date(rapport.mois).toLocaleDateString("fr-FR", {
           month: "long",
           year: "numeric"
@@ -182,54 +134,6 @@ const Rapports = () => {
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
               <div className="flex gap-2">
-                <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline">
-                      <Filter className="w-4 h-4 mr-2" />
-                      {moisSelectionne ? (
-                        format(moisSelectionne, 'MMMM yyyy', { locale: fr })
-                      ) : (
-                        'Filtrer par mois'
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
-                    <div className="p-3">
-                      <Calendar
-                        mode="single"
-                        selected={moisTemporaire}
-                        onSelect={handleMoisSelection}
-                        initialFocus
-                        locale={fr}
-                        disabled={{ after: new Date() }}
-                        captionLayout="dropdown-buttons"
-                        displayMode="monthsOnly"
-                        fromYear={2020}
-                        toYear={new Date().getFullYear()}
-                      />
-                    </div>
-                    <div className="flex items-center gap-2 p-3 bg-muted/50 border-t">
-                      <Button 
-                        variant="secondary" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={handleResetFiltre}
-                        type="button"
-                      >
-                        Réinitialiser
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={handleValiderMois}
-                        disabled={!moisTemporaire}
-                        type="button"
-                      >
-                        OK
-                      </Button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
                 <Button onClick={handleExportRapport}>
                   <Download className="w-4 h-4 mr-2" />
                   Exporter
@@ -243,7 +147,7 @@ const Rapports = () => {
                   Total des paiements
                 </h3>
                 <p className="text-2xl font-semibold">
-                  {rapportsFiltres.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
+                  {rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -251,7 +155,7 @@ const Rapports = () => {
                   Nombre d'enfants
                 </h3>
                 <p className="text-2xl font-semibold">
-                  {rapportsFiltres[0]?.nombreEnfants || 0}
+                  {rapportsMensuels[0]?.nombreEnfants || 0}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -259,7 +163,7 @@ const Rapports = () => {
                   Taux de recouvrement
                 </h3>
                 <p className="text-2xl font-semibold">
-                  {rapportsFiltres[0]?.tauxRecouvrement || 0}%
+                  {rapportsMensuels[0]?.tauxRecouvrement || 0}%
                 </p>
               </div>
             </div>
@@ -278,43 +182,35 @@ const Rapports = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {rapportsFiltres.length > 0 ? (
-                    rapportsFiltres.map((rapport) => (
-                      <TableRow key={rapport.mois}>
-                        <TableCell>
-                          {new Date(rapport.mois).toLocaleDateString("fr-FR", {
-                            month: "long",
-                            year: "numeric",
-                          })}
-                        </TableCell>
-                        <TableCell>{rapport.totalPaiements} DH</TableCell>
-                        <TableCell>{rapport.nombreEnfants}</TableCell>
-                        <TableCell>
-                          <span className="text-success">{rapport.paiementsComplets}</span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-warning">{rapport.paiementsAttente}</span>
-                        </TableCell>
-                        <TableCell>{rapport.tauxRecouvrement}%</TableCell>
-                        <TableCell className="text-right">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleDetailsClick(rapport)}
-                          >
-                            <FileText className="w-4 h-4 mr-2" />
-                            Détails
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-4 text-gray-500">
-                        Aucun rapport trouvé pour cette période
+                  {rapportsMensuels.map((rapport) => (
+                    <TableRow key={rapport.mois}>
+                      <TableCell>
+                        {new Date(rapport.mois).toLocaleDateString("fr-FR", {
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </TableCell>
+                      <TableCell>{rapport.totalPaiements} DH</TableCell>
+                      <TableCell>{rapport.nombreEnfants}</TableCell>
+                      <TableCell>
+                        <span className="text-success">{rapport.paiementsComplets}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-warning">{rapport.paiementsAttente}</span>
+                      </TableCell>
+                      <TableCell>{rapport.tauxRecouvrement}%</TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDetailsClick(rapport)}
+                        >
+                          <FileText className="w-4 h-4 mr-2" />
+                          Détails
+                        </Button>
                       </TableCell>
                     </TableRow>
-                  )}
+                  ))}
                 </TableBody>
               </Table>
             </div>
