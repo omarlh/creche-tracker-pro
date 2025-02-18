@@ -91,8 +91,16 @@ const Rapports = () => {
     return matchMois && matchAnnee;
   });
 
-  const annees = Array.from(new Set(rapportsMensuels.map(r => r.mois.split("-")[0])))
-    .sort((a, b) => b.localeCompare(a));
+  const generateYearsList = () => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let year = currentYear - 2; year <= currentYear + 5; year++) {
+      years.push(year.toString());
+    }
+    return years.sort((a, b) => b.localeCompare(a));
+  };
+
+  const annees = generateYearsList();
 
   const handleExportRapport = () => {
     try {
