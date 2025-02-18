@@ -19,6 +19,7 @@ import { BadgeCheck, CreditCard, Plus, Receipt } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/components/ui/use-toast";
+import { useEnfantStore } from "@/data/enfants";
 
 type Paiement = {
   id: number;
@@ -29,23 +30,6 @@ type Paiement = {
   methodePaiement: "carte" | "especes" | "cheque";
   statut: "complete" | "en_attente";
 };
-
-type Enfant = {
-  id: number;
-  nom: string;
-  prenom: string;
-};
-
-// Données de test mises à jour pour inclure le nouvel enfant
-const enfantsTest: Enfant[] = [
-  { id: 1, nom: "Dubois", prenom: "Sophie" },
-  { id: 2, nom: "Martin", prenom: "Lucas" },
-  { id: 3, nom: "Bernard", prenom: "Emma" },
-  { id: 4, nom: "Petit", prenom: "Noah" },
-  { id: 5, nom: "Robert", prenom: "Léa" },
-  { id: 6, nom: "Moreau", prenom: "Louis" },
-  { id: 7, nom: "BENNANI", prenom: "Youssef" },
-];
 
 const paiementsInitiaux: Paiement[] = [
   {
@@ -81,6 +65,7 @@ const Paiements = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [paiements, setPaiements] = useState<Paiement[]>(paiementsInitiaux);
   const [selectedPaiement, setSelectedPaiement] = useState<Paiement | null>(null);
+  const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
   const handleAddClick = () => {
@@ -148,7 +133,7 @@ const Paiements = () => {
                 </TableHeader>
                 <TableBody>
                   {paiements.map((paiement) => {
-                    const enfant = enfantsTest.find(e => e.id === paiement.enfantId);
+                    const enfant = enfants.find(e => e.id === paiement.enfantId);
                     return (
                       <TableRow key={paiement.id}>
                         <TableCell>
@@ -230,7 +215,7 @@ const Paiements = () => {
                   className="w-full rounded-md border border-gray-300 px-3 py-2"
                   required
                 >
-                  {enfantsTest.map((enfant) => (
+                  {enfants.map((enfant) => (
                     <option key={enfant.id} value={enfant.id}>
                       {enfant.prenom} {enfant.nom}
                     </option>

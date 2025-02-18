@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,53 +19,12 @@ import { BadgeCheck, Plus, UserX } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/components/ui/use-toast";
-
-// Types pour la gestion des enfants
-type Enfant = {
-  id: number;
-  nom: string;
-  prenom: string;
-  dateNaissance: string;
-  fraisInscription: boolean;
-  statut: "actif" | "inactif";
-  dernierPaiement: string;
-};
-
-// Données de test
-const enfantsInitiaux: Enfant[] = [
-  {
-    id: 1,
-    nom: "Dubois",
-    prenom: "Sophie",
-    dateNaissance: "2020-03-15",
-    fraisInscription: true,
-    statut: "actif",
-    dernierPaiement: "2024-02-15",
-  },
-  {
-    id: 2,
-    nom: "Martin",
-    prenom: "Lucas",
-    dateNaissance: "2021-05-20",
-    fraisInscription: true,
-    statut: "actif",
-    dernierPaiement: "2024-02-10",
-  },
-  {
-    id: 3,
-    nom: "Bernard",
-    prenom: "Emma",
-    dateNaissance: "2020-11-08",
-    fraisInscription: false,
-    statut: "inactif",
-    dernierPaiement: "2024-01-15",
-  },
-];
+import { useEnfantStore } from "@/data/enfants";
 
 const Enfants = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedEnfant, setSelectedEnfant] = useState<Enfant | null>(null);
-  const [enfants, setEnfants] = useState<Enfant[]>(enfantsInitiaux);
+  const { enfants, ajouterEnfant, modifierEnfant } = useEnfantStore();
   const { toast } = useToast();
 
   const handleAddClick = () => {
@@ -83,8 +41,7 @@ const Enfants = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
-    const nouvelEnfant: Enfant = {
-      id: selectedEnfant?.id || enfants.length + 1,
+    const nouvelEnfant = {
       nom: formData.get("nom") as string,
       prenom: formData.get("prenom") as string,
       dateNaissance: formData.get("dateNaissance") as string,
@@ -94,15 +51,13 @@ const Enfants = () => {
     };
 
     if (selectedEnfant) {
-      // Modification d'un enfant existant
-      setEnfants(enfants.map(e => e.id === selectedEnfant.id ? nouvelEnfant : e));
+      modifierEnfant({ ...nouvelEnfant, id: selectedEnfant.id });
       toast({
         title: "Modification réussie",
         description: `Les informations de ${nouvelEnfant.prenom} ont été mises à jour.`,
       });
     } else {
-      // Ajout d'un nouvel enfant
-      setEnfants([...enfants, nouvelEnfant]);
+      ajouterEnfant(nouvelEnfant);
       toast({
         title: "Ajout réussi",
         description: `${nouvelEnfant.prenom} a été ajouté(e) à la liste.`,
