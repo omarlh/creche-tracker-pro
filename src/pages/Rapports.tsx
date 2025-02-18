@@ -19,10 +19,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { FileText, Download, Filter, BadgeCheck, AlertCircle, Printer, CalendarIcon } from "lucide-react";
+import { FileText, Download, Filter, BadgeCheck, AlertCircle, Printer } from "lucide-react";
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
