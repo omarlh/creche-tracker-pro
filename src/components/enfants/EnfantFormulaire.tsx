@@ -2,6 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { type Enfant, type PaiementFraisInscription } from "@/data/enfants";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface EnfantFormulaireProps {
   selectedEnfant: Enfant | null;
@@ -10,6 +17,14 @@ interface EnfantFormulaireProps {
   onCancel: () => void;
   setShowPaiementForm: (show: boolean) => void;
 }
+
+const anneesDisponibles = [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026",
+  "2026-2027",
+  "2027-2028",
+];
 
 export const EnfantFormulaire = ({
   selectedEnfant,
@@ -120,6 +135,24 @@ export const EnfantFormulaire = ({
             defaultValue={selectedEnfant?.fraisInscription?.montantTotal || 300}
             required
           />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="anneeScolaire" className="text-sm font-medium">
+            Année scolaire
+          </label>
+          <Select name="anneeScolaire" defaultValue="2023-2024">
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner une année" />
+            </SelectTrigger>
+            <SelectContent>
+              {anneesDisponibles.map((annee) => (
+                <SelectItem key={annee} value={annee}>
+                  {annee}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {(showPaiementForm || !selectedEnfant) && (
