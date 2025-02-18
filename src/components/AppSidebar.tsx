@@ -17,7 +17,7 @@ export function AppSidebar() {
 
   const menuItems = [
     { title: "Tableau de bord", icon: Home, path: "/" },
-    { title: "Enfants", icon: Users, path: "/enfants" },
+    { title: "Inscription d'un Enfant", icon: Users, path: "/enfants" },
     { title: "Paiements", icon: CreditCard, path: "/paiements" },
     { title: "Rapports", icon: FileText, path: "/rapports" },
     { title: "Retards", icon: AlertTriangle, path: "/retards" },

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +32,6 @@ const Enfants = () => {
   };
 
   const handleViewClick = (enfant: Enfant) => {
-    // TODO: Implémenter la vue détaillée
     console.log("Voir enfant:", enfant);
   };
 
@@ -112,7 +110,7 @@ const Enfants = () => {
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-semibold">Gestion des Enfants</h1>
+              <h1 className="text-3xl font-semibold">Inscription d'un Enfant</h1>
               <Button onClick={handleAddClick}>
                 <Plus className="w-5 h-5 mr-2" />
                 Ajouter un enfant
