@@ -16,28 +16,10 @@ import {
 } from "@/components/ui/sheet";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { FileText, Download, BadgeCheck, AlertCircle, Printer, Users, Calculator } from "lucide-react";
+import { FileText, Download, BadgeCheck, AlertCircle, Printer } from "lucide-react";
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 type RapportMensuel = {
   mois: string;
@@ -104,36 +86,10 @@ const Rapports = () => {
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
-  const enfantsParAnneeScolaire = anneesDisponibles.reduce((acc, annee) => {
-    acc[annee] = enfants.filter(enfant => enfant.anneeScolaire === annee);
-    return acc;
-  }, {} as Record<string, Enfant[]>);
-
-  const getStatistiquesAnnee = (annee: string) => {
-    const enfantsAnnee = enfantsParAnneeScolaire[annee] || [];
-    const total = enfantsAnnee.length;
-    const actifs = enfantsAnnee.filter(e => e.statut === "actif").length;
-    const inactifs = total - actifs;
-    
-    const parClasse = {
-      TPS: enfantsAnnee.filter(e => e.classe === "TPS").length,
-      PS: enfantsAnnee.filter(e => e.classe === "PS").length,
-      MS: enfantsAnnee.filter(e => e.classe === "MS").length,
-      GS: enfantsAnnee.filter(e => e.classe === "GS").length,
-    };
-
-    return {
-      total,
-      actifs,
-      inactifs,
-      parClasse,
-    };
-  };
-
   const rapportsFiltres = rapportsMensuels.filter(rapport => {
     const [annee, mois] = rapport.mois.split("-");
     const matchMois = moisSelectionne === "all" ? true : mois === moisSelectionne;
-    const matchAnnee = anneeSelectionnee === "all" ? true : annee === anneeSelectionnee;
+    const matchAnnee = anneeScolaireSelectionnee === "all" ? true : annee === anneeScolaireSelectionnee;
     return matchMois && matchAnnee;
   });
 
