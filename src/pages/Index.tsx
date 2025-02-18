@@ -57,7 +57,7 @@ const Index = () => {
                     value={anneeScolaire}
                     onValueChange={setAnneeScolaire}
                   >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[180px] bg-gray-100 border-gray-200 opacity-100">
                       <SelectValue placeholder="Année scolaire" />
                     </SelectTrigger>
                     <SelectContent>
