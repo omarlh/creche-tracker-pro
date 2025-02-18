@@ -99,9 +99,9 @@ export default function Depart() {
     <SidebarProvider>
       <div className="grid lg:grid-cols-5 h-screen w-full">
         <AppSidebar />
-        <div className="col-span-4 overflow-y-auto">
-          <div className="p-6">
-            <div className="space-y-4 max-w-[1200px]">
+        <div className="col-span-4 bg-background">
+          <div className="h-full p-6">
+            <div className="space-y-4">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight">Départ</h2>
                 <p className="text-muted-foreground">
