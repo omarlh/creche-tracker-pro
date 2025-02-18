@@ -5,6 +5,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { useEnfantStore } from "@/data/enfants";
 import { EnfantTableau } from "@/components/enfants/EnfantTableau";
 import { useCallback, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -95,6 +97,10 @@ export default function Depart() {
     console.log("Voir", enfant);
   }, []);
 
+  const handlePrint = useCallback(() => {
+    window.print();
+  }, []);
+
   return (
     <SidebarProvider>
       <div className="grid lg:grid-cols-5 h-screen w-full">
@@ -102,14 +108,24 @@ export default function Depart() {
         <div className="col-span-4 bg-background">
           <div className="h-full p-6">
             <div className="space-y-4">
-              <div>
-                <h2 className="text-2xl font-bold tracking-tight">Départ</h2>
-                <p className="text-muted-foreground">
-                  Liste des enfants qui ont quitté l'établissement par année scolaire
-                </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold tracking-tight">Départ</h2>
+                  <p className="text-muted-foreground">
+                    Liste des enfants qui ont quitté l'établissement par année scolaire
+                  </p>
+                </div>
+                <Button
+                  onClick={handlePrint}
+                  className="print:hidden"
+                  variant="outline"
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  Imprimer
+                </Button>
               </div>
               <Separator className="my-2" />
-              <div className="w-[250px]">
+              <div className="w-[250px] print:hidden">
                 <Select
                   value={selectedAnnee}
                   onValueChange={setSelectedAnnee}
@@ -136,8 +152,8 @@ export default function Depart() {
                   </p>
                 ) : (
                   enfantsParAnnee.map(([anneeScolaire, enfants]) => (
-                    <div key={anneeScolaire}>
-                      <h3 className="text-lg font-semibold mb-2">
+                    <div key={anneeScolaire} className="space-y-2">
+                      <h3 className="text-lg font-semibold">
                         Année scolaire {anneeScolaire}
                       </h3>
                       <EnfantTableau 
