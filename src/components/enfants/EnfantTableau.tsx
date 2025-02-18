@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Wallet, Printer, Trash2 } from "lucide-react";
-import { type Enfant } from "@/data/enfants";
+import { type Enfant, useEnfantStore } from "@/data/enfants";
 import {
   AlertDialog,
   AlertDialogAction,
