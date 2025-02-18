@@ -14,12 +14,21 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { FileText, Download, Filter, BadgeCheck, AlertCircle, Printer } from "lucide-react";
+import { FileText, Download, Filter, BadgeCheck, AlertCircle, Printer, CalendarIcon } from "lucide-react";
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Calendar } from "@/components/ui/calendar";
 
 type RapportMensuel = {
   mois: string;
@@ -66,17 +75,23 @@ const rapportsMensuels: RapportMensuel[] = [
 ];
 
 const Rapports = () => {
-  const [moisSelectionne, setMoisSelectionne] = useState<string>(
-    new Date().toISOString().slice(0, 7)
-  );
+  const [moisSelectionne, setMoisSelectionne] = useState<Date | undefined>(undefined);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
+  const rapportsFiltres = moisSelectionne
+    ? rapportsMensuels.filter(
+        (rapport) =>
+          format(new Date(rapport.mois), "yyyy-MM") ===
+          format(moisSelectionne, "yyyy-MM")
+      )
+    : rapportsMensuels;
+
   const handleExportRapport = () => {
     try {
-      const data = rapportsMensuels.map(rapport => ({
+      const data = rapportsFiltres.map(rapport => ({
         "Mois": new Date(rapport.mois).toLocaleDateString("fr-FR", {
           month: "long",
           year: "numeric"
@@ -121,6 +136,10 @@ const Rapports = () => {
     setIsSheetOpen(true);
   };
 
+  const handleResetFiltre = () => {
+    setMoisSelectionne(undefined);
+  };
+
   const getEnfantById = (id: number): Enfant | undefined => {
     return enfants.find(enfant => enfant.id === id);
   };
@@ -134,10 +153,39 @@ const Rapports = () => {
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
               <div className="flex gap-2">
-                <Button variant="outline">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filtrer
-                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline">
+                      <Filter className="w-4 h-4 mr-2" />
+                      {moisSelectionne ? (
+                        format(moisSelectionne, 'MMMM yyyy', { locale: fr })
+                      ) : (
+                        'Filtrer par mois'
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={moisSelectionne}
+                      onSelect={setMoisSelectionne}
+                      initialFocus
+                      locale={fr}
+                    />
+                    {moisSelectionne && (
+                      <div className="p-2 border-t">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={handleResetFiltre}
+                          className="w-full"
+                        >
+                          Réinitialiser le filtre
+                        </Button>
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
                 <Button onClick={handleExportRapport}>
                   <Download className="w-4 h-4 mr-2" />
                   Exporter
@@ -150,19 +198,25 @@ const Rapports = () => {
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
                   Total des paiements
                 </h3>
-                <p className="text-2xl font-semibold">1 500 DH</p>
+                <p className="text-2xl font-semibold">
+                  {rapportsFiltres.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
+                </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
                   Nombre d'enfants
                 </h3>
-                <p className="text-2xl font-semibold">10</p>
+                <p className="text-2xl font-semibold">
+                  {rapportsFiltres[0]?.nombreEnfants || 0}
+                </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
                   Taux de recouvrement
                 </h3>
-                <p className="text-2xl font-semibold">80%</p>
+                <p className="text-2xl font-semibold">
+                  {rapportsFiltres[0]?.tauxRecouvrement || 0}%
+                </p>
               </div>
             </div>
 
@@ -180,35 +234,43 @@ const Rapports = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {rapportsMensuels.map((rapport) => (
-                    <TableRow key={rapport.mois}>
-                      <TableCell>
-                        {new Date(rapport.mois).toLocaleDateString("fr-FR", {
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </TableCell>
-                      <TableCell>{rapport.totalPaiements} DH</TableCell>
-                      <TableCell>{rapport.nombreEnfants}</TableCell>
-                      <TableCell>
-                        <span className="text-success">{rapport.paiementsComplets}</span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-warning">{rapport.paiementsAttente}</span>
-                      </TableCell>
-                      <TableCell>{rapport.tauxRecouvrement}%</TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleDetailsClick(rapport)}
-                        >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Détails
-                        </Button>
+                  {rapportsFiltres.length > 0 ? (
+                    rapportsFiltres.map((rapport) => (
+                      <TableRow key={rapport.mois}>
+                        <TableCell>
+                          {new Date(rapport.mois).toLocaleDateString("fr-FR", {
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </TableCell>
+                        <TableCell>{rapport.totalPaiements} DH</TableCell>
+                        <TableCell>{rapport.nombreEnfants}</TableCell>
+                        <TableCell>
+                          <span className="text-success">{rapport.paiementsComplets}</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-warning">{rapport.paiementsAttente}</span>
+                        </TableCell>
+                        <TableCell>{rapport.tauxRecouvrement}%</TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDetailsClick(rapport)}
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            Détails
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-4 text-gray-500">
+                        Aucun rapport trouvé pour cette période
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </div>
