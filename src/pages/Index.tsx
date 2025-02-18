@@ -29,8 +29,8 @@ const Index = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full animate-fadeIn">
-        <AppSidebar className="print:hidden" />
-        <main className="flex-1 p-8">
+        <AppSidebar />
+        <main className="flex-1 p-8 print:p-4">
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-semibold">Tableau de bord</h1>
