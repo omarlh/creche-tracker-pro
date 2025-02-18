@@ -1,5 +1,7 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -8,6 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { BadgeCheck, Plus, UserX } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -55,6 +63,19 @@ const enfants: Enfant[] = [
 ];
 
 const Enfants = () => {
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [selectedEnfant, setSelectedEnfant] = useState<Enfant | null>(null);
+
+  const handleAddClick = () => {
+    setSelectedEnfant(null);
+    setIsSheetOpen(true);
+  };
+
+  const handleEditClick = (enfant: Enfant) => {
+    setSelectedEnfant(enfant);
+    setIsSheetOpen(true);
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full animate-fadeIn">
@@ -63,7 +84,7 @@ const Enfants = () => {
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-semibold">Gestion des Enfants</h1>
-              <Button>
+              <Button onClick={handleAddClick}>
                 <Plus className="w-5 h-5 mr-2" />
                 Ajouter un enfant
               </Button>
@@ -120,7 +141,11 @@ const Enfants = () => {
                         )}
                       </TableCell>
                       <TableCell className="text-right space-x-2">
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditClick(enfant)}
+                        >
                           Modifier
                         </Button>
                         <Button variant="ghost" size="sm">
@@ -134,6 +159,84 @@ const Enfants = () => {
             </div>
           </div>
         </main>
+
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetContent className="w-full sm:max-w-xl">
+            <SheetHeader>
+              <SheetTitle>
+                {selectedEnfant ? "Modifier un enfant" : "Ajouter un enfant"}
+              </SheetTitle>
+            </SheetHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="nom" className="text-sm font-medium">
+                    Nom
+                  </label>
+                  <Input
+                    id="nom"
+                    defaultValue={selectedEnfant?.nom}
+                    placeholder="Nom de l'enfant"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="prenom" className="text-sm font-medium">
+                    Prénom
+                  </label>
+                  <Input
+                    id="prenom"
+                    defaultValue={selectedEnfant?.prenom}
+                    placeholder="Prénom de l'enfant"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="dateNaissance" className="text-sm font-medium">
+                  Date de naissance
+                </label>
+                <Input
+                  id="dateNaissance"
+                  type="date"
+                  defaultValue={selectedEnfant?.dateNaissance}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="fraisInscription"
+                  className="rounded border-gray-300"
+                  defaultChecked={selectedEnfant?.fraisInscription}
+                />
+                <label htmlFor="fraisInscription" className="text-sm font-medium">
+                  Frais d'inscription payés
+                </label>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="statut" className="text-sm font-medium">
+                  Statut
+                </label>
+                <select
+                  id="statut"
+                  defaultValue={selectedEnfant?.statut}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                >
+                  <option value="actif">Actif</option>
+                  <option value="inactif">Inactif</option>
+                </select>
+              </div>
+
+              <div className="pt-4 space-x-2 flex justify-end">
+                <Button variant="outline" onClick={() => setIsSheetOpen(false)}>
+                  Annuler
+                </Button>
+                <Button>Enregistrer</Button>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </SidebarProvider>
   );
