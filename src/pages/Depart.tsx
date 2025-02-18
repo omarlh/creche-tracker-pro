@@ -4,26 +4,27 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useEnfantStore } from "@/data/enfants";
 import { EnfantTableau } from "@/components/enfants/EnfantTableau";
+import { useMemo } from "react";
 
 export default function Depart() {
-  const enfants = useEnfantStore((state) => state.enfants.filter(e => e.statut === "inactif"));
+  const enfants = useEnfantStore((state) => 
+    state.enfants.filter(e => e.statut === "inactif")
+  );
 
-  // Fonction nécessaire pour le composant EnfantTableau
-  const calculerMontantRestant = (enfant) => {
+  // Mémorisation de la fonction calculerMontantRestant pour éviter des re-renders inutiles
+  const calculerMontantRestant = useMemo(() => (enfant) => {
     if (!enfant.fraisInscription) return 0;
     return enfant.fraisInscription.montantTotal - enfant.fraisInscription.montantPaye;
-  };
+  }, []);
 
-  // Fonctions nécessaires pour le composant EnfantTableau
-  const handleEdit = (enfant) => {
-    // Fonctionnalité à implémenter plus tard si nécessaire
+  // Fonctions mémorisées pour éviter des re-renders inutiles
+  const handleEdit = useMemo(() => (enfant) => {
     console.log("Éditer", enfant);
-  };
+  }, []);
 
-  const handleView = (enfant) => {
-    // Fonctionnalité à implémenter plus tard si nécessaire
+  const handleView = useMemo(() => (enfant) => {
     console.log("Voir", enfant);
-  };
+  }, []);
 
   return (
     <SidebarProvider>
