@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useEnfantStore } from "@/data/enfants";
 import { EnfantTableau } from "@/components/enfants/EnfantTableau";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 
 export default function Depart() {
   // Création d'un sélecteur stable
@@ -15,18 +15,17 @@ export default function Depart() {
   
   const enfants = useEnfantStore(selectInactifEnfants);
 
-  // Mémorisation de la fonction calculerMontantRestant pour éviter des re-renders inutiles
-  const calculerMontantRestant = useMemo(() => (enfant) => {
+  // Utilisation de useCallback pour toutes les fonctions
+  const calculerMontantRestant = useCallback((enfant) => {
     if (!enfant.fraisInscription) return 0;
     return enfant.fraisInscription.montantTotal - enfant.fraisInscription.montantPaye;
   }, []);
 
-  // Fonctions mémorisées pour éviter des re-renders inutiles
-  const handleEdit = useMemo(() => (enfant) => {
+  const handleEdit = useCallback((enfant) => {
     console.log("Éditer", enfant);
   }, []);
 
-  const handleView = useMemo(() => (enfant) => {
+  const handleView = useCallback((enfant) => {
     console.log("Voir", enfant);
   }, []);
 
