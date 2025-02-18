@@ -75,18 +75,32 @@ export const PaymentForm = ({
 
       {(showPaiementForm || !selectedEnfant) && (
         <div className="space-y-4 border-t pt-4">
-          <div className="space-y-2">
-            <label htmlFor="montantPaiement" className="text-sm font-medium">
-              Montant payé des Frais d'inscription & Assurances & Fournitures
-            </label>
-            <Input
-              id="montantPaiement"
-              name="montantPaiement"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Montant à payer maintenant"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="montantPaiement" className="text-sm font-medium">
+                Montant payé des Frais d'inscription & Assurances & Fournitures
+              </label>
+              <Input
+                id="montantPaiement"
+                name="montantPaiement"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Montant à payer maintenant"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="datePaiement" className="text-sm font-medium">
+                Date de paiement
+              </label>
+              <Input
+                id="datePaiement"
+                name="datePaiement"
+                type="date"
+                defaultValue={new Date().toISOString().split('T')[0]}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -120,4 +134,3 @@ export const PaymentForm = ({
     </div>
   );
 };
-
