@@ -179,10 +179,9 @@ const Rapports = () => {
                       onSelect={handleMoisSelection}
                       initialFocus
                       locale={fr}
-                      ISOWeek
                       disabled={{ after: new Date() }}
-                      showOutsideDays={false}
                       captionLayout="dropdown-buttons"
+                      displayMode="monthsOnly"
                       fromYear={2020}
                       toYear={new Date().getFullYear()}
                     />
