@@ -45,6 +45,7 @@ function Calendar({
           IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
         }}
         captionLayout="dropdown-buttons"
+        defaultMonth={props.selected || undefined}
         {...props}
       />
     );
@@ -89,8 +90,8 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
+        IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 h-4" />,
+        IconRight: ({ ..._props }) => <ChevronRight className="h-4 h-4" />,
       }}
       {...props}
     />
