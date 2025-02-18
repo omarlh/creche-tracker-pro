@@ -19,6 +19,7 @@ import {
 import { BadgeCheck, Plus, UserX } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { useToast } from "@/components/ui/use-toast";
 
 // Types pour la gestion des enfants
 type Enfant = {
@@ -32,7 +33,7 @@ type Enfant = {
 };
 
 // Données de test
-const enfants: Enfant[] = [
+const enfantsInitiaux: Enfant[] = [
   {
     id: 1,
     nom: "Dubois",
@@ -65,6 +66,8 @@ const enfants: Enfant[] = [
 const Enfants = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedEnfant, setSelectedEnfant] = useState<Enfant | null>(null);
+  const [enfants, setEnfants] = useState<Enfant[]>(enfantsInitiaux);
+  const { toast } = useToast();
 
   const handleAddClick = () => {
     setSelectedEnfant(null);
@@ -74,6 +77,39 @@ const Enfants = () => {
   const handleEditClick = (enfant: Enfant) => {
     setSelectedEnfant(enfant);
     setIsSheetOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    const nouvelEnfant: Enfant = {
+      id: selectedEnfant?.id || enfants.length + 1,
+      nom: formData.get("nom") as string,
+      prenom: formData.get("prenom") as string,
+      dateNaissance: formData.get("dateNaissance") as string,
+      fraisInscription: formData.get("fraisInscription") === "on",
+      statut: (formData.get("statut") as "actif" | "inactif") || "actif",
+      dernierPaiement: new Date().toISOString().split('T')[0],
+    };
+
+    if (selectedEnfant) {
+      // Modification d'un enfant existant
+      setEnfants(enfants.map(e => e.id === selectedEnfant.id ? nouvelEnfant : e));
+      toast({
+        title: "Modification réussie",
+        description: `Les informations de ${nouvelEnfant.prenom} ont été mises à jour.`,
+      });
+    } else {
+      // Ajout d'un nouvel enfant
+      setEnfants([...enfants, nouvelEnfant]);
+      toast({
+        title: "Ajout réussi",
+        description: `${nouvelEnfant.prenom} a été ajouté(e) à la liste.`,
+      });
+    }
+
+    setIsSheetOpen(false);
   };
 
   return (
@@ -167,7 +203,7 @@ const Enfants = () => {
                 {selectedEnfant ? "Modifier un enfant" : "Ajouter un enfant"}
               </SheetTitle>
             </SheetHeader>
-            <div className="grid gap-4 py-4">
+            <form onSubmit={handleSubmit} className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="nom" className="text-sm font-medium">
@@ -175,8 +211,10 @@ const Enfants = () => {
                   </label>
                   <Input
                     id="nom"
+                    name="nom"
                     defaultValue={selectedEnfant?.nom}
                     placeholder="Nom de l'enfant"
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -185,8 +223,10 @@ const Enfants = () => {
                   </label>
                   <Input
                     id="prenom"
+                    name="prenom"
                     defaultValue={selectedEnfant?.prenom}
                     placeholder="Prénom de l'enfant"
+                    required
                   />
                 </div>
               </div>
@@ -197,8 +237,10 @@ const Enfants = () => {
                 </label>
                 <Input
                   id="dateNaissance"
+                  name="dateNaissance"
                   type="date"
                   defaultValue={selectedEnfant?.dateNaissance}
+                  required
                 />
               </div>
 
@@ -206,6 +248,7 @@ const Enfants = () => {
                 <input
                   type="checkbox"
                   id="fraisInscription"
+                  name="fraisInscription"
                   className="rounded border-gray-300"
                   defaultChecked={selectedEnfant?.fraisInscription}
                 />
@@ -220,8 +263,10 @@ const Enfants = () => {
                 </label>
                 <select
                   id="statut"
+                  name="statut"
                   defaultValue={selectedEnfant?.statut}
                   className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  required
                 >
                   <option value="actif">Actif</option>
                   <option value="inactif">Inactif</option>
@@ -229,12 +274,12 @@ const Enfants = () => {
               </div>
 
               <div className="pt-4 space-x-2 flex justify-end">
-                <Button variant="outline" onClick={() => setIsSheetOpen(false)}>
+                <Button variant="outline" type="button" onClick={() => setIsSheetOpen(false)}>
                   Annuler
                 </Button>
-                <Button>Enregistrer</Button>
+                <Button type="submit">Enregistrer</Button>
               </div>
-            </div>
+            </form>
           </SheetContent>
         </Sheet>
       </div>
