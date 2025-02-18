@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,7 +6,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Plus, LogOut, Search, X } from "lucide-react";
+import { Plus, LogOut, Search, X, Printer } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/components/ui/use-toast";
@@ -134,6 +133,122 @@ const Enfants = () => {
     setShowPaiementForm(false);
   };
 
+  const handlePrint = (enfant: Enfant) => {
+    const printContent = `
+      <html>
+        <head>
+          <title>Détails de l'enfant - ${enfant.prenom} ${enfant.nom}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #333; font-size: 24px; margin-bottom: 20px; }
+            .section { margin-bottom: 20px; }
+            .section-title { color: #666; font-size: 18px; margin-bottom: 10px; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+            .label { color: #666; font-size: 14px; }
+            .value { font-size: 16px; margin-top: 4px; }
+            .status { 
+              display: inline-block;
+              padding: 4px 8px;
+              border-radius: 12px;
+              font-size: 12px;
+              font-weight: 500;
+              background-color: ${enfant.statut === 'actif' ? '#dcfce7' : '#f3f4f6'};
+              color: ${enfant.statut === 'actif' ? '#166534' : '#4b5563'};
+            }
+            .paiement { 
+              padding: 8px;
+              margin-bottom: 8px;
+              background-color: #f9fafb;
+              border-radius: 4px;
+            }
+            @media print {
+              body { -webkit-print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Fiche de l'élève - ${enfant.prenom} ${enfant.nom}</h1>
+          
+          <div class="grid">
+            <div class="section">
+              <div class="section-title">Informations personnelles</div>
+              <div>
+                <div class="label">Nom complet</div>
+                <div class="value">${enfant.prenom} ${enfant.nom}</div>
+              </div>
+              <div>
+                <div class="label">Date de naissance</div>
+                <div class="value">${new Date(enfant.dateNaissance || "").toLocaleDateString("fr-FR")}</div>
+              </div>
+              <div>
+                <div class="label">Classe</div>
+                <div class="value">${enfant.classe}</div>
+              </div>
+              <div>
+                <div class="label">Année scolaire</div>
+                <div class="value">${enfant.anneeScolaire || "-"}</div>
+              </div>
+              <div>
+                <div class="label">Statut</div>
+                <div class="value">
+                  <span class="status">${enfant.statut === "actif" ? "Actif" : "Inactif"}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">Contact et paiements</div>
+              <div>
+                <div class="label">GSM Maman</div>
+                <div class="value">${enfant.gsmMaman || "-"}</div>
+              </div>
+              <div>
+                <div class="label">GSM Papa</div>
+                <div class="value">${enfant.gsmPapa || "-"}</div>
+              </div>
+              <div>
+                <div class="label">Frais d'inscription</div>
+                <div class="value">${enfant.fraisInscription?.montantPaye || 0} DH / ${enfant.fraisInscription?.montantTotal || 0} DH</div>
+              </div>
+              <div>
+                <div class="label">Reste à payer</div>
+                <div class="value">${calculerMontantRestant(enfant)} DH</div>
+              </div>
+              <div>
+                <div class="label">Dernier paiement</div>
+                <div class="value">${enfant.dernierPaiement ? new Date(enfant.dernierPaiement).toLocaleDateString("fr-FR") : "-"}</div>
+              </div>
+            </div>
+          </div>
+
+          ${enfant.fraisInscription?.paiements && enfant.fraisInscription.paiements.length > 0 ? `
+            <div class="section">
+              <div class="section-title">Historique des paiements</div>
+              ${enfant.fraisInscription.paiements.map(paiement => `
+                <div class="paiement">
+                  <strong>${paiement.montant} DH</strong>
+                  <span style="color: #666"> - ${new Date(paiement.datePaiement).toLocaleDateString("fr-FR")}</span>
+                  <span style="float: right; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 12px;">
+                    ${paiement.methodePaiement}
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '', 'height=600,width=800');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full animate-fadeIn">
@@ -179,10 +294,22 @@ const Enfants = () => {
             {searchedEnfant && (
               <Card className="mb-6">
                 <CardHeader>
-                  <CardTitle>Détails de l'enfant</CardTitle>
-                  <CardDescription>
-                    Informations complètes de {searchedEnfant.prenom} {searchedEnfant.nom}
-                  </CardDescription>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle>Détails de l'enfant</CardTitle>
+                      <CardDescription>
+                        Informations complètes de {searchedEnfant.prenom} {searchedEnfant.nom}
+                      </CardDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePrint(searchedEnfant)}
+                    >
+                      <Printer className="w-4 h-4 mr-2" />
+                      Imprimer
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="grid gap-6">
                   <div className="grid md:grid-cols-2 gap-4">
