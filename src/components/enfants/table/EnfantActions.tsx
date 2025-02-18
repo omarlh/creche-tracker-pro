@@ -21,9 +21,10 @@ interface EnfantActionsProps {
   enfant: Enfant;
   onEdit: (enfant: Enfant) => void;
   onPrint: (enfant: Enfant) => void;
+  onDelete: (id: number) => void;
 }
 
-export const EnfantActions = ({ enfant, onEdit, onPrint }: EnfantActionsProps) => {
+export const EnfantActions = ({ enfant, onEdit, onPrint, onDelete }: EnfantActionsProps) => {
   const [password, setPassword] = useState("");
   const [isPasswordError, setIsPasswordError] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -33,6 +34,7 @@ export const EnfantActions = ({ enfant, onEdit, onPrint }: EnfantActionsProps) =
     if (password === "radia") {
       console.log("Tentative de suppression de l'enfant:", enfant);
       supprimerEnfant(enfant.id);
+      onDelete(enfant.id);
       setIsDialogOpen(false);
       toast({
         title: "Suppression réussie",

@@ -10,6 +10,7 @@ import { EnfantTableHeader } from "./table/EnfantTableHeader";
 import { EnfantStatut } from "./table/EnfantStatut";
 import { EnfantActions } from "./table/EnfantActions";
 import { EnfantFrais } from "./table/EnfantFrais";
+import { useState, useEffect } from "react";
 
 interface EnfantTableauProps {
   enfants: Enfant[];
@@ -19,6 +20,12 @@ interface EnfantTableauProps {
 }
 
 export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant }: EnfantTableauProps) => {
+  const [enfantsLocaux, setEnfantsLocaux] = useState<Enfant[]>(enfants);
+
+  useEffect(() => {
+    setEnfantsLocaux(enfants);
+  }, [enfants]);
+
   const handlePrint = (enfant: Enfant) => {
     const printContent = `
       <html>
@@ -97,12 +104,17 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
     }
   };
 
+  const handleDelete = (enfantId: number) => {
+    console.log("Enfant supprimé, mise à jour de la liste locale");
+    setEnfantsLocaux(enfantsLocaux.filter(e => e.id !== enfantId));
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100">
       <Table>
         <EnfantTableHeader />
         <TableBody>
-          {enfants.map((enfant) => (
+          {enfantsLocaux.map((enfant) => (
             <TableRow key={enfant.id}>
               <TableCell className="font-medium">{enfant.nom}</TableCell>
               <TableCell>{enfant.prenom}</TableCell>
@@ -127,6 +139,7 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
                   enfant={enfant}
                   onEdit={onEdit}
                   onPrint={handlePrint}
+                  onDelete={handleDelete}
                 />
               </TableCell>
             </TableRow>
