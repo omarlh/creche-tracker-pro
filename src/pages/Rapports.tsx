@@ -76,6 +76,8 @@ const rapportsMensuels: RapportMensuel[] = [
 
 const Rapports = () => {
   const [moisSelectionne, setMoisSelectionne] = useState<Date | undefined>(undefined);
+  const [moisTemporaire, setMoisTemporaire] = useState<Date | undefined>(undefined);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const { enfants } = useEnfantStore();
@@ -91,10 +93,21 @@ const Rapports = () => {
 
   const handleMoisSelection = (date: Date | undefined) => {
     if (date) {
-      setMoisSelectionne(startOfMonth(date));
+      setMoisTemporaire(startOfMonth(date));
     } else {
-      setMoisSelectionne(undefined);
+      setMoisTemporaire(undefined);
     }
+  };
+
+  const handleValiderMois = () => {
+    setMoisSelectionne(moisTemporaire);
+    setIsPopoverOpen(false);
+  };
+
+  const handleResetFiltre = () => {
+    setMoisSelectionne(undefined);
+    setMoisTemporaire(undefined);
+    setIsPopoverOpen(false);
   };
 
   const handleExportRapport = () => {
@@ -144,10 +157,6 @@ const Rapports = () => {
     setIsSheetOpen(true);
   };
 
-  const handleResetFiltre = () => {
-    setMoisSelectionne(undefined);
-  };
-
   const getEnfantById = (id: number): Enfant | undefined => {
     return enfants.find(enfant => enfant.id === id);
   };
@@ -161,7 +170,7 @@ const Rapports = () => {
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
               <div className="flex gap-2">
-                <Popover>
+                <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                   <PopoverTrigger asChild>
                     <Button variant="outline">
                       <Filter className="w-4 h-4 mr-2" />
@@ -173,30 +182,38 @@ const Rapports = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="end">
-                    <Calendar
-                      mode="single"
-                      selected={moisSelectionne}
-                      onSelect={handleMoisSelection}
-                      initialFocus
-                      locale={fr}
-                      disabled={{ after: new Date() }}
-                      captionLayout="dropdown-buttons"
-                      displayMode="monthsOnly"
-                      fromYear={2020}
-                      toYear={new Date().getFullYear()}
-                    />
-                    {moisSelectionne && (
-                      <div className="p-2 border-t">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={handleResetFiltre}
-                          className="w-full"
-                        >
-                          Réinitialiser le filtre
-                        </Button>
-                      </div>
-                    )}
+                    <div className="p-3">
+                      <Calendar
+                        mode="single"
+                        selected={moisTemporaire}
+                        onSelect={handleMoisSelection}
+                        initialFocus
+                        locale={fr}
+                        disabled={{ after: new Date() }}
+                        captionLayout="dropdown-buttons"
+                        displayMode="monthsOnly"
+                        fromYear={2020}
+                        toYear={new Date().getFullYear()}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 border-t">
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={handleResetFiltre}
+                      >
+                        Réinitialiser
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={handleValiderMois}
+                        disabled={!moisTemporaire}
+                      >
+                        OK
+                      </Button>
+                    </div>
                   </PopoverContent>
                 </Popover>
                 <Button onClick={handleExportRapport}>
