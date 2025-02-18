@@ -91,22 +91,28 @@ const Rapports = () => {
     : rapportsMensuels;
 
   const handleMoisSelection = (date: Date | undefined) => {
-    if (date) {
-      setMoisTemporaire(startOfMonth(date));
-    } else {
-      setMoisTemporaire(undefined);
-    }
+    setMoisTemporaire(date ? startOfMonth(date) : undefined);
   };
 
   const handleValiderMois = () => {
-    setMoisSelectionne(moisTemporaire);
-    setIsPopoverOpen(false);
+    if (moisTemporaire) {
+      setMoisSelectionne(moisTemporaire);
+      setIsPopoverOpen(false);
+      toast({
+        title: "Filtre appliqué",
+        description: `Les rapports sont maintenant filtrés pour ${format(moisTemporaire, 'MMMM yyyy', { locale: fr })}`,
+      });
+    }
   };
 
   const handleResetFiltre = () => {
     setMoisSelectionne(undefined);
     setMoisTemporaire(undefined);
     setIsPopoverOpen(false);
+    toast({
+      title: "Filtre réinitialisé",
+      description: "Tous les rapports sont maintenant affichés",
+    });
   };
 
   const handleExportRapport = () => {
