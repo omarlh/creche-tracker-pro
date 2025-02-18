@@ -7,15 +7,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Plus } from "lucide-react";
+import { Plus, LogOut } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/components/ui/use-toast";
 import { useEnfantStore, type Enfant, type PaiementFraisInscription } from "@/data/enfants";
 import { EnfantTableau } from "@/components/enfants/EnfantTableau";
 import { EnfantFormulaire } from "@/components/enfants/EnfantFormulaire";
+import { useNavigate } from "react-router-dom";
 
 const Enfants = () => {
+  const navigate = useNavigate();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedEnfant, setSelectedEnfant] = useState<Enfant | null>(null);
   const { enfants, ajouterEnfant, modifierEnfant } = useEnfantStore();
@@ -112,7 +114,14 @@ const Enfants = () => {
           <div className="max-w-6xl mx-auto">
             <div className="space-y-2 mb-6">
               <h1 className="text-3xl font-semibold tracking-tight">Inscription d'un Enfant</h1>
-              <h2 className="text-xl text-muted-foreground tracking-tight">Départ d'un Enfant</h2>
+              <Button 
+                variant="link" 
+                className="text-xl text-muted-foreground tracking-tight p-0 h-auto font-normal hover:no-underline"
+                onClick={() => navigate('/depart')}
+              >
+                <LogOut className="w-4 h-4 mr-2 inline" />
+                Départ d'un Enfant
+              </Button>
             </div>
             <div className="flex justify-end mb-6">
               <Button onClick={handleAddClick}>
