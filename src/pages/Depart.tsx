@@ -4,12 +4,16 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useEnfantStore } from "@/data/enfants";
 import { EnfantTableau } from "@/components/enfants/EnfantTableau";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 export default function Depart() {
-  const enfants = useEnfantStore((state) => 
-    state.enfants.filter(e => e.statut === "inactif")
+  // Création d'un sélecteur stable
+  const selectInactifEnfants = useCallback(
+    (state) => state.enfants.filter(e => e.statut === "inactif"),
+    []
   );
+  
+  const enfants = useEnfantStore(selectInactifEnfants);
 
   // Mémorisation de la fonction calculerMontantRestant pour éviter des re-renders inutiles
   const calculerMontantRestant = useMemo(() => (enfant) => {
