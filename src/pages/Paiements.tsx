@@ -65,8 +65,13 @@ const Paiements = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [paiements, setPaiements] = useState<Paiement[]>(paiementsInitiaux);
   const [selectedPaiement, setSelectedPaiement] = useState<Paiement | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
+
+  const filteredEnfants = enfants.filter(enfant => 
+    `${enfant.prenom} ${enfant.nom}`.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleAddClick = () => {
     setSelectedPaiement(null);
@@ -205,22 +210,42 @@ const Paiements = () => {
             </SheetHeader>
             <form onSubmit={handleSubmit} className="grid gap-4 py-4">
               <div className="space-y-2">
-                <label htmlFor="enfantId" className="text-sm font-medium">
+                <label className="text-sm font-medium">
                   Enfant
                 </label>
-                <select
-                  id="enfantId"
-                  name="enfantId"
-                  defaultValue={selectedPaiement?.enfantId}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
-                  required
-                >
-                  {enfants.map((enfant) => (
-                    <option key={enfant.id} value={enfant.id}>
-                      {enfant.prenom} {enfant.nom}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <Input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Rechercher un enfant..."
+                    className="w-full"
+                  />
+                  {searchTerm && (
+                    <div className="absolute w-full bg-white border rounded-md mt-1 shadow-lg max-h-48 overflow-auto z-50">
+                      {filteredEnfants.length > 0 ? (
+                        filteredEnfants.map((enfant) => (
+                          <div
+                            key={enfant.id}
+                            className="p-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => {
+                              setSearchTerm(`${enfant.prenom} ${enfant.nom}`);
+                              const hiddenInput = document.createElement('input');
+                              hiddenInput.type = 'hidden';
+                              hiddenInput.name = 'enfantId';
+                              hiddenInput.value = enfant.id.toString();
+                              e.currentTarget.form?.appendChild(hiddenInput);
+                            }}
+                          >
+                            {enfant.prenom} {enfant.nom} - {enfant.classe}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-2 text-gray-500">Aucun résultat</div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">
