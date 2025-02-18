@@ -83,12 +83,22 @@ const rapportsMensuels: RapportMensuel[] = [
   },
 ];
 
-const anneesDisponibles = ["2023-2024", "2024-2025", "2025-2026"];
+const anneesDisponibles = [
+  "2024/2025",
+  "2025/2026",
+  "2026/2027",
+  "2027/2028",
+  "2028/2029",
+  "2029/2030",
+  "2030/2031",
+  "2031/2032",
+  "2032/2033"
+];
 
 const Rapports = () => {
   const [moisSelectionne, setMoisSelectionne] = useState<string>("all");
-  const [anneeSelectionnee, setAnneeSelectionnee] = useState<string>("all");
-  const [anneeScolaireSelectionnee, setAnneeScolaireSelectionnee] = useState<string>("2023-2024");
+  const [anneeScolaireSelectionnee, setAnneeScolaireSelectionnee] = useState<string>("all");
+  const [anneeScolaire, setAnneeScolaire] = useState<string>("2024/2025");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const { enfants } = useEnfantStore();
@@ -204,16 +214,16 @@ const Rapports = () => {
                     <div className="flex items-center gap-2">
                       <Select 
                         defaultValue="all"
-                        onValueChange={setAnneeSelectionnee}
+                        onValueChange={setAnneeScolaireSelectionnee}
                       >
-                        <SelectTrigger className="w-[120px] bg-white">
-                          <SelectValue placeholder="Année" />
+                        <SelectTrigger className="w-[180px] bg-white">
+                          <SelectValue placeholder="Année scolaire" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Sélectionner une année</SelectLabel>
+                            <SelectLabel>Sélectionner une année scolaire</SelectLabel>
                             <SelectItem value="all">Toutes les années</SelectItem>
-                            {annees.map(annee => (
+                            {anneesDisponibles.map(annee => (
                               <SelectItem key={annee} value={annee}>
                                 {annee}
                               </SelectItem>
@@ -335,8 +345,8 @@ const Rapports = () => {
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-semibold">Inscriptions par Année Scolaire</h2>
                   <Select
-                    value={anneeScolaireSelectionnee}
-                    onValueChange={setAnneeScolaireSelectionnee}
+                    value={anneeScolaire}
+                    onValueChange={setAnneeScolaire}
                   >
                     <SelectTrigger className="w-[180px] bg-gray-100">
                       <SelectValue placeholder="Année scolaire" />
@@ -363,7 +373,7 @@ const Rapports = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
-                        {getStatistiquesAnnee(anneeScolaireSelectionnee).total}
+                        {getStatistiquesAnnee(anneeScolaire).total}
                       </div>
                     </CardContent>
                   </Card>
@@ -376,7 +386,7 @@ const Rapports = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-green-600">
-                        {getStatistiquesAnnee(anneeScolaireSelectionnee).actifs}
+                        {getStatistiquesAnnee(anneeScolaire).actifs}
                       </div>
                     </CardContent>
                   </Card>
@@ -389,7 +399,7 @@ const Rapports = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-gray-500">
-                        {getStatistiquesAnnee(anneeScolaireSelectionnee).inactifs}
+                        {getStatistiquesAnnee(anneeScolaire).inactifs}
                       </div>
                     </CardContent>
                   </Card>
@@ -402,9 +412,9 @@ const Rapports = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
-                        {getStatistiquesAnnee(anneeScolaireSelectionnee).total > 0 
-                          ? Math.round((getStatistiquesAnnee(anneeScolaireSelectionnee).actifs / 
-                              getStatistiquesAnnee(anneeScolaireSelectionnee).total) * 100)
+                        {getStatistiquesAnnee(anneeScolaire).total > 0 
+                          ? Math.round((getStatistiquesAnnee(anneeScolaire).actifs / 
+                              getStatistiquesAnnee(anneeScolaire).total) * 100)
                           : 0}%
                       </div>
                     </CardContent>
@@ -425,7 +435,7 @@ const Rapports = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {enfantsParAnneeScolaire[anneeScolaireSelectionnee]?.map((enfant) => (
+                      {enfantsParAnneeScolaire[anneeScolaire]?.map((enfant) => (
                         <TableRow key={enfant.id}>
                           <TableCell>{enfant.nom}</TableCell>
                           <TableCell>{enfant.prenom}</TableCell>
