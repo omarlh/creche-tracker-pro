@@ -3,25 +3,13 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Wallet, Printer, Trash2 } from "lucide-react";
-import { type Enfant, useEnfantStore } from "@/data/enfants";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { toast } from "@/components/ui/use-toast";
+import { type Enfant } from "@/data/enfants";
+import { EnfantTableHeader } from "./table/EnfantTableHeader";
+import { EnfantStatut } from "./table/EnfantStatut";
+import { EnfantActions } from "./table/EnfantActions";
+import { EnfantFrais } from "./table/EnfantFrais";
 
 interface EnfantTableauProps {
   enfants: Enfant[];
@@ -109,30 +97,10 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
     }
   };
 
-  const handleDelete = (enfant: Enfant) => {
-    const { supprimerEnfant } = useEnfantStore.getState();
-    supprimerEnfant(enfant.id);
-    toast({
-      title: "Suppression réussie",
-      description: `${enfant.prenom} ${enfant.nom} a été supprimé(e) de la liste.`,
-    });
-  };
-
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100">
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nom</TableHead>
-            <TableHead>Prénom</TableHead>
-            <TableHead>Classe</TableHead>
-            <TableHead>Date d'inscription</TableHead>
-            <TableHead>Frais d'inscription</TableHead>
-            <TableHead>Statut</TableHead>
-            <TableHead>Dernier paiement</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
+        <EnfantTableHeader />
         <TableBody>
           {enfants.map((enfant) => (
             <TableRow key={enfant.id}>
@@ -143,76 +111,23 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
                 {new Date(enfant.dateInscription || "").toLocaleDateString("fr-FR")}
               </TableCell>
               <TableCell>
-                <div className="flex flex-col gap-1">
-                  <span className={`inline-flex items-center ${
-                    enfant.fraisInscription?.montantPaye === enfant.fraisInscription?.montantTotal
-                      ? "text-success"
-                      : "text-warning"
-                  }`}>
-                    <Wallet className="w-4 h-4 mr-1" />
-                    {enfant.fraisInscription?.montantPaye || 0} DH / {enfant.fraisInscription?.montantTotal || 0} DH
-                  </span>
-                  {calculerMontantRestant(enfant) > 0 && (
-                    <span className="text-xs text-muted-foreground">
-                      Reste à payer : {calculerMontantRestant(enfant)} DH
-                    </span>
-                  )}
-                </div>
+                <EnfantFrais 
+                  enfant={enfant}
+                  calculerMontantRestant={calculerMontantRestant}
+                />
               </TableCell>
               <TableCell>
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    enfant.statut === "actif"
-                      ? "bg-success/10 text-success"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {enfant.statut === "actif" ? "Actif" : "Inactif"}
-                </span>
+                <EnfantStatut statut={enfant.statut} />
               </TableCell>
               <TableCell>
                 {new Date(enfant.dernierPaiement || "").toLocaleDateString("fr-FR")}
               </TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onEdit(enfant)}
-                >
-                  Modifier
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePrint(enfant)}
-                >
-                  <Printer className="w-4 h-4 mr-1" />
-                  Imprimer
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cet enfant ?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Cette action est irréversible. Toutes les informations concernant {enfant.prenom} {enfant.nom} seront définitivement supprimées.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Annuler</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(enfant)}>
-                        Supprimer
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+              <TableCell>
+                <EnfantActions
+                  enfant={enfant}
+                  onEdit={onEdit}
+                  onPrint={handlePrint}
+                />
               </TableCell>
             </TableRow>
           ))}
