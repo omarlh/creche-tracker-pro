@@ -15,11 +15,22 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
-import { BadgeCheck, CreditCard, Keyboard, Plus, Receipt } from "lucide-react";
+import { BadgeCheck, CreditCard, Keyboard, Plus, Receipt, Trash2 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useEnfantStore } from "@/data/enfants";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -88,6 +99,9 @@ const Paiements = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [anneeScolaire, setAnneeScolaire] = useState("2023-2024");
+  const [deletePassword, setDeletePassword] = useState("");
+  const [isPasswordError, setIsPasswordError] = useState(false);
+  const [paiementToDelete, setPaiementToDelete] = useState<Paiement | null>(null);
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
@@ -153,6 +167,26 @@ const Paiements = () => {
     }
 
     setIsSheetOpen(false);
+  };
+
+  const handleDelete = () => {
+    if (deletePassword === "radia" && paiementToDelete) {
+      setPaiements(paiements.filter(p => p.id !== paiementToDelete.id));
+      toast({
+        title: "Suppression réussie",
+        description: "Le paiement a été supprimé avec succès.",
+      });
+      setDeletePassword("");
+      setIsPasswordError(false);
+      setPaiementToDelete(null);
+    } else {
+      setIsPasswordError(true);
+      toast({
+        title: "Erreur de suppression",
+        description: "Le mot de passe est incorrect.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -243,7 +277,7 @@ const Paiements = () => {
                             )}
                           </span>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right space-x-2">
                           <Button
                             variant="outline"
                             size="sm"
@@ -254,6 +288,57 @@ const Paiements = () => {
                           >
                             Modifier
                           </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => setPaiementToDelete(paiement)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce paiement ?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Cette action est irréversible. Le paiement sera définitivement supprimé.
+                                  <div className="mt-4">
+                                    <label className="block text-sm font-medium mb-2">
+                                      Veuillez entrer le mot de passe pour confirmer la suppression
+                                    </label>
+                                    <Input
+                                      type="password"
+                                      value={deletePassword}
+                                      onChange={(e) => {
+                                        setDeletePassword(e.target.value);
+                                        setIsPasswordError(false);
+                                      }}
+                                      className={isPasswordError ? "border-destructive" : ""}
+                                      placeholder="Entrez le mot de passe"
+                                    />
+                                    {isPasswordError && (
+                                      <p className="text-sm text-destructive mt-1">
+                                        Mot de passe incorrect
+                                      </p>
+                                    )}
+                                  </div>
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => {
+                                  setDeletePassword("");
+                                  setIsPasswordError(false);
+                                  setPaiementToDelete(null);
+                                }}>
+                                  Annuler
+                                </AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDelete}>
+                                  Supprimer
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </TableCell>
                       </TableRow>
                     );
