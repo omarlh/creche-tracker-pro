@@ -38,46 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-type Paiement = {
-  id: number;
-  enfantId: number;
-  montant: number;
-  datePaiement: string;
-  moisConcerne: string;
-  methodePaiement: "carte" | "especes" | "cheque";
-  statut: "complete" | "en_attente";
-};
-
-const paiementsInitiaux: Paiement[] = [
-  {
-    id: 1,
-    enfantId: 1,
-    montant: 150,
-    datePaiement: "2024-02-15",
-    moisConcerne: "2024-02",
-    methodePaiement: "carte",
-    statut: "complete",
-  },
-  {
-    id: 2,
-    enfantId: 2,
-    montant: 150,
-    datePaiement: "2024-02-10",
-    moisConcerne: "2024-02",
-    methodePaiement: "cheque",
-    statut: "complete",
-  },
-  {
-    id: 3,
-    enfantId: 3,
-    montant: 150,
-    datePaiement: "2024-02-01",
-    moisConcerne: "2024-02",
-    methodePaiement: "especes",
-    statut: "en_attente",
-  },
-];
+import { usePaiementStore, type Paiement } from "@/data/paiements";
 
 const anneesDisponibles = [
   "2023-2024",
@@ -94,7 +55,7 @@ const anneesDisponibles = [
 
 const Paiements = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [paiements, setPaiements] = useState<Paiement[]>(paiementsInitiaux);
+  const { paiements, supprimerPaiement } = usePaiementStore();
   const [selectedPaiement, setSelectedPaiement] = useState<Paiement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -171,7 +132,7 @@ const Paiements = () => {
 
   const handleDelete = () => {
     if (deletePassword === "radia" && paiementToDelete) {
-      setPaiements(paiements.filter(p => p.id !== paiementToDelete.id));
+      supprimerPaiement(paiementToDelete.id);
       toast({
         title: "Suppression réussie",
         description: "Le paiement a été supprimé avec succès.",
