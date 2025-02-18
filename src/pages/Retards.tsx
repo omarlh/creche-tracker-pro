@@ -13,6 +13,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AlertTriangle, Bell, Send } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useEnfantStore } from "@/data/enfants";
 
 type RetardPaiement = {
   id: number;
@@ -62,6 +63,13 @@ const retardsTest: RetardPaiement[] = [
 const Retards = () => {
   const [retards, setRetards] = useState<RetardPaiement[]>(retardsTest);
   const { toast } = useToast();
+  const { enfants } = useEnfantStore();
+
+  const getReliquatInscription = (enfantId: number) => {
+    const enfant = enfants.find(e => e.id === enfantId);
+    if (!enfant?.fraisInscription) return 0;
+    return enfant.fraisInscription.montantTotal - enfant.fraisInscription.montantPaye;
+  };
 
   const envoyerRappel = (retardId: number) => {
     // Simuler l'envoi d'un rappel
@@ -124,6 +132,7 @@ const Retards = () => {
                     <TableHead>Enfant</TableHead>
                     <TableHead>Mois concerné</TableHead>
                     <TableHead>Montant dû</TableHead>
+                    <TableHead>Reliquat inscription</TableHead>
                     <TableHead>Jours de retard</TableHead>
                     <TableHead>Dernier rappel</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -142,6 +151,11 @@ const Retards = () => {
                         })}
                       </TableCell>
                       <TableCell>{retard.montantDu} DH</TableCell>
+                      <TableCell>
+                        <span className={getReliquatInscription(retard.enfantId) > 0 ? "text-destructive font-medium" : ""}>
+                          {getReliquatInscription(retard.enfantId)} DH
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           retard.joursRetard > 20
