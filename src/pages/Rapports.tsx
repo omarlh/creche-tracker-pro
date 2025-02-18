@@ -81,7 +81,7 @@ const Rapports = () => {
       const dateDebut = new Date(parseInt(anneeDebut), 8, 1);
       const dateFin = new Date(parseInt(anneeFin), 5, 30);
       
-      for (let date = new Date(dateDebut); date <= dateFin; date.setMonth(date.getMonth() + 1)) {
+      for (let date = dateDebut; date <= dateFin; date.setMonth(date.getMonth() + 1)) {
         const moisCourant = date.toISOString().slice(0, 7);
         
         const enfantsDuMois = enfants.filter(enfant => {
