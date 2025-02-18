@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -109,8 +110,11 @@ const Enfants = () => {
         <AppSidebar />
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
+            <div className="space-y-2">
               <h1 className="text-3xl font-semibold">Inscription d'un Enfant</h1>
+              <h2 className="text-xl text-muted-foreground">Départ d'un Enfant</h2>
+            </div>
+            <div className="flex justify-end mt-6">
               <Button onClick={handleAddClick}>
                 <Plus className="w-5 h-5 mr-2" />
                 Ajouter un enfant
