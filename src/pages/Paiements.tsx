@@ -76,7 +76,7 @@ const Paiements = () => {
     return enfant && enfant.anneeScolaire === anneeScolaire;
   });
 
-  const handleKeyDown = (event: KeyboardEvent) => {
+  const handleGlobalKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'F2' && isSheetOpen) {
       event.preventDefault();
       const searchInput = document.querySelector('input[placeholder="Rechercher un enfant..."]') as HTMLInputElement;
@@ -88,9 +88,9 @@ const Paiements = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleGlobalKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keydown', handleGlobalKeyDown);
     };
   }, [isSheetOpen]);
 
@@ -344,14 +344,18 @@ const Paiements = () => {
                           <div
                             key={enfant.id}
                             className="p-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={(event) => {
+                            onClick={() => {
                               setSearchTerm(`${enfant.prenom} ${enfant.nom}`);
-                              const form = (event.target as HTMLElement).closest('form');
+                              const hiddenInput = document.createElement('input');
+                              hiddenInput.type = 'hidden';
+                              hiddenInput.name = 'enfantId';
+                              hiddenInput.value = enfant.id.toString();
+                              const form = document.querySelector('form');
                               if (form) {
-                                const hiddenInput = document.createElement('input');
-                                hiddenInput.type = 'hidden';
-                                hiddenInput.name = 'enfantId';
-                                hiddenInput.value = enfant.id.toString();
+                                const oldInput = form.querySelector('input[name="enfantId"]');
+                                if (oldInput) {
+                                  oldInput.remove();
+                                }
                                 form.appendChild(hiddenInput);
                               }
                             }}
