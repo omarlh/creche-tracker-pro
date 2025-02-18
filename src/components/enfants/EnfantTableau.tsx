@@ -8,8 +8,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Wallet, Printer } from "lucide-react";
+import { Wallet, Printer, Trash2 } from "lucide-react";
 import { type Enfant } from "@/data/enfants";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/components/ui/use-toast";
 
 interface EnfantTableauProps {
   enfants: Enfant[];
@@ -97,6 +109,15 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
     }
   };
 
+  const handleDelete = (enfant: Enfant) => {
+    const { supprimerEnfant } = useEnfantStore.getState();
+    supprimerEnfant(enfant.id);
+    toast({
+      title: "Suppression réussie",
+      description: `${enfant.prenom} ${enfant.nom} a été supprimé(e) de la liste.`,
+    });
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100">
       <Table>
@@ -168,6 +189,30 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
                   <Printer className="w-4 h-4 mr-1" />
                   Imprimer
                 </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cet enfant ?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Cette action est irréversible. Toutes les informations concernant {enfant.prenom} {enfant.nom} seront définitivement supprimées.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(enfant)}>
+                        Supprimer
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </TableCell>
             </TableRow>
           ))}

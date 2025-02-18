@@ -33,6 +33,7 @@ type EnfantStore = {
   enfants: Enfant[];
   ajouterEnfant: (enfant: Omit<Enfant, "id">) => void;
   modifierEnfant: (enfant: Enfant) => void;
+  supprimerEnfant: (id: number) => void;
 };
 
 export const useEnfantStore = create<EnfantStore>((set) => ({
@@ -134,5 +135,9 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       enfants: state.enfants.map((e) =>
         e.id === enfant.id ? enfant : e
       ),
+    })),
+  supprimerEnfant: (id) =>
+    set((state) => ({
+      enfants: state.enfants.filter((enfant) => enfant.id !== id),
     })),
 }));
