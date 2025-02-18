@@ -122,7 +122,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
         ...state.enfants,
         { 
           ...enfant, 
-          id: state.enfants.length + 1,
+          id: Math.max(...state.enfants.map(e => e.id), 0) + 1,
           fraisInscription: {
             ...enfant.fraisInscription,
             paiements: enfant.fraisInscription?.paiements || []
@@ -137,7 +137,11 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       ),
     })),
   supprimerEnfant: (id) =>
-    set((state) => ({
-      enfants: state.enfants.filter((enfant) => enfant.id !== id),
-    })),
+    set((state) => {
+      console.log("Suppression de l'enfant avec l'ID:", id);
+      console.log("Enfants avant suppression:", state.enfants);
+      const newEnfants = state.enfants.filter((enfant) => enfant.id !== id);
+      console.log("Enfants après suppression:", newEnfants);
+      return { enfants: newEnfants };
+    }),
 }));

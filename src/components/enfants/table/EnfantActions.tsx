@@ -26,11 +26,14 @@ interface EnfantActionsProps {
 export const EnfantActions = ({ enfant, onEdit, onPrint }: EnfantActionsProps) => {
   const [password, setPassword] = useState("");
   const [isPasswordError, setIsPasswordError] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const supprimerEnfant = useEnfantStore((state) => state.supprimerEnfant);
 
   const handleDelete = () => {
     if (password === "radia") {
+      console.log("Tentative de suppression de l'enfant:", enfant);
       supprimerEnfant(enfant.id);
+      setIsDialogOpen(false);
       toast({
         title: "Suppression réussie",
         description: `${enfant.prenom} ${enfant.nom} a été supprimé(e) de la liste.`,
@@ -64,7 +67,7 @@ export const EnfantActions = ({ enfant, onEdit, onPrint }: EnfantActionsProps) =
         <Printer className="w-4 h-4 mr-1" />
         Imprimer
       </Button>
-      <AlertDialog>
+      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogTrigger asChild>
           <Button
             variant="destructive"
