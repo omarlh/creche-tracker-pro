@@ -37,11 +37,14 @@ type Enfant = {
   prenom: string;
 };
 
-// Données de test
+// Données de test mises à jour pour inclure plus d'enfants
 const enfantsTest: Enfant[] = [
   { id: 1, nom: "Dubois", prenom: "Sophie" },
   { id: 2, nom: "Martin", prenom: "Lucas" },
   { id: 3, nom: "Bernard", prenom: "Emma" },
+  { id: 4, nom: "Petit", prenom: "Noah" },
+  { id: 5, nom: "Robert", prenom: "Léa" },
+  { id: 6, nom: "Moreau", prenom: "Louis" },
 ];
 
 const paiementsInitiaux: Paiement[] = [
@@ -151,7 +154,7 @@ const Paiements = () => {
                         <TableCell>
                           {enfant ? `${enfant.prenom} ${enfant.nom}` : "Inconnu"}
                         </TableCell>
-                        <TableCell>{paiement.montant}€</TableCell>
+                        <TableCell>{paiement.montant} DH</TableCell>
                         <TableCell>
                           {new Date(paiement.datePaiement).toLocaleDateString("fr-FR")}
                         </TableCell>
@@ -237,7 +240,7 @@ const Paiements = () => {
 
               <div className="space-y-2">
                 <label htmlFor="montant" className="text-sm font-medium">
-                  Montant (€)
+                  Montant (DH)
                 </label>
                 <Input
                   id="montant"
