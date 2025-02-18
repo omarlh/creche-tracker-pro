@@ -7,7 +7,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Plus, LogOut } from "lucide-react";
+import { Plus, LogOut, Search, X } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/components/ui/use-toast";
@@ -15,6 +15,14 @@ import { useEnfantStore, type Enfant, type PaiementFraisInscription } from "@/da
 import { EnfantTableau } from "@/components/enfants/EnfantTableau";
 import { EnfantFormulaire } from "@/components/enfants/EnfantFormulaire";
 import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const Enfants = () => {
   const navigate = useNavigate();
@@ -23,6 +31,8 @@ const Enfants = () => {
   const { enfants, ajouterEnfant, modifierEnfant } = useEnfantStore();
   const { toast } = useToast();
   const [showPaiementForm, setShowPaiementForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchedEnfant, setSearchedEnfant] = useState<Enfant | null>(null);
 
   const handleAddClick = () => {
     setSelectedEnfant(null);
@@ -42,6 +52,22 @@ const Enfants = () => {
     const montantTotal = enfant.fraisInscription?.montantTotal || 0;
     const montantPaye = enfant.fraisInscription?.montantPaye || 0;
     return montantTotal - montantPaye;
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    if (term.trim() === "") {
+      setSearchedEnfant(null);
+      return;
+    }
+
+    const found = enfants.find(enfant => 
+      `${enfant.prenom} ${enfant.nom}`.toLowerCase().includes(term.toLowerCase()) ||
+      enfant.nom.toLowerCase().includes(term.toLowerCase()) ||
+      enfant.prenom.toLowerCase().includes(term.toLowerCase())
+    );
+
+    setSearchedEnfant(found || null);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -64,6 +90,8 @@ const Enfants = () => {
       prenom: formData.get("prenom") as string,
       dateNaissance: formData.get("dateNaissance") as string,
       classe: formData.get("classe") as "TPS" | "PS" | "MS" | "GS",
+      gsmMaman: formData.get("gsmMaman") as string,
+      gsmPapa: formData.get("gsmPapa") as string,
       fraisInscription: {
         montantTotal,
         montantPaye: montantPaiement,
@@ -123,12 +151,134 @@ const Enfants = () => {
                 Départ d'un Enfant
               </Button>
             </div>
-            <div className="flex justify-end mb-6">
+
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+                <Input
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  placeholder="Rechercher un enfant..."
+                  className="pl-10 pr-10"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => handleSearch("")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
               <Button onClick={handleAddClick}>
                 <Plus className="w-5 h-5 mr-2" />
                 Ajouter un enfant
               </Button>
             </div>
+
+            {searchedEnfant && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Détails de l'enfant</CardTitle>
+                  <CardDescription>
+                    Informations complètes de {searchedEnfant.prenom} {searchedEnfant.nom}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="font-medium mb-2">Informations personnelles</h3>
+                      <dl className="space-y-2">
+                        <div>
+                          <dt className="text-sm text-muted-foreground">Nom complet</dt>
+                          <dd className="font-medium">{searchedEnfant.prenom} {searchedEnfant.nom}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-sm text-muted-foreground">Date de naissance</dt>
+                          <dd>{new Date(searchedEnfant.dateNaissance || "").toLocaleDateString("fr-FR")}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-sm text-muted-foreground">Classe</dt>
+                          <dd>{searchedEnfant.classe}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-sm text-muted-foreground">Année scolaire</dt>
+                          <dd>{searchedEnfant.anneeScolaire}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-sm text-muted-foreground">Statut</dt>
+                          <dd>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              searchedEnfant.statut === "actif"
+                                ? "bg-success/10 text-success"
+                                : "bg-gray-100 text-gray-600"
+                            }`}>
+                              {searchedEnfant.statut === "actif" ? "Actif" : "Inactif"}
+                            </span>
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+                    <div>
+                      <h3 className="font-medium mb-2">Contact et paiements</h3>
+                      <dl className="space-y-2">
+                        <div>
+                          <dt className="text-sm text-muted-foreground">GSM Maman</dt>
+                          <dd>{searchedEnfant.gsmMaman || "-"}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-sm text-muted-foreground">GSM Papa</dt>
+                          <dd>{searchedEnfant.gsmPapa || "-"}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-sm text-muted-foreground">Frais d'inscription</dt>
+                          <dd className="font-medium">
+                            {searchedEnfant.fraisInscription?.montantPaye || 0} DH / {searchedEnfant.fraisInscription?.montantTotal || 0} DH
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-sm text-muted-foreground">Reste à payer</dt>
+                          <dd className="font-medium text-warning">
+                            {calculerMontantRestant(searchedEnfant)} DH
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-sm text-muted-foreground">Dernier paiement</dt>
+                          <dd>{searchedEnfant.dernierPaiement ? new Date(searchedEnfant.dernierPaiement).toLocaleDateString("fr-FR") : "-"}</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  </div>
+
+                  {searchedEnfant.fraisInscription?.paiements && searchedEnfant.fraisInscription.paiements.length > 0 && (
+                    <div>
+                      <h3 className="font-medium mb-2">Historique des paiements</h3>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="space-y-2">
+                          {searchedEnfant.fraisInscription.paiements.map((paiement) => (
+                            <div key={paiement.id} className="flex justify-between items-center">
+                              <div className="text-sm">
+                                <span className="font-medium">{paiement.montant} DH</span>
+                                <span className="text-muted-foreground"> - {new Date(paiement.datePaiement).toLocaleDateString("fr-FR")}</span>
+                              </div>
+                              <span className="text-xs bg-gray-100 px-2 py-1 rounded capitalize">
+                                {paiement.methodePaiement}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end space-x-2">
+                    <Button variant="outline" onClick={() => handleEditClick(searchedEnfant)}>
+                      Modifier
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <EnfantTableau 
               enfants={enfants}
