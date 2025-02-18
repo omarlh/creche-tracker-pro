@@ -14,6 +14,13 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { AlertTriangle, Printer, Send } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useEnfantStore } from "@/data/enfants";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type RetardPaiement = {
   id: number;
@@ -59,8 +66,17 @@ const retardsTest: RetardPaiement[] = [
   },
 ];
 
+const anneesDisponibles = [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026",
+  "2026-2027",
+  "2027-2028",
+];
+
 const Retards = () => {
   const [retards, setRetards] = useState<RetardPaiement[]>(retardsTest);
+  const [selectedAnnee, setSelectedAnnee] = useState<string>("2023-2024");
   const { toast } = useToast();
   const { enfants } = useEnfantStore();
 
@@ -95,7 +111,26 @@ const Retards = () => {
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-semibold">Gestion des Retards de Paiement</h1>
+              <div className="space-y-1">
+                <h1 className="text-3xl font-semibold">Gestion des Retards de Paiement</h1>
+                <div className="w-[200px]">
+                  <Select
+                    value={selectedAnnee}
+                    onValueChange={setSelectedAnnee}
+                  >
+                    <SelectTrigger className="text-sm">
+                      <SelectValue placeholder="Sélectionner une année" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {anneesDisponibles.map((annee) => (
+                        <SelectItem key={annee} value={annee}>
+                          Année {annee}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <Button
                 onClick={handlePrint}
                 variant="outline"
