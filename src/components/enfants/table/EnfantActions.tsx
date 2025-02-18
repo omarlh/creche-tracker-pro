@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Printer, Trash2 } from "lucide-react";
-import { type Enfant, useEnfantStore } from "@/data/enfants";
+import { type Enfant } from "@/data/enfants";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,12 +28,10 @@ export const EnfantActions = ({ enfant, onEdit, onPrint, onDelete }: EnfantActio
   const [password, setPassword] = useState("");
   const [isPasswordError, setIsPasswordError] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const supprimerEnfant = useEnfantStore((state) => state.supprimerEnfant);
 
   const handleDelete = () => {
     if (password === "radia") {
-      console.log("Tentative de suppression de l'enfant:", enfant);
-      supprimerEnfant(enfant.id);
+      console.log("Suppression confirmée pour l'enfant:", enfant.nom, enfant.prenom);
       onDelete(enfant.id);
       setIsDialogOpen(false);
       toast({

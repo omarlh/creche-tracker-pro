@@ -5,7 +5,7 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
-import { type Enfant } from "@/data/enfants";
+import { type Enfant, useEnfantStore } from "@/data/enfants";
 import { EnfantTableHeader } from "./table/EnfantTableHeader";
 import { EnfantStatut } from "./table/EnfantStatut";
 import { EnfantActions } from "./table/EnfantActions";
@@ -20,6 +20,7 @@ interface EnfantTableauProps {
 }
 
 export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant }: EnfantTableauProps) => {
+  const supprimerEnfant = useEnfantStore((state) => state.supprimerEnfant);
   const [enfantsLocaux, setEnfantsLocaux] = useState<Enfant[]>(enfants);
 
   useEffect(() => {
@@ -105,8 +106,9 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
   };
 
   const handleDelete = (enfantId: number) => {
-    console.log("Enfant supprimé, mise à jour de la liste locale");
-    setEnfantsLocaux(enfantsLocaux.filter(e => e.id !== enfantId));
+    console.log("Suppression de l'enfant avec l'ID:", enfantId);
+    supprimerEnfant(enfantId);
+    setEnfantsLocaux(prev => prev.filter(e => e.id !== enfantId));
   };
 
   return (
