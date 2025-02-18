@@ -7,15 +7,9 @@ import { EnfantTableau } from "@/components/enfants/EnfantTableau";
 import { useCallback } from "react";
 
 export default function Depart() {
-  // Création d'un sélecteur stable
-  const selectInactifEnfants = useCallback(
-    (state) => state.enfants.filter(e => e.statut === "inactif"),
-    []
-  );
-  
-  const enfants = useEnfantStore(selectInactifEnfants);
+  const allEnfants = useEnfantStore((state) => state.enfants);
+  const enfants = allEnfants.filter(e => e.statut === "inactif");
 
-  // Utilisation de useCallback pour toutes les fonctions
   const calculerMontantRestant = useCallback((enfant) => {
     if (!enfant.fraisInscription) return 0;
     return enfant.fraisInscription.montantTotal - enfant.fraisInscription.montantPaye;
