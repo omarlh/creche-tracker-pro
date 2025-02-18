@@ -94,7 +94,7 @@ const Rapports = () => {
   const generateYearsList = () => {
     const currentYear = new Date().getFullYear();
     const years = [];
-    for (let year = currentYear - 2; year <= currentYear + 5; year++) {
+    for (let year = currentYear - 2; year <= currentYear + 25; year++) {
       years.push(year.toString());
     }
     return years.sort((a, b) => b.localeCompare(a));
