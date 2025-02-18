@@ -77,7 +77,7 @@ export const PaymentForm = ({
         <div className="space-y-4 border-t pt-4">
           <div className="space-y-2">
             <label htmlFor="montantPaiement" className="text-sm font-medium">
-              Montant du paiement des Frais d'Inscription & Assurances & Fournitures
+              Montant payé des Frais d'inscription & Assurances & Fournitures
             </label>
             <Input
               id="montantPaiement"
@@ -120,3 +120,4 @@ export const PaymentForm = ({
     </div>
   );
 };
+
