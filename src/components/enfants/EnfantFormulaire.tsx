@@ -137,22 +137,37 @@ export const EnfantFormulaire = ({
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="anneeScolaire" className="text-sm font-medium">
-            Année scolaire
-          </label>
-          <Select name="anneeScolaire" defaultValue="2023-2024">
-            <SelectTrigger className="bg-gray-100">
-              <SelectValue placeholder="Sélectionner une année" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-100">
-              {anneesDisponibles.map((annee) => (
-                <SelectItem key={annee} value={annee} className="hover:bg-gray-200">
-                  {annee}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label htmlFor="anneeScolaire" className="text-sm font-medium">
+              Année scolaire
+            </label>
+            <Select name="anneeScolaire" defaultValue="2023-2024">
+              <SelectTrigger className="bg-gray-100">
+                <SelectValue placeholder="Sélectionner une année" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-100">
+                {anneesDisponibles.map((annee) => (
+                  <SelectItem key={annee} value={annee} className="hover:bg-gray-200">
+                    {annee}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="dateInscription" className="text-sm font-medium">
+              Date d'inscription
+            </label>
+            <Input
+              id="dateInscription"
+              name="dateInscription"
+              type="date"
+              defaultValue={selectedEnfant?.dateInscription || new Date().toISOString().split('T')[0]}
+              required
+            />
+          </div>
         </div>
 
         {(showPaiementForm || !selectedEnfant) && (

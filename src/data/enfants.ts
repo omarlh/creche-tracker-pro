@@ -15,6 +15,7 @@ export type Enfant = {
   nom: string;
   prenom: string;
   dateNaissance?: string;
+  dateInscription?: string;
   classe?: Classe;
   gsmMaman?: string;
   gsmPapa?: string;

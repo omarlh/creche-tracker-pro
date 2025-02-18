@@ -86,6 +86,7 @@ const Enfants = () => {
       nom: formData.get("nom") as string,
       prenom: formData.get("prenom") as string,
       dateNaissance: formData.get("dateNaissance") as string,
+      dateInscription: formData.get("dateInscription") as string,
       classe: formData.get("classe") as "TPS" | "PS" | "MS" | "GS",
       gsmMaman: formData.get("gsmMaman") as string,
       gsmPapa: formData.get("gsmPapa") as string,
