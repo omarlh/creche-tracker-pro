@@ -100,14 +100,14 @@ export default function Depart() {
       <div className="grid lg:grid-cols-5 min-h-screen w-full">
         <AppSidebar />
         <div className="col-span-4 p-8">
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
               <h2 className="text-2xl font-bold tracking-tight">Départ</h2>
               <p className="text-muted-foreground">
                 Liste des enfants qui ont quitté l'établissement par année scolaire
               </p>
             </div>
-            <Separator />
+            <Separator className="my-2" />
             <div className="w-[250px]">
               <Select
                 value={selectedAnnee}
@@ -128,7 +128,7 @@ export default function Depart() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="mt-6 space-y-8">
+            <div className="space-y-4">
               {enfantsParAnnee.length === 0 ? (
                 <p className="text-muted-foreground">
                   Aucun enfant n'a quitté l'établissement pour le moment.
@@ -136,7 +136,7 @@ export default function Depart() {
               ) : (
                 enfantsParAnnee.map(([anneeScolaire, enfants]) => (
                   <div key={anneeScolaire}>
-                    <h3 className="text-lg font-semibold mb-4">
+                    <h3 className="text-lg font-semibold mb-2">
                       Année scolaire {anneeScolaire}
                     </h3>
                     <EnfantTableau 
