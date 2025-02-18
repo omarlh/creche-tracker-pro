@@ -1,12 +1,23 @@
 
 import { create } from 'zustand';
 
+export type PaiementFraisInscription = {
+  id: number;
+  montant: number;
+  datePaiement: string;
+  methodePaiement: "carte" | "especes" | "cheque";
+};
+
 export type Enfant = {
   id: number;
   nom: string;
   prenom: string;
   dateNaissance?: string;
-  fraisInscription?: boolean;
+  fraisInscription?: {
+    montantTotal: number;
+    montantPaye: number;
+    paiements: PaiementFraisInscription[];
+  };
   statut?: "actif" | "inactif";
   dernierPaiement?: string;
 };
@@ -17,7 +28,6 @@ type EnfantStore = {
   modifierEnfant: (enfant: Enfant) => void;
 };
 
-// Store Zustand pour gérer l'état global des enfants
 export const useEnfantStore = create<EnfantStore>((set) => ({
   enfants: [
     {
@@ -25,7 +35,16 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       nom: "Dubois",
       prenom: "Sophie",
       dateNaissance: "2020-03-15",
-      fraisInscription: true,
+      fraisInscription: {
+        montantTotal: 300,
+        montantPaye: 300,
+        paiements: [{
+          id: 1,
+          montant: 300,
+          datePaiement: "2024-02-15",
+          methodePaiement: "carte"
+        }]
+      },
       statut: "actif",
       dernierPaiement: "2024-02-15",
     },
@@ -34,7 +53,16 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       nom: "Martin",
       prenom: "Lucas",
       dateNaissance: "2021-05-20",
-      fraisInscription: true,
+      fraisInscription: {
+        montantTotal: 300,
+        montantPaye: 150,
+        paiements: [{
+          id: 1,
+          montant: 150,
+          datePaiement: "2024-02-10",
+          methodePaiement: "cheque"
+        }]
+      },
       statut: "actif",
       dernierPaiement: "2024-02-10",
     },
@@ -43,7 +71,11 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       nom: "Bernard",
       prenom: "Emma",
       dateNaissance: "2020-11-08",
-      fraisInscription: false,
+      fraisInscription: {
+        montantTotal: 300,
+        montantPaye: 0,
+        paiements: []
+      },
       statut: "inactif",
       dernierPaiement: "2024-01-15",
     },
@@ -52,7 +84,16 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       nom: "BENNANI",
       prenom: "Youssef",
       dateNaissance: "2020-01-01",
-      fraisInscription: true,
+      fraisInscription: {
+        montantTotal: 300,
+        montantPaye: 300,
+        paiements: [{
+          id: 1,
+          montant: 300,
+          datePaiement: "2024-02-20",
+          methodePaiement: "carte"
+        }]
+      },
       statut: "actif",
       dernierPaiement: "2024-02-20",
     },
@@ -61,7 +102,14 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
     set((state) => ({
       enfants: [
         ...state.enfants,
-        { ...enfant, id: state.enfants.length + 1 },
+        { 
+          ...enfant, 
+          id: state.enfants.length + 1,
+          fraisInscription: {
+            ...enfant.fraisInscription,
+            paiements: enfant.fraisInscription?.paiements || []
+          }
+        },
       ],
     })),
   modifierEnfant: (enfant) =>

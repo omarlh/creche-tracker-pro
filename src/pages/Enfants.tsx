@@ -16,17 +16,18 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { BadgeCheck, Plus, UserX } from "lucide-react";
+import { BadgeCheck, Plus, UserX, Wallet } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/components/ui/use-toast";
-import { useEnfantStore, type Enfant } from "@/data/enfants";
+import { useEnfantStore, type Enfant, type PaiementFraisInscription } from "@/data/enfants";
 
 const Enfants = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedEnfant, setSelectedEnfant] = useState<Enfant | null>(null);
   const { enfants, ajouterEnfant, modifierEnfant } = useEnfantStore();
   const { toast } = useToast();
+  const [showPaiementForm, setShowPaiementForm] = useState(false);
 
   const handleAddClick = () => {
     setSelectedEnfant(null);
@@ -42,17 +43,47 @@ const Enfants = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
+    const montantTotal = Number(formData.get("montantTotal") || 300);
+    const montantPaiement = Number(formData.get("montantPaiement") || 0);
+    const methodePaiement = formData.get("methodePaiement") as "carte" | "especes" | "cheque";
+
+    const nouveauPaiement: PaiementFraisInscription | null = montantPaiement > 0 ? {
+      id: Date.now(),
+      montant: montantPaiement,
+      datePaiement: new Date().toISOString().split('T')[0],
+      methodePaiement,
+    } : null;
+
     const nouvelEnfant = {
       nom: formData.get("nom") as string,
       prenom: formData.get("prenom") as string,
       dateNaissance: formData.get("dateNaissance") as string,
-      fraisInscription: formData.get("fraisInscription") === "on",
+      fraisInscription: {
+        montantTotal,
+        montantPaye: montantPaiement,
+        paiements: nouveauPaiement ? [nouveauPaiement] : [],
+      },
       statut: (formData.get("statut") as "actif" | "inactif") || "actif",
       dernierPaiement: new Date().toISOString().split('T')[0],
     };
 
     if (selectedEnfant) {
-      modifierEnfant({ ...nouvelEnfant, id: selectedEnfant.id });
+      const paiementsExistants = selectedEnfant.fraisInscription?.paiements || [];
+      const montantDejaRegle = selectedEnfant.fraisInscription?.montantPaye || 0;
+      
+      const enfantModifie = {
+        ...nouvelEnfant,
+        id: selectedEnfant.id,
+        fraisInscription: {
+          ...nouvelEnfant.fraisInscription,
+          montantPaye: montantDejaRegle + (montantPaiement || 0),
+          paiements: nouveauPaiement 
+            ? [...paiementsExistants, nouveauPaiement]
+            : paiementsExistants,
+        },
+      };
+
+      modifierEnfant(enfantModifie);
       toast({
         title: "Modification réussie",
         description: `Les informations de ${nouvelEnfant.prenom} ont été mises à jour.`,
@@ -66,6 +97,13 @@ const Enfants = () => {
     }
 
     setIsSheetOpen(false);
+    setShowPaiementForm(false);
+  };
+
+  const calculerMontantRestant = (enfant: Enfant) => {
+    const montantTotal = enfant.fraisInscription?.montantTotal || 0;
+    const montantPaye = enfant.fraisInscription?.montantPaye || 0;
+    return montantTotal - montantPaye;
   };
 
   return (
@@ -101,20 +139,24 @@ const Enfants = () => {
                       <TableCell className="font-medium">{enfant.nom}</TableCell>
                       <TableCell>{enfant.prenom}</TableCell>
                       <TableCell>
-                        {new Date(enfant.dateNaissance).toLocaleDateString("fr-FR")}
+                        {new Date(enfant.dateNaissance || "").toLocaleDateString("fr-FR")}
                       </TableCell>
                       <TableCell>
-                        {enfant.fraisInscription ? (
-                          <span className="inline-flex items-center text-success">
-                            <BadgeCheck className="w-4 h-4 mr-1" />
-                            Payés
+                        <div className="flex flex-col gap-1">
+                          <span className={`inline-flex items-center ${
+                            enfant.fraisInscription?.montantPaye === enfant.fraisInscription?.montantTotal
+                              ? "text-success"
+                              : "text-warning"
+                          }`}>
+                            <Wallet className="w-4 h-4 mr-1" />
+                            {enfant.fraisInscription?.montantPaye || 0} € / {enfant.fraisInscription?.montantTotal || 0} €
                           </span>
-                        ) : (
-                          <span className="inline-flex items-center text-destructive">
-                            <UserX className="w-4 h-4 mr-1" />
-                            Non payés
-                          </span>
-                        )}
+                          {calculerMontantRestant(enfant) > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              Reste à payer : {calculerMontantRestant(enfant)} €
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <span
@@ -128,7 +170,7 @@ const Enfants = () => {
                         </span>
                       </TableCell>
                       <TableCell>
-                        {new Date(enfant.dernierPaiement).toLocaleDateString(
+                        {new Date(enfant.dernierPaiement || "").toLocaleDateString(
                           "fr-FR"
                         )}
                       </TableCell>
@@ -153,7 +195,7 @@ const Enfants = () => {
         </main>
 
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetContent className="w-full sm:max-w-xl">
+          <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
             <SheetHeader>
               <SheetTitle>
                 {selectedEnfant ? "Modifier un enfant" : "Ajouter un enfant"}
@@ -200,17 +242,66 @@ const Enfants = () => {
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="fraisInscription"
-                  name="fraisInscription"
-                  className="rounded border-gray-300"
-                  defaultChecked={selectedEnfant?.fraisInscription}
-                />
-                <label htmlFor="fraisInscription" className="text-sm font-medium">
-                  Frais d'inscription payés
-                </label>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="montantTotal" className="text-sm font-medium">
+                    Montant total des frais d'inscription
+                  </label>
+                  <Input
+                    id="montantTotal"
+                    name="montantTotal"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    defaultValue={selectedEnfant?.fraisInscription?.montantTotal || 300}
+                    required
+                  />
+                </div>
+
+                {(showPaiementForm || !selectedEnfant) && (
+                  <div className="space-y-4 border-t pt-4">
+                    <div className="space-y-2">
+                      <label htmlFor="montantPaiement" className="text-sm font-medium">
+                        Montant du paiement
+                      </label>
+                      <Input
+                        id="montantPaiement"
+                        name="montantPaiement"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Montant à payer maintenant"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="methodePaiement" className="text-sm font-medium">
+                        Méthode de paiement
+                      </label>
+                      <select
+                        id="methodePaiement"
+                        name="methodePaiement"
+                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        defaultValue="carte"
+                      >
+                        <option value="carte">Carte bancaire</option>
+                        <option value="especes">Espèces</option>
+                        <option value="cheque">Chèque</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {selectedEnfant && !showPaiementForm && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowPaiementForm(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Ajouter un paiement
+                  </Button>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -220,7 +311,7 @@ const Enfants = () => {
                 <select
                   id="statut"
                   name="statut"
-                  defaultValue={selectedEnfant?.statut}
+                  defaultValue={selectedEnfant?.statut || "actif"}
                   className="w-full rounded-md border border-gray-300 px-3 py-2"
                   required
                 >
@@ -230,7 +321,14 @@ const Enfants = () => {
               </div>
 
               <div className="pt-4 space-x-2 flex justify-end">
-                <Button variant="outline" type="button" onClick={() => setIsSheetOpen(false)}>
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  onClick={() => {
+                    setIsSheetOpen(false);
+                    setShowPaiementForm(false);
+                  }}
+                >
                   Annuler
                 </Button>
                 <Button type="submit">Enregistrer</Button>
