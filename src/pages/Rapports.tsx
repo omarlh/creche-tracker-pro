@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +16,8 @@ import {
 } from "@/components/ui/sheet";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { FileText, Download, Filter } from "lucide-react";
+import { FileText, Download, Filter, BadgeCheck, AlertCircle } from "lucide-react";
+import { useEnfantStore, type Enfant } from "@/data/enfants";
 
 type RapportMensuel = {
   mois: string;
@@ -26,6 +26,8 @@ type RapportMensuel = {
   paiementsComplets: number;
   paiementsAttente: number;
   tauxRecouvrement: number;
+  enfantsPaye: number[];
+  enfantsNonPaye: number[];
 };
 
 // Données de test pour les rapports mensuels
@@ -37,6 +39,8 @@ const rapportsMensuels: RapportMensuel[] = [
     paiementsComplets: 8,
     paiementsAttente: 2,
     tauxRecouvrement: 80,
+    enfantsPaye: [1, 2, 4],
+    enfantsNonPaye: [3],
   },
   {
     mois: "2024-01",
@@ -45,6 +49,8 @@ const rapportsMensuels: RapportMensuel[] = [
     paiementsComplets: 9,
     paiementsAttente: 0,
     tauxRecouvrement: 100,
+    enfantsPaye: [1, 2, 3, 4],
+    enfantsNonPaye: [],
   },
   {
     mois: "2023-12",
@@ -53,6 +59,8 @@ const rapportsMensuels: RapportMensuel[] = [
     paiementsComplets: 7,
     paiementsAttente: 1,
     tauxRecouvrement: 87.5,
+    enfantsPaye: [1, 2, 4],
+    enfantsNonPaye: [3],
   },
 ];
 
@@ -62,6 +70,7 @@ const Rapports = () => {
   );
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
+  const { enfants } = useEnfantStore();
 
   const handleExportRapport = () => {
     // TODO: Implémenter l'export en PDF ou Excel
@@ -71,6 +80,10 @@ const Rapports = () => {
   const handleDetailsClick = (rapport: RapportMensuel) => {
     setRapportSelectionne(rapport);
     setIsSheetOpen(true);
+  };
+
+  const getEnfantById = (id: number): Enfant | undefined => {
+    return enfants.find(enfant => enfant.id === id);
   };
 
   return (
@@ -166,7 +179,7 @@ const Rapports = () => {
         </main>
 
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetContent className="w-full sm:max-w-xl">
+          <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
             <SheetHeader>
               <SheetTitle>
                 Détails du rapport - {rapportSelectionne && new Date(rapportSelectionne.mois).toLocaleDateString("fr-FR", {
@@ -203,6 +216,52 @@ const Rapports = () => {
                   <div>
                     <h4 className="text-sm font-medium text-gray-500">Taux de recouvrement</h4>
                     <p className="text-lg font-semibold mt-1">{rapportSelectionne.tauxRecouvrement}%</p>
+                  </div>
+
+                  {/* Liste des enfants ayant payé */}
+                  <div className="mt-6">
+                    <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
+                      <BadgeCheck className="w-4 h-4 mr-2 text-success" />
+                      Enfants ayant payé
+                    </h4>
+                    <div className="space-y-2">
+                      {rapportSelectionne.enfantsPaye.map((enfantId) => {
+                        const enfant = getEnfantById(enfantId);
+                        return enfant ? (
+                          <div key={enfant.id} className="p-2 bg-success/5 rounded-md">
+                            <p className="text-sm font-medium">
+                              {enfant.prenom} {enfant.nom}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Classe: {enfant.classe}
+                            </p>
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Liste des enfants n'ayant pas payé */}
+                  <div className="mt-6">
+                    <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
+                      <AlertCircle className="w-4 h-4 mr-2 text-warning" />
+                      Enfants en attente de paiement
+                    </h4>
+                    <div className="space-y-2">
+                      {rapportSelectionne.enfantsNonPaye.map((enfantId) => {
+                        const enfant = getEnfantById(enfantId);
+                        return enfant ? (
+                          <div key={enfant.id} className="p-2 bg-warning/5 rounded-md">
+                            <p className="text-sm font-medium">
+                              {enfant.prenom} {enfant.nom}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Classe: {enfant.classe}
+                            </p>
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
