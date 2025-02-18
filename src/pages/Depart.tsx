@@ -15,7 +15,7 @@ import {
 
 export default function Depart() {
   const allEnfants = useEnfantStore((state) => state.enfants);
-  const [selectedAnnee, setSelectedAnnee] = useState<string>("");
+  const [selectedAnnee, setSelectedAnnee] = useState<string>("all");
 
   // Fonction pour obtenir l'année scolaire à partir d'une date
   const getAnneeScolaire = useCallback((date: string) => {
@@ -58,7 +58,7 @@ export default function Depart() {
     });
 
     // Filtrer par année sélectionnée si une année est sélectionnée
-    if (selectedAnnee) {
+    if (selectedAnnee !== "all") {
       return Array.from(groupes.entries())
         .filter(([annee]) => annee === selectedAnnee);
     }
@@ -102,7 +102,7 @@ export default function Depart() {
                   <SelectValue placeholder="Sélectionner une année scolaire" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Toutes les années</SelectItem>
+                  <SelectItem value="all">Toutes les années</SelectItem>
                   {anneesDisponibles.map((annee) => (
                     <SelectItem key={annee} value={annee}>
                       {annee}
