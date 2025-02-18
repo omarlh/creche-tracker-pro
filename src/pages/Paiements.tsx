@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -16,7 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
-import { BadgeCheck, CreditCard, Plus, Receipt } from "lucide-react";
+import { BadgeCheck, CreditCard, Keyboard, Plus, Receipt } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/components/ui/use-toast";
@@ -67,12 +67,31 @@ const Paiements = () => {
   const [paiements, setPaiements] = useState<Paiement[]>(paiementsInitiaux);
   const [selectedPaiement, setSelectedPaiement] = useState<Paiement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
   const filteredEnfants = enfants.filter(enfant => 
     `${enfant.prenom} ${enfant.nom}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'F2' && isSheetOpen) {
+      event.preventDefault();
+      const searchInput = document.querySelector('input[placeholder="Rechercher un enfant..."]') as HTMLInputElement;
+      if (searchInput) {
+        searchInput.focus();
+        setIsSearchFocused(true);
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isSheetOpen]);
 
   const handleAddClick = () => {
     setSelectedPaiement(null);
@@ -211,8 +230,12 @@ const Paiements = () => {
             </SheetHeader>
             <form onSubmit={handleSubmit} className="grid gap-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">
+                <label className="text-sm font-medium flex items-center gap-2">
                   Enfant
+                  <span className="text-xs text-muted-foreground inline-flex items-center">
+                    <Keyboard className="w-4 h-4 mr-1" />
+                    Appuyez sur F2 pour rechercher
+                  </span>
                 </label>
                 <div className="relative">
                   <Input
@@ -221,8 +244,13 @@ const Paiements = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Rechercher un enfant..."
                     className="w-full"
+                    onFocus={() => setIsSearchFocused(true)}
+                    onBlur={() => {
+                      // Petit délai pour permettre la sélection
+                      setTimeout(() => setIsSearchFocused(false), 200);
+                    }}
                   />
-                  {searchTerm && (
+                  {(searchTerm || isSearchFocused) && (
                     <div className="absolute w-full bg-white border rounded-md mt-1 shadow-lg max-h-48 overflow-auto z-50">
                       {filteredEnfants.length > 0 ? (
                         filteredEnfants.map((enfant) => (
