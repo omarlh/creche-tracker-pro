@@ -26,7 +26,7 @@ import { FileText, Download, Filter, BadgeCheck, AlertCircle, Printer, CalendarI
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
-import { format } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 
@@ -88,6 +88,14 @@ const Rapports = () => {
           format(moisSelectionne, "yyyy-MM")
       )
     : rapportsMensuels;
+
+  const handleMoisSelection = (date: Date | undefined) => {
+    if (date) {
+      setMoisSelectionne(startOfMonth(date));
+    } else {
+      setMoisSelectionne(undefined);
+    }
+  };
 
   const handleExportRapport = () => {
     try {
@@ -168,9 +176,15 @@ const Rapports = () => {
                     <Calendar
                       mode="single"
                       selected={moisSelectionne}
-                      onSelect={setMoisSelectionne}
+                      onSelect={handleMoisSelection}
                       initialFocus
                       locale={fr}
+                      ISOWeek
+                      disabled={{ after: new Date() }}
+                      showOutsideDays={false}
+                      captionLayout="dropdown-buttons"
+                      fromYear={2020}
+                      toYear={new Date().getFullYear()}
                     />
                     {moisSelectionne && (
                       <div className="p-2 border-t">
