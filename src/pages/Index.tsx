@@ -1,4 +1,3 @@
-
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useEnfantStore } from "@/data/enfants";
@@ -91,6 +90,21 @@ const Index = () => {
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  // Fonction pour générer les dates des mois de l'année scolaire
+  const getMoisAnneeScolaire = () => {
+    const [anneeDebut] = anneeScolaire.split("-");
+    const dateDebut = new Date(parseInt(anneeDebut), 8, 1); // Septembre
+    const mois = [];
+    
+    for (let i = 0; i < 10; i++) {
+      const date = new Date(dateDebut);
+      date.setMonth(date.getMonth() + i);
+      mois.push(date);
+    }
+    
+    return mois;
   };
 
   return (
@@ -198,9 +212,8 @@ const Index = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.from({ length: 3 }).map((_, index) => {
-                    const date = new Date();
-                    date.setMonth(date.getMonth() - index);
+                  {getMoisAnneeScolaire().map((date, index) => {
+                    const moisCourant = date.toISOString().slice(0, 7);
                     
                     const paiementsDuMois = enfantsFiltres.flatMap(enfant => 
                       enfant.fraisInscription?.paiements.filter(p => {
