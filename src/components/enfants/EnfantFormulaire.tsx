@@ -129,7 +129,7 @@ export const EnfantFormulaire = ({
       <div className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="montantTotal" className="text-sm font-medium">
-            Montant total des frais d'inscription
+            Frais d'inscription & Assurance & Fournitures à payer sur une ou plusieurs fois
           </label>
           <Input
             id="montantTotal"
