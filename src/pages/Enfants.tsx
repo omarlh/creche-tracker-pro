@@ -110,11 +110,11 @@ const Enfants = () => {
         <AppSidebar />
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-semibold">Inscription d'un Enfant</h1>
-              <h2 className="text-xl text-muted-foreground">Départ d'un Enfant</h2>
+            <div className="space-y-2 mb-6">
+              <h1 className="text-3xl font-semibold tracking-tight">Inscription d'un Enfant</h1>
+              <h2 className="text-xl text-muted-foreground tracking-tight">Départ d'un Enfant</h2>
             </div>
-            <div className="flex justify-end mt-6">
+            <div className="flex justify-end mb-6">
               <Button onClick={handleAddClick}>
                 <Plus className="w-5 h-5 mr-2" />
                 Ajouter un enfant
