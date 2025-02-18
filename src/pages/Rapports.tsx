@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,21 @@ import { FileText, Download, BadgeCheck, AlertCircle, Printer } from "lucide-rea
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 type RapportMensuel = {
   mois: string;
@@ -86,6 +102,24 @@ const Rapports = () => {
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
+  const enfantsParAnneeScolaire = anneesDisponibles.reduce((acc, annee) => {
+    acc[annee] = enfants.filter(enfant => enfant.anneeScolaire === annee);
+    return acc;
+  }, {} as Record<string, Enfant[]>);
+
+  const getStatistiquesAnnee = (annee: string) => {
+    const enfantsAnnee = enfantsParAnneeScolaire[annee] || [];
+    const total = enfantsAnnee.length;
+    const actifs = enfantsAnnee.filter(e => e.statut === "actif").length;
+    const inactifs = total - actifs;
+    
+    return {
+      total,
+      actifs,
+      inactifs
+    };
+  };
+
   const rapportsFiltres = rapportsMensuels.filter(rapport => {
     const [annee, mois] = rapport.mois.split("-");
     const matchMois = moisSelectionne === "all" ? true : mois === moisSelectionne;
@@ -102,8 +136,6 @@ const Rapports = () => {
     return years.sort((a, b) => b.localeCompare(a));
   };
 
-  const annees = generateYearsList();
-
   const handleExportRapport = () => {
     try {
       const data = rapportsFiltres.map(rapport => ({
@@ -119,11 +151,8 @@ const Rapports = () => {
       }));
 
       const workbook = XLSX.utils.book_new();
-      
       const worksheet = XLSX.utils.json_to_sheet(data);
-      
       XLSX.utils.book_append_sheet(workbook, worksheet, "Rapports Mensuels");
-      
       XLSX.writeFile(workbook, `rapport_mensuel_${new Date().toISOString().slice(0, 7)}.xlsx`);
 
       toast({
@@ -424,7 +453,7 @@ const Rapports = () => {
 
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetContent className="w-full sm:max-w-xl overflow-y-auto print:w-full print:max-w-none print:overflow-visible">
-            <SheetHeader className="flex justify-between items-center">
+            <SheetHeader>
               <SheetTitle>
                 Détails du rapport - {rapportSelectionne && new Date(rapportSelectionne.mois).toLocaleDateString("fr-FR", {
                   month: "long",
