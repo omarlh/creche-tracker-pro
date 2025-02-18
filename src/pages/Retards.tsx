@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -80,6 +80,25 @@ const Retards = () => {
   const { toast } = useToast();
   const { enfants } = useEnfantStore();
 
+  const getAnneeScolaire = (date: string) => {
+    const dateObj = new Date(date);
+    const mois = dateObj.getMonth();
+    const annee = dateObj.getFullYear();
+    
+    if (mois >= 8) { // À partir de septembre
+      return `${annee}-${annee + 1}`;
+    } else {
+      return `${annee - 1}-${annee}`;
+    }
+  };
+
+  const retardsFiltres = useMemo(() => {
+    return retards.filter(retard => {
+      const anneeScolaire = getAnneeScolaire(retard.moisConcerne);
+      return anneeScolaire === selectedAnnee;
+    });
+  }, [retards, selectedAnnee]);
+
   const getReliquatInscription = (enfantId: number) => {
     const enfant = enfants.find(e => e.id === enfantId);
     if (!enfant?.fraisInscription) return 0;
@@ -146,14 +165,14 @@ const Retards = () => {
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
                   Total des retards
                 </h3>
-                <p className="text-2xl font-semibold">{retards.length}</p>
+                <p className="text-2xl font-semibold">{retardsFiltres.length}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
                   Montant total dû
                 </h3>
                 <p className="text-2xl font-semibold">
-                  {retards.reduce((sum, r) => sum + r.montantDu, 0)} DH
+                  {retardsFiltres.reduce((sum, r) => sum + r.montantDu, 0)} DH
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -161,9 +180,11 @@ const Retards = () => {
                   Retard moyen
                 </h3>
                 <p className="text-2xl font-semibold">
-                  {Math.round(
-                    retards.reduce((sum, r) => sum + r.joursRetard, 0) / retards.length
-                  )} jours
+                  {retardsFiltres.length > 0
+                    ? Math.round(
+                        retardsFiltres.reduce((sum, r) => sum + r.joursRetard, 0) / retardsFiltres.length
+                      )
+                    : 0} jours
                 </p>
               </div>
             </div>
@@ -182,7 +203,7 @@ const Retards = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {retards.map((retard) => (
+                  {retardsFiltres.map((retard) => (
                     <TableRow key={retard.id}>
                       <TableCell>
                         {retard.enfantPrenom} {retard.enfantNom}
