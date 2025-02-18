@@ -1,5 +1,5 @@
 
-import { Home, Users, CreditCard, FileText, AlertTriangle } from "lucide-react";
+import { Home, Users, CreditCard, FileText, AlertTriangle, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,7 @@ export function AppSidebar() {
     { title: "Paiements", icon: CreditCard, path: "/paiements" },
     { title: "Rapports", icon: FileText, path: "/rapports" },
     { title: "Retards", icon: AlertTriangle, path: "/retards" },
+    { title: "Départ", icon: LogOut, path: "/depart" },
   ];
 
   return (
