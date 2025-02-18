@@ -78,8 +78,8 @@ const Rapports = () => {
       
       const [anneeDebut, anneeFin] = anneeSelectionnee.split("/");
       
-      const dateDebut = new Date(2024, 8, 1);
-      const dateFin = new Date(2025, 5, 30);
+      const dateDebut = new Date(parseInt(anneeDebut), 8, 1);
+      const dateFin = new Date(parseInt(anneeFin), 5, 30);
       
       let currentDate = new Date(dateDebut);
 
