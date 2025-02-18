@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -47,39 +47,6 @@ type RapportMensuel = {
   enfantsNonPaye: number[];
 };
 
-const rapportsMensuels: RapportMensuel[] = [
-  {
-    mois: "2024-02",
-    totalPaiements: 1500,
-    nombreEnfants: 10,
-    paiementsComplets: 8,
-    paiementsAttente: 2,
-    tauxRecouvrement: 80,
-    enfantsPaye: [1, 2, 4],
-    enfantsNonPaye: [3],
-  },
-  {
-    mois: "2024-01",
-    totalPaiements: 1350,
-    nombreEnfants: 9,
-    paiementsComplets: 9,
-    paiementsAttente: 0,
-    tauxRecouvrement: 100,
-    enfantsPaye: [1, 2, 3, 4],
-    enfantsNonPaye: [],
-  },
-  {
-    mois: "2023-12",
-    totalPaiements: 1200,
-    nombreEnfants: 8,
-    paiementsComplets: 7,
-    paiementsAttente: 1,
-    tauxRecouvrement: 87.5,
-    enfantsPaye: [1, 2, 4],
-    enfantsNonPaye: [3],
-  },
-];
-
 const anneesDisponibles = [
   "2024/2025",
   "2025/2026",
@@ -97,8 +64,61 @@ const Rapports = () => {
   const [anneeScolaire, setAnneeScolaire] = useState<string>("2024/2025");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
+  const [rapportsMensuels, setRapportsMensuels] = useState<RapportMensuel[]>([]);
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const genererRapportsMensuels = () => {
+      const rapportsGeneres: RapportMensuel[] = [];
+      const maintenant = new Date();
+      const dateFin = new Date(maintenant.getFullYear(), maintenant.getMonth(), 1);
+      const dateDebut = new Date(dateFin.getFullYear() - 1, dateFin.getMonth(), 1);
+
+      for (let date = dateDebut; date <= dateFin; date.setMonth(date.getMonth() + 1)) {
+        const moisCourant = new Date(date).toISOString().slice(0, 7);
+        
+        const enfantsDuMois = enfants.filter(enfant => {
+          if (!enfant.dernierPaiement) return false;
+          const anneeMois = enfant.dernierPaiement.slice(0, 7);
+          const anneeEnfant = enfant.anneeScolaire;
+          return anneeMois === moisCourant && 
+                 (anneeScolaireSelectionnee === "all" || anneeEnfant === anneeScolaireSelectionnee);
+        });
+
+        const paiementsComplets = enfantsDuMois.filter(enfant => 
+          enfant.fraisInscription?.montantPaye === enfant.fraisInscription?.montantTotal
+        ).length;
+
+        const totalPaiements = enfantsDuMois.reduce((sum, enfant) => 
+          sum + (enfant.fraisInscription?.montantPaye || 0), 0
+        );
+
+        const enfantsPaye = enfantsDuMois
+          .filter(enfant => enfant.fraisInscription?.montantPaye === enfant.fraisInscription?.montantTotal)
+          .map(enfant => enfant.id);
+
+        const enfantsNonPaye = enfantsDuMois
+          .filter(enfant => (enfant.fraisInscription?.montantPaye || 0) < (enfant.fraisInscription?.montantTotal || 0))
+          .map(enfant => enfant.id);
+
+        rapportsGeneres.push({
+          mois: moisCourant,
+          totalPaiements,
+          nombreEnfants: enfantsDuMois.length,
+          paiementsComplets,
+          paiementsAttente: enfantsDuMois.length - paiementsComplets,
+          tauxRecouvrement: enfantsDuMois.length ? (paiementsComplets / enfantsDuMois.length) * 100 : 0,
+          enfantsPaye,
+          enfantsNonPaye,
+        });
+      }
+
+      setRapportsMensuels(rapportsGeneres);
+    };
+
+    genererRapportsMensuels();
+  }, [anneeScolaireSelectionnee, enfants]);
 
   const enfantsParAnneeScolaire = anneesDisponibles.reduce((acc, annee) => {
     acc[annee] = enfants.filter(enfant => enfant.anneeScolaire === annee);
@@ -118,23 +138,9 @@ const Rapports = () => {
     };
   };
 
-  const rapportsFiltres = rapportsMensuels.filter(rapport => {
-    const [annee] = rapport.mois.split("-");
-    return anneeScolaireSelectionnee === "all" ? true : annee === anneeScolaireSelectionnee;
-  });
-
-  const generateYearsList = () => {
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let year = currentYear - 2; year <= currentYear + 25; year++) {
-      years.push(year.toString());
-    }
-    return years.sort((a, b) => b.localeCompare(a));
-  };
-
   const handleExportRapport = () => {
     try {
-      const data = rapportsFiltres.map(rapport => ({
+      const data = rapportsMensuels.map(rapport => ({
         "Mois": new Date(rapport.mois).toLocaleDateString("fr-FR", {
           month: "long",
           year: "numeric"
@@ -194,7 +200,7 @@ const Rapports = () => {
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                       <Select 
-                        defaultValue="all"
+                        value={anneeScolaireSelectionnee}
                         onValueChange={setAnneeScolaireSelectionnee}
                       >
                         <SelectTrigger className="w-[200px] bg-gray-200 border-0">
@@ -226,7 +232,7 @@ const Rapports = () => {
                       Total des paiements
                     </h3>
                     <p className="text-2xl font-semibold">
-                      {rapportsFiltres.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
+                      {rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
                     </p>
                   </div>
                   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -234,7 +240,7 @@ const Rapports = () => {
                       Nombre d'enfants
                     </h3>
                     <p className="text-2xl font-semibold">
-                      {rapportsFiltres[0]?.nombreEnfants || 0}
+                      {rapportsMensuels[0]?.nombreEnfants || 0}
                     </p>
                   </div>
                   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -242,7 +248,7 @@ const Rapports = () => {
                       Taux de recouvrement
                     </h3>
                     <p className="text-2xl font-semibold">
-                      {rapportsFiltres[0]?.tauxRecouvrement || 0}%
+                      {rapportsMensuels[0]?.tauxRecouvrement || 0}%
                     </p>
                   </div>
                 </div>
@@ -261,7 +267,7 @@ const Rapports = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {rapportsFiltres.map((rapport) => (
+                      {rapportsMensuels.map((rapport) => (
                         <TableRow key={rapport.mois}>
                           <TableCell>
                             {new Date(rapport.mois).toLocaleDateString("fr-FR", {
