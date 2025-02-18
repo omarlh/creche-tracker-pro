@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,7 @@ import { BadgeCheck, Plus, UserX } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/components/ui/use-toast";
-import { useEnfantStore } from "@/data/enfants";
+import { useEnfantStore, type Enfant } from "@/data/enfants";
 
 const Enfants = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
