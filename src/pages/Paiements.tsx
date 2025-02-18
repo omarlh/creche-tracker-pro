@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -228,13 +229,16 @@ const Paiements = () => {
                           <div
                             key={enfant.id}
                             className="p-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => {
+                            onClick={(event) => {
                               setSearchTerm(`${enfant.prenom} ${enfant.nom}`);
-                              const hiddenInput = document.createElement('input');
-                              hiddenInput.type = 'hidden';
-                              hiddenInput.name = 'enfantId';
-                              hiddenInput.value = enfant.id.toString();
-                              e.currentTarget.form?.appendChild(hiddenInput);
+                              const form = (event.target as HTMLElement).closest('form');
+                              if (form) {
+                                const hiddenInput = document.createElement('input');
+                                hiddenInput.type = 'hidden';
+                                hiddenInput.name = 'enfantId';
+                                hiddenInput.value = enfant.id.toString();
+                                form.appendChild(hiddenInput);
+                              }
                             }}
                           >
                             {enfant.prenom} {enfant.nom} - {enfant.classe}
