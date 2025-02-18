@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { AlertTriangle, Bell, Send } from "lucide-react";
+import { AlertTriangle, Printer, Send } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useEnfantStore } from "@/data/enfants";
 
@@ -83,6 +84,10 @@ const Retards = () => {
     });
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full animate-fadeIn">
@@ -91,6 +96,14 @@ const Retards = () => {
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-semibold">Gestion des Retards de Paiement</h1>
+              <Button
+                onClick={handlePrint}
+                variant="outline"
+                className="print:hidden"
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                Imprimer
+              </Button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -130,7 +143,7 @@ const Retards = () => {
                     <TableHead>Reliquat inscription</TableHead>
                     <TableHead>Jours de retard</TableHead>
                     <TableHead>Dernier rappel</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-right print:hidden">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -170,7 +183,7 @@ const Retards = () => {
                           <span className="text-muted-foreground">Aucun rappel</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right print:hidden">
                         <Button
                           variant="outline"
                           size="sm"
