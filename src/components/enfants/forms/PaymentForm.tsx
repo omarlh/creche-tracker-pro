@@ -40,6 +40,21 @@ export const PaymentForm = ({
         />
       </div>
 
+      <div className="space-y-2">
+        <label htmlFor="fraisScolariteMensuel" className="text-sm font-medium">
+          Frais de scolarité mensuel à payer négocié
+        </label>
+        <Input
+          id="fraisScolariteMensuel"
+          name="fraisScolariteMensuel"
+          type="number"
+          min="0"
+          step="0.01"
+          defaultValue={selectedEnfant?.fraisScolariteMensuel || 300}
+          required
+        />
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <label htmlFor="anneeScolaire" className="text-sm font-medium">

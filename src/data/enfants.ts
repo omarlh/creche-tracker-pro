@@ -26,6 +26,7 @@ export type Enfant = {
     montantPaye: number;
     paiements: PaiementFraisInscription[];
   };
+  fraisScolariteMensuel?: number;
   statut?: "actif" | "inactif";
   dernierPaiement?: string;
 };
@@ -71,6 +72,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
         gsmMaman: enfant.gsm_maman,
         gsmPapa: enfant.gsm_papa,
         anneeScolaire: enfant.annee_scolaire,
+        fraisScolariteMensuel: enfant.frais_scolarite_mensuel,
         fraisInscription: {
           montantTotal: enfant.montant_total,
           montantPaye: enfant.montant_paye,
@@ -110,6 +112,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
           annee_scolaire: enfant.anneeScolaire || "2024-2025",
           montant_total: enfant.fraisInscription?.montantTotal || 300,
           montant_paye: enfant.fraisInscription?.montantPaye || 0,
+          frais_scolarite_mensuel: enfant.fraisScolariteMensuel || 300,
           statut: enfant.statut || "actif",
           dernier_paiement: enfant.dernierPaiement,
         }])
@@ -161,6 +164,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
           annee_scolaire: enfant.anneeScolaire || "2024-2025",
           montant_total: enfant.fraisInscription?.montantTotal,
           montant_paye: enfant.fraisInscription?.montantPaye,
+          frais_scolarite_mensuel: enfant.fraisScolariteMensuel,
           statut: enfant.statut,
           dernier_paiement: enfant.dernierPaiement,
         })
@@ -171,7 +175,6 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
         return;
       }
 
-      // Update or create new payments
       if (enfant.fraisInscription?.paiements?.length) {
         const { error: paiementError } = await supabase
           .from('paiements_inscription')
