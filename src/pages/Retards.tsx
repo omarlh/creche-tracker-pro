@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { format, addMonths, differenceInMonths, startOfMonth, isBefore } from "date-fns";
+import { fr } from "date-fns/locale";
 
 type RetardPaiement = {
   id: number;
@@ -30,6 +33,7 @@ type RetardPaiement = {
   montantDu: number;
   joursRetard: number;
   dernierRappel: string | null;
+  type: 'inscription' | 'mensuel';
 };
 
 const anneesDisponibles = [
@@ -61,30 +65,62 @@ const Retards = () => {
   useEffect(() => {
     const genererRetards = () => {
       const retardsGeneres: RetardPaiement[] = [];
+      const maintenant = new Date();
       
       enfants.forEach(enfant => {
-        if (enfant.statut === "actif") {
-          const montantDu = enfant.fraisInscription?.montantTotal || 0;
-          const montantPaye = enfant.fraisInscription?.montantPaye || 0;
-          const dernierPaiement = enfant.dernierPaiement;
+        if (enfant.statut === "actif" && enfant.dateInscription) {
+          // Gestion des retards de frais d'inscription
+          const montantInscriptionDu = enfant.fraisInscription?.montantTotal || 0;
+          const montantInscriptionPaye = enfant.fraisInscription?.montantPaye || 0;
           
-          if (montantDu > montantPaye && dernierPaiement) {
-            const dateDernierPaiement = new Date(dernierPaiement);
-            const joursRetard = Math.floor((new Date().getTime() - dateDernierPaiement.getTime()) / (1000 * 3600 * 24));
+          if (montantInscriptionDu > montantInscriptionPaye) {
+            const dateInscription = new Date(enfant.dateInscription);
+            const joursRetardInscription = Math.floor((maintenant.getTime() - dateInscription.getTime()) / (1000 * 3600 * 24));
             
-            const anneeScolairePaiement = getAnneeScolaire(dernierPaiement);
-            if (anneeScolairePaiement === selectedAnnee) {
-              retardsGeneres.push({
-                id: Math.random(),
-                enfantId: enfant.id,
-                enfantNom: enfant.nom,
-                enfantPrenom: enfant.prenom,
-                moisConcerne: dernierPaiement,
-                montantDu: montantDu - montantPaye,
-                joursRetard,
-                dernierRappel: null,
-              });
+            retardsGeneres.push({
+              id: Math.random(),
+              enfantId: enfant.id,
+              enfantNom: enfant.nom,
+              enfantPrenom: enfant.prenom,
+              moisConcerne: enfant.dateInscription,
+              montantDu: montantInscriptionDu - montantInscriptionPaye,
+              joursRetard: joursRetardInscription,
+              dernierRappel: null,
+              type: 'inscription'
+            });
+          }
+
+          // Gestion des retards mensuels
+          const dateInscription = new Date(enfant.dateInscription);
+          const dernierPaiement = enfant.dernierPaiement ? new Date(enfant.dernierPaiement) : null;
+          const fraisMensuels = enfant.fraisScolariteMensuel || 0;
+          
+          let moisCourant = startOfMonth(dateInscription);
+          
+          while (isBefore(moisCourant, maintenant)) {
+            const moisFormate = format(moisCourant, 'yyyy-MM');
+            const anneeScolaire = getAnneeScolaire(moisFormate);
+            
+            if (anneeScolaire === selectedAnnee) {
+              const joursRetard = Math.floor((maintenant.getTime() - moisCourant.getTime()) / (1000 * 3600 * 24));
+              
+              // Si pas de dernier paiement ou si le dernier paiement est avant le mois courant
+              if (!dernierPaiement || isBefore(dernierPaiement, moisCourant)) {
+                retardsGeneres.push({
+                  id: Math.random(),
+                  enfantId: enfant.id,
+                  enfantNom: enfant.nom,
+                  enfantPrenom: enfant.prenom,
+                  moisConcerne: moisFormate,
+                  montantDu: fraisMensuels,
+                  joursRetard,
+                  dernierRappel: null,
+                  type: 'mensuel'
+                });
+              }
             }
+            
+            moisCourant = addMonths(moisCourant, 1);
           }
         }
       });
@@ -102,12 +138,6 @@ const Retards = () => {
     });
   }, [retards, selectedAnnee]);
 
-  const getReliquatInscription = (enfantId: number) => {
-    const enfant = enfants.find(e => e.id === enfantId);
-    if (!enfant?.fraisInscription) return 0;
-    return enfant.fraisInscription.montantTotal - enfant.fraisInscription.montantPaye;
-  };
-
   const envoyerRappel = (retardId: number) => {
     const maintenant = new Date().toISOString().split('T')[0];
     setRetards(retards.map(retard => 
@@ -124,6 +154,15 @@ const Retards = () => {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const getTotalRetards = () => {
+    return retardsFiltres.reduce((sum, r) => sum + r.montantDu, 0);
+  };
+
+  const getMoyenneJoursRetard = () => {
+    const total = retardsFiltres.reduce((sum, r) => sum + r.joursRetard, 0);
+    return retardsFiltres.length > 0 ? Math.round(total / retardsFiltres.length) : 0;
   };
 
   return (
@@ -175,7 +214,7 @@ const Retards = () => {
                   Montant total dû
                 </h3>
                 <p className="text-2xl font-semibold">
-                  {retardsFiltres.reduce((sum, r) => sum + r.montantDu, 0)} DH
+                  {getTotalRetards()} DH
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -183,11 +222,7 @@ const Retards = () => {
                   Retard moyen
                 </h3>
                 <p className="text-2xl font-semibold">
-                  {retardsFiltres.length > 0
-                    ? Math.round(
-                        retardsFiltres.reduce((sum, r) => sum + r.joursRetard, 0) / retardsFiltres.length
-                      )
-                    : 0} jours
+                  {getMoyenneJoursRetard()} jours
                 </p>
               </div>
             </div>
@@ -197,9 +232,9 @@ const Retards = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Enfant</TableHead>
+                    <TableHead>Type</TableHead>
                     <TableHead>Mois concerné</TableHead>
                     <TableHead>Montant dû</TableHead>
-                    <TableHead>Reliquat inscription</TableHead>
                     <TableHead>Jours de retard</TableHead>
                     <TableHead>Dernier rappel</TableHead>
                     <TableHead className="text-right print:hidden">Actions</TableHead>
@@ -212,17 +247,18 @@ const Retards = () => {
                         {retard.enfantPrenom} {retard.enfantNom}
                       </TableCell>
                       <TableCell>
-                        {new Date(retard.moisConcerne).toLocaleDateString("fr-FR", {
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </TableCell>
-                      <TableCell>{retard.montantDu} DH</TableCell>
-                      <TableCell>
-                        <span className={getReliquatInscription(retard.enfantId) > 0 ? "text-destructive font-medium" : ""}>
-                          {getReliquatInscription(retard.enfantId)} DH
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          retard.type === 'inscription'
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-purple-100 text-purple-800"
+                        }`}>
+                          {retard.type === 'inscription' ? 'Inscription' : 'Mensuel'}
                         </span>
                       </TableCell>
+                      <TableCell>
+                        {format(new Date(retard.moisConcerne), 'MMMM yyyy', { locale: fr })}
+                      </TableCell>
+                      <TableCell>{retard.montantDu} DH</TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           retard.joursRetard > 20
