@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -147,6 +146,78 @@ const Paiements = () => {
     window.print();
   };
 
+  const handlePrintEnfant = (enfantId: number) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const enfant = enfants.find(e => e.id === enfantId);
+    const paiementsEnfant = filteredPaiements.filter(p => p.enfantId === enfantId);
+
+    const content = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Paiements - ${enfant?.prenom} ${enfant?.nom}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+            th { background-color: #f3f4f6; }
+            .header { margin-bottom: 30px; }
+            .title { font-size: 24px; margin-bottom: 10px; }
+            .subtitle { font-size: 16px; color: #666; }
+            @media print {
+              body { -webkit-print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="title">Historique des paiements</div>
+            <div class="subtitle">
+              ${enfant?.prenom} ${enfant?.nom} - ${enfant?.classe || ""}
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Date de paiement</th>
+                <th>Mois concerné</th>
+                <th>Montant</th>
+                <th>Méthode</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${paiementsEnfant.map(paiement => `
+                <tr>
+                  <td>${new Date(paiement.datePaiement).toLocaleDateString("fr-FR")}</td>
+                  <td>${new Date(paiement.moisConcerne).toLocaleDateString("fr-FR", {
+                    month: "long",
+                    year: "numeric",
+                  })}</td>
+                  <td>${paiement.montant} DH</td>
+                  <td>${paiement.methodePaiement.charAt(0).toUpperCase() + paiement.methodePaiement.slice(1)}</td>
+                  <td>${paiement.statut === "complete" ? "Complété" : "En attente"}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <script>
+            window.onload = () => {
+              window.print();
+              window.onafterprint = () => window.close();
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(content);
+    printWindow.document.close();
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -245,7 +316,7 @@ const Paiements = () => {
                   className="print:hidden"
                 >
                   <Printer className="w-5 h-5 mr-2" />
-                  Imprimer
+                  Imprimer tout
                 </Button>
                 <Button onClick={handleAddClick}>
                   <Plus className="w-5 h-5 mr-2" />
@@ -312,6 +383,14 @@ const Paiements = () => {
                           </span>
                         </TableCell>
                         <TableCell className="text-right space-x-2 print:hidden">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePrintEnfant(paiement.enfantId)}
+                          >
+                            <Printer className="w-4 h-4 mr-1" />
+                            Imprimer
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
