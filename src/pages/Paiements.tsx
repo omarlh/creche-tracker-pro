@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -128,7 +127,7 @@ const Paiements = () => {
       datePaiement: (formData.get("datePaiement") as string) || new Date().toISOString().split('T')[0],
       moisConcerne: formData.get("moisConcerne") as string,
       methodePaiement: formData.get("methodePaiement") as "carte" | "especes" | "cheque",
-      statut: formData.get("statut") as "complete" | "en_attente",
+      statut: "complete", // Statut toujours défini comme "complete"
     };
 
     if (selectedPaiement) {
@@ -468,22 +467,6 @@ const Paiements = () => {
                   <option value="carte">Carte</option>
                   <option value="especes">Espèces</option>
                   <option value="cheque">Chèque</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="statut" className="text-sm font-medium">
-                  Statut
-                </label>
-                <select
-                  id="statut"
-                  name="statut"
-                  defaultValue={selectedPaiement?.statut}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
-                  required
-                >
-                  <option value="complete">Complété</option>
-                  <option value="en_attente">En attente</option>
                 </select>
               </div>
 
