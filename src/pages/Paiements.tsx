@@ -117,6 +117,9 @@ const Paiements = () => {
     return enfant && enfant.anneeScolaire === anneeScolaire;
   });
 
+  const [selectedEnfantId, setSelectedEnfantId] = useState<number | null>(null);
+  const [defaultMontant, setDefaultMontant] = useState<number>(0);
+
   const handleGlobalKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'F2' && isSheetOpen) {
       event.preventDefault();
@@ -277,6 +280,26 @@ const Paiements = () => {
         description: "Le mot de passe est incorrect.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleEnfantSelect = (enfant: { id: number; prenom: string; nom: string; fraisScolariteMensuel?: number }) => {
+    console.log("Sélection de l'enfant:", enfant.prenom, enfant.nom);
+    setSearchTerm(`${enfant.prenom} ${enfant.nom}`);
+    setSelectedEnfantId(enfant.id);
+    setDefaultMontant(enfant.fraisScolariteMensuel || 0);
+    
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = 'enfantId';
+    hiddenInput.value = enfant.id.toString();
+    const form = document.querySelector('form');
+    if (form) {
+      const oldInput = form.querySelector('input[name="enfantId"]');
+      if (oldInput) {
+        oldInput.remove();
+      }
+      form.appendChild(hiddenInput);
     }
   };
 
@@ -504,24 +527,12 @@ const Paiements = () => {
                           <div
                             key={enfant.id}
                             className="p-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => {
-                              console.log("Sélection de l'enfant:", enfant.prenom, enfant.nom);
-                              setSearchTerm(`${enfant.prenom} ${enfant.nom}`);
-                              const hiddenInput = document.createElement('input');
-                              hiddenInput.type = 'hidden';
-                              hiddenInput.name = 'enfantId';
-                              hiddenInput.value = enfant.id.toString();
-                              const form = document.querySelector('form');
-                              if (form) {
-                                const oldInput = form.querySelector('input[name="enfantId"]');
-                                if (oldInput) {
-                                  oldInput.remove();
-                                }
-                                form.appendChild(hiddenInput);
-                              }
-                            }}
+                            onClick={() => handleEnfantSelect(enfant)}
                           >
                             {enfant.prenom} {enfant.nom} - {enfant.classe}
+                            <div className="text-sm text-muted-foreground">
+                              Frais mensuels: {enfant.fraisScolariteMensuel || 0} DH
+                            </div>
                           </div>
                         ))
                       ) : (
@@ -540,10 +551,16 @@ const Paiements = () => {
                   id="montant"
                   name="montant"
                   type="number"
-                  defaultValue={selectedPaiement?.montant || 150}
+                  value={selectedPaiement ? selectedPaiement.montant : defaultMontant}
+                  onChange={(e) => setDefaultMontant(Number(e.target.value))}
                   min={0}
                   required
                 />
+                {selectedEnfantId && (
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Frais mensuels de scolarité : {enfants.find(e => e.id === selectedEnfantId)?.fraisScolariteMensuel || 0} DH
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
