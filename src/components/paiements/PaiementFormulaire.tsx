@@ -156,7 +156,7 @@ export const PaiementFormulaire = ({
             value={formData.moisConcerne.split('-')[1]}
             onValueChange={handleMoisChange}
           >
-            <SelectTrigger id="moisConcerne">
+            <SelectTrigger id="moisConcerne" className="bg-gray-100 bg-opacity-100">
               <SelectValue placeholder="Sélectionner le mois" />
             </SelectTrigger>
             <SelectContent>
