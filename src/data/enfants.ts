@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -47,28 +46,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       console.log("Fetching enfants from Supabase...");
       const { data: enfantsData, error } = await supabase
         .from('enfants')
-        .select(`
-          id,
-          nom,
-          prenom,
-          date_naissance,
-          date_inscription,
-          classe,
-          gsm_maman,
-          gsm_papa,
-          annee_scolaire,
-          montant_total,
-          montant_paye,
-          frais_scolarite_mensuel,
-          statut,
-          dernier_paiement,
-          paiements_inscription (
-            id,
-            montant,
-            date_paiement,
-            methode_paiement
-          )
-        `);
+        .select('*, paiements_inscription(*)');
 
       if (error) {
         console.error("Error fetching enfants:", error);
