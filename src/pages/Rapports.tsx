@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { StatisticsCards } from "@/components/rapports/StatisticsCards";
 import { RapportsTable } from "@/components/rapports/RapportsTable";
 import { InscriptionsStats } from "@/components/rapports/InscriptionsStats";
@@ -208,7 +210,7 @@ const Rapports: React.FC = () => {
   };
 
   return (
-    <React.Fragment>
+    <SidebarProvider>
       <div className="min-h-screen flex w-full animate-fadeIn">
         <AppSidebar />
         <main className="flex-1 p-8">
@@ -293,7 +295,7 @@ const Rapports: React.FC = () => {
           </div>
         </SheetContent>
       </Sheet>
-    </React.Fragment>
+    </SidebarProvider>
   );
 };
 
