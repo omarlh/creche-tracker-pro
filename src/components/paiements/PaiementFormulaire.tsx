@@ -47,6 +47,15 @@ export const PaiementFormulaire = ({
     });
   };
 
+  const getMoisAvecAnnee = (mois: string) => {
+    const [anneeDebut, anneeFin] = anneeScolaire.split('-');
+    // Les mois de septembre à décembre sont dans l'année de début
+    const annee = ['septembre', 'octobre', 'novembre', 'décembre'].includes(mois.toLowerCase())
+      ? anneeDebut
+      : anneeFin;
+    return `${mois} ${annee}`;
+  };
+
   const mois = [
     "Septembre",
     "Octobre",
@@ -113,13 +122,20 @@ export const PaiementFormulaire = ({
             value={formData.moisConcerne}
             onValueChange={(value) => setFormData({ ...formData, moisConcerne: value })}
           >
-            <SelectTrigger id="moisConcerne">
+            <SelectTrigger 
+              id="moisConcerne" 
+              className="bg-gray-100 opacity-100 border-gray-200"
+            >
               <SelectValue placeholder="Sélectionner le mois" />
             </SelectTrigger>
             <SelectContent>
               {mois.map((mois) => (
-                <SelectItem key={mois} value={mois.toLowerCase()}>
-                  {mois}
+                <SelectItem 
+                  key={mois} 
+                  value={mois.toLowerCase()}
+                  className="bg-gray-100"
+                >
+                  {getMoisAvecAnnee(mois)}
                 </SelectItem>
               ))}
             </SelectContent>
