@@ -8,6 +8,7 @@ import Paiements from "@/pages/Paiements";
 import ListeAnnuelle from "@/pages/ListeAnnuelle";
 import Depart from "@/pages/Depart";
 import Rapports from "@/pages/Rapports";
+import Retards from "@/pages/Retards";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: "/rapports",
     element: <Rapports />,
+  },
+  {
+    path: "/retards",
+    element: <Retards />,
   },
 ]);
 

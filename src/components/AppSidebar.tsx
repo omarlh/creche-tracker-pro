@@ -9,6 +9,7 @@ import {
   CreditCard,
   LogOut,
   BarChart,
+  Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +56,16 @@ export const AppSidebar = () => {
         >
           <CalendarDays size={16} />
           Liste Annuelle
+        </Link>
+        <Link
+          to="/retards"
+          className={cn(
+            buttonVariants({ variant: "ghost" }),
+            "w-full justify-start gap-2"
+          )}
+        >
+          <Clock size={16} />
+          Retards de Paiement
         </Link>
         <Link
           to="/depart"

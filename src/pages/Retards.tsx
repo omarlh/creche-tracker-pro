@@ -1,158 +1,122 @@
-import { useState, useMemo, useEffect } from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { useToast } from "@/components/ui/use-toast";
-import { useEnfantStore } from "@/data/enfants";
+import { Button } from "@/components/ui/button";
 import { RetardsHeader } from "@/components/retards/RetardsHeader";
 import { RetardsStats } from "@/components/retards/RetardsStats";
-import { RetardsTable, RetardPaiement } from "@/components/retards/RetardsTable";
-import { addMonths, startOfMonth, isBefore, format } from "date-fns";
+import { RetardsTable } from "@/components/retards/RetardsTable";
+import { useEnfantStore } from "@/data/enfants";
+import { usePaiementStore } from "@/data/paiements";
 
-const Retards = () => {
-  const [retards, setRetards] = useState<RetardPaiement[]>([]);
-  const [selectedAnnee, setSelectedAnnee] = useState<string>("2023-2024");
+export default function Retards() {
   const { toast } = useToast();
-  const { enfants } = useEnfantStore();
-
-  const getAnneeScolaire = (date: string) => {
-    const dateObj = new Date(date);
-    const mois = dateObj.getMonth();
-    const annee = dateObj.getFullYear();
-    
-    if (mois >= 8) {
-      return `${annee}-${annee + 1}`;
-    } else {
-      return `${annee - 1}-${annee}`;
-    }
-  };
+  const [filtreStatus, setFiltreStatus] = useState<string>("tous");
+  const [filtreDelai, setFiltreDelai] = useState<string>("tous");
+  const enfants = useEnfantStore((state) => state.enfants);
+  const paiements = usePaiementStore((state) => state.paiements);
+  const { fetchPaiements } = usePaiementStore();
 
   useEffect(() => {
-    const genererRetards = () => {
-      const retardsGeneres: RetardPaiement[] = [];
-      const maintenant = new Date();
-      
-      enfants.forEach(enfant => {
-        if (enfant.statut === "actif" && enfant.dateInscription) {
-          // Gestion des retards de frais d'inscription
-          const montantInscriptionDu = enfant.fraisInscription?.montantTotal || 0;
-          const montantInscriptionPaye = enfant.fraisInscription?.montantPaye || 0;
-          
-          if (montantInscriptionDu > montantInscriptionPaye) {
-            const dateInscription = new Date(enfant.dateInscription);
-            const joursRetardInscription = Math.floor((maintenant.getTime() - dateInscription.getTime()) / (1000 * 3600 * 24));
-            
-            retardsGeneres.push({
-              id: Math.random(),
-              enfantId: enfant.id,
-              enfantNom: enfant.nom,
-              enfantPrenom: enfant.prenom,
-              moisConcerne: enfant.dateInscription,
-              montantDu: montantInscriptionDu - montantInscriptionPaye,
-              joursRetard: joursRetardInscription,
-              dernierRappel: null,
-              type: 'inscription'
-            });
-          }
+    fetchPaiements();
+  }, [fetchPaiements]);
 
-          // Gestion des retards mensuels
-          const dateInscription = new Date(enfant.dateInscription);
-          const dernierPaiement = enfant.dernierPaiement ? new Date(enfant.dernierPaiement) : null;
-          const fraisMensuels = enfant.fraisScolariteMensuel || 0;
-          
-          let moisCourant = startOfMonth(dateInscription);
-          
-          while (isBefore(moisCourant, maintenant)) {
-            const moisFormate = format(moisCourant, 'yyyy-MM');
-            const anneeScolaire = getAnneeScolaire(moisFormate);
-            
-            if (anneeScolaire === selectedAnnee) {
-              const joursRetard = Math.floor((maintenant.getTime() - moisCourant.getTime()) / (1000 * 3600 * 24));
-              
-              if (!dernierPaiement || isBefore(dernierPaiement, moisCourant)) {
-                retardsGeneres.push({
-                  id: Math.random(),
-                  enfantId: enfant.id,
-                  enfantNom: enfant.nom,
-                  enfantPrenom: enfant.prenom,
-                  moisConcerne: moisFormate,
-                  montantDu: fraisMensuels,
-                  joursRetard,
-                  dernierRappel: null,
-                  type: 'mensuel'
-                });
-              }
-            }
-            
-            moisCourant = addMonths(moisCourant, 1);
-          }
+  const calculerRetard = useCallback((dernierPaiement: string | null) => {
+    if (!dernierPaiement) return Infinity;
+    const dateRetard = new Date(dernierPaiement);
+    const aujourdhui = new Date();
+    const differenceEnJours = Math.floor(
+      (aujourdhui.getTime() - dateRetard.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return differenceEnJours;
+  }, []);
+
+  const enfantsAvecRetard = useMemo(() => {
+    return enfants
+      .filter((enfant) => enfant.statut === "actif")
+      .map((enfant) => {
+        const dernierPaiement = enfant.dernierPaiement;
+        const joursRetard = calculerRetard(dernierPaiement);
+        const montantDu = (enfant.fraisScolariteMensuel || 0) * Math.ceil(joursRetard / 30);
+        
+        return {
+          ...enfant,
+          joursRetard,
+          montantDu: joursRetard === Infinity ? 0 : montantDu,
+          status: joursRetard <= 0 ? "à jour" : joursRetard <= 30 ? "en retard" : "critique"
+        };
+      })
+      .filter((enfant) => {
+        if (filtreStatus === "tous") return true;
+        return enfant.status === filtreStatus;
+      })
+      .filter((enfant) => {
+        if (filtreDelai === "tous") return true;
+        const retard = enfant.joursRetard;
+        switch (filtreDelai) {
+          case "moins30":
+            return retard <= 30;
+          case "30a60":
+            return retard > 30 && retard <= 60;
+          case "plus60":
+            return retard > 60;
+          default:
+            return true;
         }
-      });
+      })
+      .sort((a, b) => b.joursRetard - a.joursRetard);
+  }, [enfants, calculerRetard, filtreStatus, filtreDelai]);
 
-      setRetards(retardsGeneres);
+  const statistiques = useMemo(() => {
+    const total = enfantsAvecRetard.length;
+    const enRetard = enfantsAvecRetard.filter(e => e.status === "en retard").length;
+    const critique = enfantsAvecRetard.filter(e => e.status === "critique").length;
+    const aJour = enfantsAvecRetard.filter(e => e.status === "à jour").length;
+    const montantTotal = enfantsAvecRetard.reduce((acc, curr) => acc + curr.montantDu, 0);
+
+    return {
+      total,
+      enRetard,
+      critique,
+      aJour,
+      montantTotal
     };
+  }, [enfantsAvecRetard]);
 
-    genererRetards();
-  }, [selectedAnnee, enfants]);
-
-  const retardsFiltres = useMemo(() => {
-    return retards.filter(retard => {
-      const anneeScolaire = getAnneeScolaire(retard.moisConcerne);
-      return anneeScolaire === selectedAnnee;
-    });
-  }, [retards, selectedAnnee]);
-
-  const envoyerRappel = (retardId: number) => {
-    const maintenant = new Date().toISOString().split('T')[0];
-    setRetards(retards.map(retard => 
-      retard.id === retardId 
-        ? { ...retard, dernierRappel: maintenant }
-        : retard
-    ));
-    
+  const handleEnvoyerRappel = useCallback((enfantId: number) => {
     toast({
       title: "Rappel envoyé",
       description: "Le rappel de paiement a été envoyé avec succès.",
     });
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const getTotalRetards = () => {
-    return retardsFiltres.reduce((sum, r) => sum + r.montantDu, 0);
-  };
-
-  const getMoyenneJoursRetard = () => {
-    const total = retardsFiltres.reduce((sum, r) => sum + r.joursRetard, 0);
-    return retardsFiltres.length > 0 ? Math.round(total / retardsFiltres.length) : 0;
-  };
+  }, [toast]);
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full animate-fadeIn">
+      <div className="grid lg:grid-cols-5 h-screen w-full">
         <AppSidebar />
-        <main className="flex-1 p-8">
-          <div className="max-w-6xl mx-auto">
+        <div className="col-span-4 bg-background">
+          <div className="h-full px-4 py-6 lg:px-8">
             <RetardsHeader
-              selectedAnnee={selectedAnnee}
-              setSelectedAnnee={setSelectedAnnee}
-              handlePrint={handlePrint}
+              filtreStatus={filtreStatus}
+              setFiltreStatus={setFiltreStatus}
+              filtreDelai={filtreDelai}
+              setFiltreDelai={setFiltreDelai}
             />
-            <RetardsStats
-              totalRetards={retardsFiltres.length}
-              montantTotal={getTotalRetards()}
-              moyenneJours={getMoyenneJoursRetard()}
-            />
-            <RetardsTable
-              retards={retardsFiltres}
-              onEnvoyerRappel={envoyerRappel}
-            />
+            
+            <div className="mt-8">
+              <RetardsStats statistiques={statistiques} />
+            </div>
+
+            <div className="mt-8">
+              <RetardsTable
+                retards={enfantsAvecRetard}
+                onEnvoyerRappel={handleEnvoyerRappel}
+              />
+            </div>
           </div>
-        </main>
+        </div>
       </div>
     </SidebarProvider>
   );
-};
-
-export default Retards;
+}
