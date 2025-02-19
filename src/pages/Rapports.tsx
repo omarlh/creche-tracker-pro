@@ -77,13 +77,13 @@ const Rapports = () => {
       
       const moisAGenerer = [];
       
-      for (let mois = 8; mois <= 11; mois++) {
-        const date = new Date(parseInt(anneeDebut), mois);
+      for (let mois = 9; mois <= 12; mois++) {
+        const date = new Date(parseInt(anneeDebut), mois - 1);
         moisAGenerer.push(date);
       }
       
-      for (let mois = 0; mois <= 5; mois++) {
-        const date = new Date(parseInt(anneeFin), mois);
+      for (let mois = 1; mois <= 6; mois++) {
+        const date = new Date(parseInt(anneeFin), mois - 1);
         moisAGenerer.push(date);
       }
 
