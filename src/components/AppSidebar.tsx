@@ -8,6 +8,7 @@ import {
   Users, 
   CreditCard,
   LogOut,
+  BarChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -64,6 +65,16 @@ export const AppSidebar = () => {
         >
           <LogOut size={16} />
           Départs
+        </Link>
+        <Link
+          to="/rapports"
+          className={cn(
+            buttonVariants({ variant: "ghost" }),
+            "w-full justify-start gap-2"
+          )}
+        >
+          <BarChart size={16} />
+          Rapports
         </Link>
       </div>
     </Sidebar>
