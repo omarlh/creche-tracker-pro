@@ -40,10 +40,15 @@ export const PaiementFormulaire = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Formatage correct de la date pour le mois concerné
+    const [annee, mois] = formData.moisConcerne.split('-');
+    const moisConcerneDate = new Date(parseInt(annee), parseInt(mois) - 1, 1);
+    
     onSubmit({
       ...formData,
       enfantId: parseInt(formData.enfantId),
       montant: parseFloat(formData.montant.toString()),
+      moisConcerne: moisConcerneDate.toISOString() // Format ISO pour la date
     });
   };
 
@@ -53,23 +58,20 @@ export const PaiementFormulaire = ({
     const annee = ['septembre', 'octobre', 'novembre', 'décembre'].includes(mois.toLowerCase())
       ? anneeDebut
       : anneeFin;
-    return `${mois} ${annee}`;
+    return { mois, annee };
   };
 
   const mois = [
-    "Septembre",
-    "Octobre",
-    "Novembre",
-    "Décembre",
-    "Janvier",
-    "Février",
-    "Mars",
-    "Avril",
-    "Mai",
-    "Juin",
-    "Juillet",
-    "Août"
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
   ];
+
+  const handleMoisChange = (selectedMois: string) => {
+    const { mois, annee } = getMoisAvecAnnee(selectedMois);
+    const moisIndex = mois.findIndex(m => m.toLowerCase() === selectedMois.toLowerCase()) + 1;
+    const moisConcerne = `${annee}-${String(moisIndex).padStart(2, '0')}`;
+    setFormData({ ...formData, moisConcerne });
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -119,13 +121,10 @@ export const PaiementFormulaire = ({
         <div>
           <Label htmlFor="moisConcerne">Mois concerné</Label>
           <Select 
-            value={formData.moisConcerne}
-            onValueChange={(value) => setFormData({ ...formData, moisConcerne: value })}
+            value={formData.moisConcerne.split('-')[1]}
+            onValueChange={handleMoisChange}
           >
-            <SelectTrigger 
-              id="moisConcerne" 
-              className="bg-gray-100 opacity-100 border-gray-200"
-            >
+            <SelectTrigger id="moisConcerne">
               <SelectValue placeholder="Sélectionner le mois" />
             </SelectTrigger>
             <SelectContent>
@@ -133,9 +132,8 @@ export const PaiementFormulaire = ({
                 <SelectItem 
                   key={mois} 
                   value={mois.toLowerCase()}
-                  className="bg-gray-100"
                 >
-                  {getMoisAvecAnnee(mois)}
+                  {mois}
                 </SelectItem>
               ))}
             </SelectContent>
