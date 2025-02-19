@@ -16,6 +16,7 @@ export type Database = {
           date_inscription: string | null
           date_naissance: string | null
           dernier_paiement: string | null
+          frais_scolarite_mensuel: number | null
           gsm_maman: string | null
           gsm_papa: string | null
           id: number
@@ -31,6 +32,7 @@ export type Database = {
           date_inscription?: string | null
           date_naissance?: string | null
           dernier_paiement?: string | null
+          frais_scolarite_mensuel?: number | null
           gsm_maman?: string | null
           gsm_papa?: string | null
           id?: number
@@ -46,6 +48,7 @@ export type Database = {
           date_inscription?: string | null
           date_naissance?: string | null
           dernier_paiement?: string | null
+          frais_scolarite_mensuel?: number | null
           gsm_maman?: string | null
           gsm_papa?: string | null
           id?: number

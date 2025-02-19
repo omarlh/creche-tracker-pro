@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -38,6 +39,29 @@ type EnfantStore = {
   supprimerEnfant: (id: number) => Promise<void>;
 };
 
+type EnfantRow = {
+  id: number;
+  nom: string;
+  prenom: string;
+  date_naissance: string | null;
+  date_inscription: string | null;
+  classe: string | null;
+  gsm_maman: string | null;
+  gsm_papa: string | null;
+  annee_scolaire: string | null;
+  montant_total: number | null;
+  montant_paye: number | null;
+  frais_scolarite_mensuel: number | null;
+  statut: string | null;
+  dernier_paiement: string | null;
+  paiements_inscription: Array<{
+    id: number;
+    montant: number;
+    date_paiement: string | null;
+    methode_paiement: string | null;
+  }> | null;
+};
+
 export const useEnfantStore = create<EnfantStore>((set) => ({
   enfants: [],
   
@@ -53,29 +77,29 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
         return;
       }
 
-      const formattedEnfants: Enfant[] = enfantsData?.map(enfant => ({
+      const formattedEnfants: Enfant[] = (enfantsData as EnfantRow[])?.map(enfant => ({
         id: enfant.id,
         nom: enfant.nom,
         prenom: enfant.prenom,
-        dateNaissance: enfant.date_naissance,
-        dateInscription: enfant.date_inscription,
+        dateNaissance: enfant.date_naissance || undefined,
+        dateInscription: enfant.date_inscription || undefined,
         classe: enfant.classe as Classe,
-        gsmMaman: enfant.gsm_maman,
-        gsmPapa: enfant.gsm_papa,
-        anneeScolaire: enfant.annee_scolaire,
-        fraisScolariteMensuel: enfant.frais_scolarite_mensuel,
+        gsmMaman: enfant.gsm_maman || undefined,
+        gsmPapa: enfant.gsm_papa || undefined,
+        anneeScolaire: enfant.annee_scolaire || undefined,
+        fraisScolariteMensuel: enfant.frais_scolarite_mensuel || undefined,
         fraisInscription: {
-          montantTotal: enfant.montant_total,
-          montantPaye: enfant.montant_paye,
+          montantTotal: enfant.montant_total || 0,
+          montantPaye: enfant.montant_paye || 0,
           paiements: (enfant.paiements_inscription || []).map(p => ({
             id: p.id,
             montant: p.montant,
-            datePaiement: p.date_paiement,
+            datePaiement: p.date_paiement || '',
             methodePaiement: p.methode_paiement as "carte" | "especes" | "cheque" | "virement",
           }))
         },
         statut: enfant.statut as "actif" | "inactif",
-        dernierPaiement: enfant.dernier_paiement,
+        dernierPaiement: enfant.dernier_paiement || undefined,
       })) || [];
 
       console.log("Fetched enfants:", formattedEnfants);
