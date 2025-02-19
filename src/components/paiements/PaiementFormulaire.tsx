@@ -26,6 +26,13 @@ export const PaiementFormulaire = ({
   defaultMontant,
   enfants,
 }: PaiementFormulaireProps) => {
+  // Liste des années scolaires (on peut ajouter plus d'années si nécessaire)
+  const anneesDisponibles = [
+    "2023-2024",
+    "2024-2025",
+    "2025-2026"
+  ];
+
   const [formData, setFormData] = useState({
     enfantId: selectedPaiement?.enfantId?.toString() || "",
     anneeScolaire: selectedPaiement?.anneeScolaire || anneeScolaire,
@@ -52,20 +59,24 @@ export const PaiementFormulaire = ({
   };
 
   const getMoisAvecAnnee = (mois: string) => {
-    const [anneeDebut, anneeFin] = anneeScolaire.split('-');
+    const [anneeDebut, anneeFin] = formData.anneeScolaire.split('-');
     const annee = ['septembre', 'octobre', 'novembre', 'décembre'].includes(mois.toLowerCase())
       ? anneeDebut
       : anneeFin;
     return { mois, annee };
   };
 
+  // Liste des mois de l'année scolaire (septembre à juin)
   const mois = [
-    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    "Septembre", "Octobre", "Novembre", "Décembre",
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin"
   ];
 
   const getMoisIndex = (selectedMois: string): number => {
-    return mois.findIndex(m => m.toLowerCase() === selectedMois.toLowerCase()) + 1;
+    const moisIndex = mois.findIndex(m => m.toLowerCase() === selectedMois.toLowerCase());
+    // Pour janvier-juin, on ajoute 1 au mois
+    // Pour septembre-décembre, on ajoute 9 pour obtenir le bon numéro de mois
+    return moisIndex < 4 ? moisIndex + 9 : moisIndex - 3;
   };
 
   const handleMoisChange = (selectedMois: string) => {
@@ -91,6 +102,25 @@ export const PaiementFormulaire = ({
               {enfants.map((enfant) => (
                 <SelectItem key={enfant.id} value={enfant.id.toString()}>
                   {enfant.prenom} {enfant.nom}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="anneeScolaire">Année scolaire</Label>
+          <Select 
+            value={formData.anneeScolaire}
+            onValueChange={(value) => setFormData({ ...formData, anneeScolaire: value })}
+          >
+            <SelectTrigger id="anneeScolaire">
+              <SelectValue placeholder="Sélectionner une année scolaire" />
+            </SelectTrigger>
+            <SelectContent>
+              {anneesDisponibles.map((annee) => (
+                <SelectItem key={annee} value={annee}>
+                  {annee}
                 </SelectItem>
               ))}
             </SelectContent>
