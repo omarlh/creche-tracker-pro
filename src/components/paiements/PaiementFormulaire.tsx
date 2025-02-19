@@ -47,6 +47,21 @@ export const PaiementFormulaire = ({
     });
   };
 
+  const mois = [
+    "Septembre",
+    "Octobre",
+    "Novembre",
+    "Décembre",
+    "Janvier",
+    "Février",
+    "Mars",
+    "Avril",
+    "Mai",
+    "Juin",
+    "Juillet",
+    "Août"
+  ];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
@@ -94,13 +109,21 @@ export const PaiementFormulaire = ({
 
         <div>
           <Label htmlFor="moisConcerne">Mois concerné</Label>
-          <Input
-            id="moisConcerne"
-            type="month"
+          <Select 
             value={formData.moisConcerne}
-            onChange={(e) => setFormData({ ...formData, moisConcerne: e.target.value })}
-            required
-          />
+            onValueChange={(value) => setFormData({ ...formData, moisConcerne: value })}
+          >
+            <SelectTrigger id="moisConcerne">
+              <SelectValue placeholder="Sélectionner le mois" />
+            </SelectTrigger>
+            <SelectContent>
+              {mois.map((mois) => (
+                <SelectItem key={mois} value={mois.toLowerCase()}>
+                  {mois}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div>
