@@ -20,6 +20,7 @@ import { FileText, Download, BadgeCheck, AlertCircle, Printer } from "lucide-rea
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
+import { usePaiementStore } from "@/data/paiements";
 import {
   Select,
   SelectContent,
@@ -66,6 +67,7 @@ const Rapports = () => {
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const [rapportsMensuels, setRapportsMensuels] = useState<RapportMensuel[]>([]);
   const { enfants } = useEnfantStore();
+  const { paiements } = usePaiementStore();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -78,7 +80,7 @@ const Rapports = () => {
       const moisAGenerer = [];
       
       for (let mois = 8; mois < 12; mois++) {
-        const date = new Date(parseInt(anneeDebut), mois + 1);
+        const date = new Date(parseInt(anneeDebut), mois);
         moisAGenerer.push(date);
       }
       
@@ -87,46 +89,40 @@ const Rapports = () => {
         moisAGenerer.push(date);
       }
 
-      console.log("Mois à générer:", moisAGenerer.map(d => 
-        d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
-      ));
-
       moisAGenerer.forEach(date => {
         if (date.getMonth() !== 7) {
           const moisCourant = date.toISOString().slice(0, 7);
           
-          const enfantsDuMois = enfants.filter(enfant => {
-            if (!enfant.dernierPaiement) return false;
-            
-            const datePaiement = new Date(enfant.dernierPaiement);
+          const paiementsDuMois = paiements.filter(paiement => {
+            const datePaiement = new Date(paiement.datePaiement);
             return datePaiement.getMonth() === date.getMonth() && 
-                   datePaiement.getFullYear() === date.getFullYear() &&
-                   enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-");
+                   datePaiement.getFullYear() === date.getFullYear();
           });
 
-          const paiementsComplets = enfantsDuMois.filter(enfant => 
-            enfant.fraisInscription?.montantPaye === enfant.fraisInscription?.montantTotal
-          ).length;
-
-          const totalPaiements = enfantsDuMois.reduce((sum, enfant) => 
-            sum + (enfant.fraisInscription?.montantPaye || 0), 0
+          const enfantsAvecPaiement = new Set(paiementsDuMois.map(p => p.enfantId));
+          
+          const totalPaiements = paiementsDuMois.reduce((sum, paiement) => 
+            sum + paiement.montant, 0
           );
 
-          const enfantsPaye = enfantsDuMois
-            .filter(enfant => enfant.fraisInscription?.montantPaye === enfant.fraisInscription?.montantTotal)
-            .map(enfant => enfant.id);
+          const enfantsActifs = enfants.filter(enfant => 
+            enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-") &&
+            enfant.statut === "actif"
+          );
 
-          const enfantsNonPaye = enfantsDuMois
-            .filter(enfant => (enfant.fraisInscription?.montantPaye || 0) < (enfant.fraisInscription?.montantTotal || 0))
+          const enfantsPaye = Array.from(enfantsAvecPaiement);
+          const enfantsNonPaye = enfantsActifs
+            .filter(enfant => !enfantsAvecPaiement.has(enfant.id))
             .map(enfant => enfant.id);
 
           rapportsGeneres.push({
             mois: moisCourant,
             totalPaiements,
-            nombreEnfants: enfantsDuMois.length,
-            paiementsComplets,
-            paiementsAttente: enfantsDuMois.length - paiementsComplets,
-            tauxRecouvrement: enfantsDuMois.length ? (paiementsComplets / enfantsDuMois.length) * 100 : 0,
+            nombreEnfants: enfantsActifs.length,
+            paiementsComplets: enfantsPaye.length,
+            paiementsAttente: enfantsActifs.length - enfantsPaye.length,
+            tauxRecouvrement: enfantsActifs.length ? 
+              (enfantsPaye.length / enfantsActifs.length) * 100 : 0,
             enfantsPaye,
             enfantsNonPaye,
           });
@@ -140,7 +136,7 @@ const Rapports = () => {
     };
 
     genererRapportsMensuels();
-  }, [anneeScolaireSelectionnee, enfants]);
+  }, [anneeScolaireSelectionnee, enfants, paiements]);
 
   const enfantsParAnneeScolaire = anneesDisponibles.reduce((acc, annee) => {
     acc[annee] = enfants.filter(enfant => enfant.anneeScolaire === annee);
