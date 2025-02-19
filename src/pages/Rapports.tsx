@@ -82,7 +82,7 @@ const Rapports = () => {
         moisAGenerer.push(date);
       }
       
-      for (let mois = 0; mois < 6; mois++) {
+      for (let mois = 0; mois <= 5; mois++) {
         const date = new Date(parseInt(anneeFin), mois);
         moisAGenerer.push(date);
       }
