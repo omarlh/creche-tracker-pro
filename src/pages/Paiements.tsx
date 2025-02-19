@@ -59,17 +59,18 @@ const Paiements = () => {
   const [selectedPaiement, setSelectedPaiement] = useState<Paiement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [anneeScolaire, setAnneeScolaire] = useState("2023-2024");
+  const [anneeScolaire, setAnneeScolaire] = useState("2024-2025");
   const [deletePassword, setDeletePassword] = useState("");
   const [isPasswordError, setIsPasswordError] = useState(false);
   const [paiementToDelete, setPaiementToDelete] = useState<Paiement | null>(null);
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
-  const filteredEnfants = enfants.filter(enfant => 
-    enfant.anneeScolaire === anneeScolaire &&
-    (searchTerm === "" || `${enfant.prenom} ${enfant.nom}`.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredEnfants = enfants.filter(enfant => {
+    console.log("Enfant filtré:", enfant.prenom, enfant.nom, "Année scolaire:", enfant.anneeScolaire);
+    return enfant.anneeScolaire === anneeScolaire &&
+      (searchTerm === "" || `${enfant.prenom} ${enfant.nom}`.toLowerCase().includes(searchTerm.toLowerCase()));
+  });
 
   const filteredPaiements = paiements.filter(paiement => {
     const enfant = enfants.find(e => e.id === paiement.enfantId);
@@ -95,6 +96,7 @@ const Paiements = () => {
   }, [isSheetOpen]);
 
   const handleAddClick = () => {
+    console.log("Enfants disponibles:", enfants.map(e => ({ nom: e.nom, prenom: e.prenom, annee: e.anneeScolaire })));
     setSelectedPaiement(null);
     setSearchTerm("");
     setIsSheetOpen(true);
@@ -162,6 +164,7 @@ const Paiements = () => {
                 <Select
                   value={anneeScolaire}
                   onValueChange={(value) => {
+                    console.log("Changement d'année scolaire vers:", value);
                     setAnneeScolaire(value);
                     setSearchTerm("");
                   }}
@@ -328,6 +331,7 @@ const Paiements = () => {
                 <Select
                   value={anneeScolaire}
                   onValueChange={(value) => {
+                    console.log("Changement d'année scolaire dans le formulaire vers:", value);
                     setAnneeScolaire(value);
                     setSearchTerm("");
                   }}
@@ -357,7 +361,10 @@ const Paiements = () => {
                   <Input
                     type="text"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => {
+                      console.log("Recherche:", e.target.value);
+                      setSearchTerm(e.target.value);
+                    }}
                     placeholder="Rechercher un enfant..."
                     className="w-full"
                     onFocus={() => setIsSearchFocused(true)}
@@ -373,6 +380,7 @@ const Paiements = () => {
                             key={enfant.id}
                             className="p-2 hover:bg-gray-100 cursor-pointer"
                             onClick={() => {
+                              console.log("Sélection de l'enfant:", enfant.prenom, enfant.nom);
                               setSearchTerm(`${enfant.prenom} ${enfant.nom}`);
                               const hiddenInput = document.createElement('input');
                               hiddenInput.type = 'hidden';
