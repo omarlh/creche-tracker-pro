@@ -31,15 +31,24 @@ export const EnfantActions = ({ enfant, onEdit, onPrint, onDelete }: EnfantActio
 
   const handleDelete = () => {
     if (password === "radia") {
-      console.log("Suppression confirmée pour l'enfant:", enfant.nom, enfant.prenom);
-      onDelete(enfant.id);
-      setIsDialogOpen(false);
-      toast({
-        title: "Suppression réussie",
-        description: `${enfant.prenom} ${enfant.nom} a été supprimé(e) de la liste.`,
-      });
-      setPassword("");
-      setIsPasswordError(false);
+      console.log("Début de la suppression pour l'enfant:", enfant.id, enfant.nom, enfant.prenom);
+      try {
+        onDelete(enfant.id);
+        setIsDialogOpen(false);
+        toast({
+          title: "Suppression réussie",
+          description: `${enfant.prenom} ${enfant.nom} a été supprimé(e) de la liste.`,
+        });
+        setPassword("");
+        setIsPasswordError(false);
+      } catch (error) {
+        console.error("Erreur lors de la suppression:", error);
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue lors de la suppression.",
+          variant: "destructive",
+        });
+      }
     } else {
       setIsPasswordError(true);
       toast({
