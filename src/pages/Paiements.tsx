@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,19 +53,39 @@ const anneesDisponibles = [
   "2032-2033"
 ];
 
-// Fonction pour obtenir l'année scolaire actuelle
 const getCurrentSchoolYear = () => {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth(); // 0-11
   const currentYear = currentDate.getFullYear();
   
-  // Si nous sommes entre juillet et décembre, l'année scolaire commence cette année
-  // Sinon, elle a commencé l'année précédente
   if (currentMonth >= 6) { // Juillet ou après
     return `${currentYear}-${currentYear + 1}`;
   } else {
     return `${currentYear - 1}-${currentYear}`;
   }
+};
+
+const getMoisAnneeScolaire = (anneeScolaire: string) => {
+  const [debut, fin] = anneeScolaire.split('-').map(Number);
+  const mois = [];
+  
+  for (let m = 8; m < 12; m++) {
+    const date = new Date(debut, m);
+    mois.push({
+      value: date.toISOString().slice(0, 7),
+      label: date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+    });
+  }
+  
+  for (let m = 0; m < 7; m++) {
+    const date = new Date(fin, m);
+    mois.push({
+      value: date.toISOString().slice(0, 7),
+      label: date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+    });
+  }
+  
+  return mois;
 };
 
 const Paiements = () => {
@@ -79,8 +98,13 @@ const Paiements = () => {
   const [deletePassword, setDeletePassword] = useState("");
   const [isPasswordError, setIsPasswordError] = useState(false);
   const [paiementToDelete, setPaiementToDelete] = useState<Paiement | null>(null);
+  const [moisDisponibles, setMoisDisponibles] = useState(getMoisAnneeScolaire(anneeScolaire));
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
+
+  useEffect(() => {
+    setMoisDisponibles(getMoisAnneeScolaire(anneeScolaire));
+  }, [anneeScolaire]);
 
   const filteredEnfants = enfants.filter(enfant => {
     console.log("Enfant filtré:", enfant.prenom, enfant.nom, "Année scolaire:", enfant.anneeScolaire);
@@ -121,7 +145,6 @@ const Paiements = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    console.log("Mois concerné soumis:", formData.get("moisConcerne")); // Debug log
     
     const moisConcerne = formData.get("moisConcerne");
     if (!moisConcerne) {
@@ -142,7 +165,7 @@ const Paiements = () => {
       statut: "complete",
     };
 
-    console.log("Nouveau paiement à enregistrer:", nouveauPaiement); // Debug log
+    console.log("Nouveau paiement à enregistrer:", nouveauPaiement);
 
     if (selectedPaiement) {
       modifierPaiement({ ...nouveauPaiement, id: selectedPaiement.id });
@@ -446,13 +469,25 @@ const Paiements = () => {
                 <label htmlFor="moisConcerne" className="text-sm font-medium">
                   Mois concerné
                 </label>
-                <Input
-                  id="moisConcerne"
+                <Select
                   name="moisConcerne"
-                  type="month"
-                  defaultValue={selectedPaiement?.moisConcerne || new Date().toISOString().slice(0, 7)}
-                  required
-                />
+                  defaultValue={selectedPaiement?.moisConcerne || moisDisponibles[0]?.value}
+                >
+                  <SelectTrigger className="w-full bg-white">
+                    <SelectValue placeholder="Sélectionner le mois" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {moisDisponibles.map((mois) => (
+                      <SelectItem 
+                        key={mois.value} 
+                        value={mois.value}
+                        className="hover:bg-gray-100"
+                      >
+                        {mois.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
