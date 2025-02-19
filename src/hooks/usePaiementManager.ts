@@ -86,15 +86,15 @@ export const usePaiementManager = () => {
     if (!enfant) return;
 
     moisDisponibles.forEach(mois => {
-      const nouveauPaiement = {
+      const nouveauPaiement: Omit<Paiement, "id"> = {
         enfantId,
         anneeScolaire,
         mois: mois.toLowerCase(),
         montant: defaultMontant,
         datePaiement: new Date().toISOString().split('T')[0],
         moisConcerne: mois.toLowerCase(),
-        methodePaiement: "especes",
-        statut: "en_attente",
+        methodePaiement: "especes" as const,
+        statut: "en_attente" as const,
         commentaire: `Paiement mensuel pour ${mois}`
       };
       ajouterPaiement(nouveauPaiement);
