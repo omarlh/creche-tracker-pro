@@ -76,15 +76,16 @@ const Rapports = () => {
       
       const moisAGenerer = [];
       const debutAnneeScolaire = new Date(parseInt(anneeDebut), 8, 1);
-      const finAnneeScolaire = new Date(parseInt(anneeFin), 5, 30);
       
       let currentDate = new Date(debutAnneeScolaire);
-      while (currentDate <= finAnneeScolaire) {
+      for (let i = 0; i < 10; i++) {
         moisAGenerer.push(new Date(currentDate));
         currentDate.setMonth(currentDate.getMonth() + 1);
       }
 
-      console.log("Mois à générer:", moisAGenerer.map(d => d.toISOString().slice(0, 7)));
+      console.log("Mois à générer:", moisAGenerer.map(d => 
+        d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+      ));
 
       moisAGenerer.forEach(date => {
         const moisCourant = date.toISOString().slice(0, 7);
