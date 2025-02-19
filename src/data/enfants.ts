@@ -122,6 +122,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       dateNaissance: "2020-01-01",
       classe: "PS",
       anneeScolaire: "2024-2025",
+      dateInscription: "2024-03-19",
       fraisInscription: {
         montantTotal: 300,
         montantPaye: 0,
@@ -131,28 +132,39 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
     },
   ],
   ajouterEnfant: (enfant) =>
-    set((state) => ({
-      enfants: [
-        ...state.enfants,
-        { 
-          ...enfant, 
-          id: Math.max(...state.enfants.map(e => e.id), 0) + 1,
-          anneeScolaire: enfant.anneeScolaire || "2024-2025",
-          fraisInscription: {
-            montantTotal: enfant.fraisInscription?.montantTotal || 300,
-            montantPaye: enfant.fraisInscription?.montantPaye || 0,
-            paiements: enfant.fraisInscription?.paiements || []
+    set((state) => {
+      const newId = Math.max(...state.enfants.map(e => e.id), 0) + 1;
+      const currentDate = new Date().toISOString().split('T')[0];
+      
+      return {
+        enfants: [
+          ...state.enfants,
+          {
+            ...enfant,
+            id: newId,
+            dateInscription: enfant.dateInscription || currentDate,
+            anneeScolaire: enfant.anneeScolaire || "2024-2025",
+            fraisInscription: {
+              montantTotal: enfant.fraisInscription?.montantTotal || 300,
+              montantPaye: enfant.fraisInscription?.montantPaye || 0,
+              paiements: enfant.fraisInscription?.paiements || []
+            },
+            statut: enfant.statut || "actif",
           },
-          statut: enfant.statut || "actif"
-        },
-      ],
-    })),
+        ],
+      };
+    }),
   modifierEnfant: (enfant) =>
     set((state) => ({
       enfants: state.enfants.map((e) =>
         e.id === enfant.id ? {
           ...enfant,
-          anneeScolaire: enfant.anneeScolaire || "2024-2025"
+          anneeScolaire: enfant.anneeScolaire || "2024-2025",
+          fraisInscription: {
+            montantTotal: enfant.fraisInscription?.montantTotal || 300,
+            montantPaye: enfant.fraisInscription?.montantPaye || 0,
+            paiements: enfant.fraisInscription?.paiements || []
+          }
         } : e
       ),
     })),
