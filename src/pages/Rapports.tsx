@@ -77,13 +77,13 @@ const Rapports = () => {
       
       const moisAGenerer = [];
       
-      for (let mois = 9; mois <= 12; mois++) {
-        const date = new Date(parseInt(anneeDebut), mois - 1);
+      for (let mois = 8; mois < 12; mois++) {
+        const date = new Date(parseInt(anneeDebut), mois + 1);
         moisAGenerer.push(date);
       }
       
-      for (let mois = 1; mois <= 6; mois++) {
-        const date = new Date(parseInt(anneeFin), mois - 1);
+      for (let mois = 0; mois < 6; mois++) {
+        const date = new Date(parseInt(anneeFin), mois);
         moisAGenerer.push(date);
       }
 
@@ -92,43 +92,45 @@ const Rapports = () => {
       ));
 
       moisAGenerer.forEach(date => {
-        const moisCourant = date.toISOString().slice(0, 7);
-        
-        const enfantsDuMois = enfants.filter(enfant => {
-          if (!enfant.dernierPaiement) return false;
+        if (date.getMonth() !== 7) {
+          const moisCourant = date.toISOString().slice(0, 7);
           
-          const datePaiement = new Date(enfant.dernierPaiement);
-          return datePaiement.getMonth() === date.getMonth() && 
-                 datePaiement.getFullYear() === date.getFullYear() &&
-                 enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-");
-        });
+          const enfantsDuMois = enfants.filter(enfant => {
+            if (!enfant.dernierPaiement) return false;
+            
+            const datePaiement = new Date(enfant.dernierPaiement);
+            return datePaiement.getMonth() === date.getMonth() && 
+                   datePaiement.getFullYear() === date.getFullYear() &&
+                   enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-");
+          });
 
-        const paiementsComplets = enfantsDuMois.filter(enfant => 
-          enfant.fraisInscription?.montantPaye === enfant.fraisInscription?.montantTotal
-        ).length;
+          const paiementsComplets = enfantsDuMois.filter(enfant => 
+            enfant.fraisInscription?.montantPaye === enfant.fraisInscription?.montantTotal
+          ).length;
 
-        const totalPaiements = enfantsDuMois.reduce((sum, enfant) => 
-          sum + (enfant.fraisInscription?.montantPaye || 0), 0
-        );
+          const totalPaiements = enfantsDuMois.reduce((sum, enfant) => 
+            sum + (enfant.fraisInscription?.montantPaye || 0), 0
+          );
 
-        const enfantsPaye = enfantsDuMois
-          .filter(enfant => enfant.fraisInscription?.montantPaye === enfant.fraisInscription?.montantTotal)
-          .map(enfant => enfant.id);
+          const enfantsPaye = enfantsDuMois
+            .filter(enfant => enfant.fraisInscription?.montantPaye === enfant.fraisInscription?.montantTotal)
+            .map(enfant => enfant.id);
 
-        const enfantsNonPaye = enfantsDuMois
-          .filter(enfant => (enfant.fraisInscription?.montantPaye || 0) < (enfant.fraisInscription?.montantTotal || 0))
-          .map(enfant => enfant.id);
+          const enfantsNonPaye = enfantsDuMois
+            .filter(enfant => (enfant.fraisInscription?.montantPaye || 0) < (enfant.fraisInscription?.montantTotal || 0))
+            .map(enfant => enfant.id);
 
-        rapportsGeneres.push({
-          mois: moisCourant,
-          totalPaiements,
-          nombreEnfants: enfantsDuMois.length,
-          paiementsComplets,
-          paiementsAttente: enfantsDuMois.length - paiementsComplets,
-          tauxRecouvrement: enfantsDuMois.length ? (paiementsComplets / enfantsDuMois.length) * 100 : 0,
-          enfantsPaye,
-          enfantsNonPaye,
-        });
+          rapportsGeneres.push({
+            mois: moisCourant,
+            totalPaiements,
+            nombreEnfants: enfantsDuMois.length,
+            paiementsComplets,
+            paiementsAttente: enfantsDuMois.length - paiementsComplets,
+            tauxRecouvrement: enfantsDuMois.length ? (paiementsComplets / enfantsDuMois.length) * 100 : 0,
+            enfantsPaye,
+            enfantsNonPaye,
+          });
+        }
       });
 
       rapportsGeneres.sort((a, b) => a.mois.localeCompare(b.mois));
