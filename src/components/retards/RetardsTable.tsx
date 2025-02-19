@@ -98,4 +98,4 @@ export const RetardsTable = ({ retards, onEnvoyerRappel }: RetardsTableProps) =>
       </Table>
     </div>
   );
-};
+}

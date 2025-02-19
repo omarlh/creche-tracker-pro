@@ -13,6 +13,10 @@ export interface RetardsHeaderProps {
   setFiltreStatus: (value: string) => void;
   filtreDelai: string;
   setFiltreDelai: (value: string) => void;
+  filtreClasse: string;
+  setFiltreClasse: (value: string) => void;
+  filtreAnnee: string;
+  setFiltreAnnee: (value: string) => void;
 }
 
 export function RetardsHeader({
@@ -20,6 +24,10 @@ export function RetardsHeader({
   setFiltreStatus,
   filtreDelai,
   setFiltreDelai,
+  filtreClasse,
+  setFiltreClasse,
+  filtreAnnee,
+  setFiltreAnnee,
 }: RetardsHeaderProps) {
   return (
     <div>
@@ -30,6 +38,35 @@ export function RetardsHeader({
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mt-8">
+        <Select
+          value={filtreAnnee}
+          onValueChange={setFiltreAnnee}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Année scolaire" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="2024-2025">2024-2025</SelectItem>
+            <SelectItem value="2023-2024">2023-2024</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={filtreClasse}
+          onValueChange={setFiltreClasse}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Classe" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="toutes">Toutes les classes</SelectItem>
+            <SelectItem value="TPS">TPS</SelectItem>
+            <SelectItem value="PS">PS</SelectItem>
+            <SelectItem value="MS">MS</SelectItem>
+            <SelectItem value="GS">GS</SelectItem>
+          </SelectContent>
+        </Select>
+
         <Select
           value={filtreStatus}
           onValueChange={setFiltreStatus}
