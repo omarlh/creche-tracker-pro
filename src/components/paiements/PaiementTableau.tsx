@@ -28,6 +28,11 @@ export const PaiementTableau = ({ paiements, enfants, onEdit, confirmDeletePaiem
     const totalMensuel = paiementsMensuels.reduce((acc, curr) => acc + curr.montant, 0);
     const totalInscription = paiementsInscription.reduce((acc, curr) => acc + curr.montant, 0);
 
+    // Trouver les dates de début et de fin de paiement
+    const datesPaiements = paiementsEnfant.map(p => new Date(p.datePaiement));
+    const dateDebut = datesPaiements.length > 0 ? new Date(Math.min(...datesPaiements.map(d => d.getTime()))) : null;
+    const dateFin = datesPaiements.length > 0 ? new Date(Math.max(...datesPaiements.map(d => d.getTime()))) : null;
+
     // Créer le contenu HTML pour l'impression
     const printContent = `
       <!DOCTYPE html>
@@ -43,6 +48,17 @@ export const PaiementTableau = ({ paiements, enfants, onEdit, confirmDeletePaiem
             th { background-color: #f5f5f5; }
             .total { font-weight: bold; margin-top: 10px; }
             .info-block { margin-bottom: 20px; }
+            .date-block { 
+              background-color: #f8f9fa; 
+              padding: 15px; 
+              border-radius: 8px; 
+              margin-bottom: 20px;
+              border: 1px solid #e9ecef;
+            }
+            .date-item {
+              margin: 5px 0;
+              color: #495057;
+            }
             @media print {
               body { padding: 0; }
               button { display: none; }
@@ -55,6 +71,12 @@ export const PaiementTableau = ({ paiements, enfants, onEdit, confirmDeletePaiem
             <p><strong>Élève:</strong> ${enfant.prenom} ${enfant.nom}</p>
             <p><strong>Classe:</strong> ${enfant.classe || 'Non définie'}</p>
             <p><strong>Date d'inscription:</strong> ${new Date(enfant.dateInscription || '').toLocaleDateString('fr-FR')}</p>
+          </div>
+
+          <div class="date-block">
+            <div class="date-item"><strong>Période des paiements:</strong></div>
+            <div class="date-item"><strong>Premier paiement:</strong> ${dateDebut ? dateDebut.toLocaleDateString('fr-FR') : 'Aucun paiement'}</div>
+            <div class="date-item"><strong>Dernier paiement:</strong> ${dateFin ? dateFin.toLocaleDateString('fr-FR') : 'Aucun paiement'}</div>
           </div>
 
           <div class="paiements-section">
