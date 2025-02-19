@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePaiementStore, type Paiement } from "@/data/paiements";
@@ -16,8 +15,8 @@ export const usePaiementManager = () => {
   const [paiementToDelete, setPaiementToDelete] = useState<Paiement | null>(null);
   const [moisDisponibles, setMoisDisponibles] = useState(getMoisAnneeScolaire(anneeScolaire));
   const [defaultMontant] = useState<number>(800);
-  const [selectedEnfant, setSelectedEnfant] = useState("");
-  const [selectedMois, setSelectedMois] = useState("");
+  const [selectedEnfant, setSelectedEnfant] = useState("all");
+  const [selectedMois, setSelectedMois] = useState("all");
 
   const { toast } = useToast();
   const { paiements, ajouterPaiement, modifierPaiement, supprimerPaiement, fetchPaiements } = usePaiementStore();
@@ -136,8 +135,8 @@ export const usePaiementManager = () => {
     const nomComplet = enfant ? `${enfant.prenom} ${enfant.nom}`.toLowerCase() : '';
     
     const matchesSearch = nomComplet.includes(searchTerm.toLowerCase());
-    const matchesEnfant = selectedEnfant ? paiement.enfantId === parseInt(selectedEnfant) : true;
-    const matchesMois = selectedMois ? paiement.moisConcerne === selectedMois : true;
+    const matchesEnfant = selectedEnfant === "all" ? true : paiement.enfantId === parseInt(selectedEnfant);
+    const matchesMois = selectedMois === "all" ? true : paiement.moisConcerne === selectedMois;
 
     return matchesSearch && matchesEnfant && matchesMois;
   });

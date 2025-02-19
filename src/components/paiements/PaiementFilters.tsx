@@ -33,7 +33,7 @@ export const PaiementFilters = ({
             <SelectValue placeholder="Tous les enfants" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tous les enfants</SelectItem>
+            <SelectItem value="all">Tous les enfants</SelectItem>
             {enfants.map((enfant) => (
               <SelectItem key={enfant.id} value={enfant.id.toString()}>
                 {enfant.prenom} {enfant.nom}
@@ -53,7 +53,7 @@ export const PaiementFilters = ({
             <SelectValue placeholder="Tous les mois" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tous les mois</SelectItem>
+            <SelectItem value="all">Tous les mois</SelectItem>
             {moisDisponibles.map((mois) => (
               <SelectItem key={mois} value={mois.toLowerCase()}>
                 {mois}
