@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { RetardsHeader } from "@/components/retards/RetardsHeader";
 import { RetardsStats } from "@/components/retards/RetardsStats";
-import { RetardsTable } from "@/components/retards/RetardsTable";
+import { RetardsTable, type RetardPaiement } from "@/components/retards/RetardsTable";
 import { useEnfantStore } from "@/data/enfants";
 import { usePaiementStore } from "@/data/paiements";
 
@@ -32,35 +32,42 @@ export default function Retards() {
     return differenceEnJours;
   }, []);
 
-  const enfantsAvecRetard = useMemo(() => {
+  const retardsPaiement = useMemo((): RetardPaiement[] => {
+    const currentDate = new Date();
+    const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    
     return enfants
       .filter((enfant) => enfant.statut === "actif")
       .map((enfant) => {
-        const dernierPaiement = enfant.dernierPaiement;
-        const joursRetard = calculerRetard(dernierPaiement);
+        const joursRetard = calculerRetard(enfant.dernierPaiement);
         const montantDu = (enfant.fraisScolariteMensuel || 0) * Math.ceil(joursRetard / 30);
         
         return {
-          ...enfant,
-          joursRetard,
+          id: enfant.id,
+          enfantId: enfant.id,
+          enfantNom: enfant.nom,
+          enfantPrenom: enfant.prenom,
+          moisConcerne: currentMonth,
           montantDu: joursRetard === Infinity ? 0 : montantDu,
-          status: joursRetard <= 0 ? "à jour" : joursRetard <= 30 ? "en retard" : "critique"
+          joursRetard,
+          dernierRappel: null,
+          type: 'mensuel'
         };
       })
-      .filter((enfant) => {
+      .filter((retard) => {
         if (filtreStatus === "tous") return true;
-        return enfant.status === filtreStatus;
+        const status = retard.joursRetard <= 0 ? "à jour" : retard.joursRetard <= 30 ? "en retard" : "critique";
+        return status === filtreStatus;
       })
-      .filter((enfant) => {
+      .filter((retard) => {
         if (filtreDelai === "tous") return true;
-        const retard = enfant.joursRetard;
         switch (filtreDelai) {
           case "moins30":
-            return retard <= 30;
+            return retard.joursRetard <= 30;
           case "30a60":
-            return retard > 30 && retard <= 60;
+            return retard.joursRetard > 30 && retard.joursRetard <= 60;
           case "plus60":
-            return retard > 60;
+            return retard.joursRetard > 60;
           default:
             return true;
         }
@@ -69,11 +76,11 @@ export default function Retards() {
   }, [enfants, calculerRetard, filtreStatus, filtreDelai]);
 
   const statistiques = useMemo(() => {
-    const total = enfantsAvecRetard.length;
-    const enRetard = enfantsAvecRetard.filter(e => e.status === "en retard").length;
-    const critique = enfantsAvecRetard.filter(e => e.status === "critique").length;
-    const aJour = enfantsAvecRetard.filter(e => e.status === "à jour").length;
-    const montantTotal = enfantsAvecRetard.reduce((acc, curr) => acc + curr.montantDu, 0);
+    const total = retardsPaiement.length;
+    const enRetard = retardsPaiement.filter(r => r.joursRetard > 0 && r.joursRetard <= 30).length;
+    const critique = retardsPaiement.filter(r => r.joursRetard > 30).length;
+    const aJour = retardsPaiement.filter(r => r.joursRetard <= 0).length;
+    const montantTotal = retardsPaiement.reduce((acc, curr) => acc + curr.montantDu, 0);
 
     return {
       total,
@@ -82,9 +89,9 @@ export default function Retards() {
       aJour,
       montantTotal
     };
-  }, [enfantsAvecRetard]);
+  }, [retardsPaiement]);
 
-  const handleEnvoyerRappel = useCallback((enfantId: number) => {
+  const handleEnvoyerRappel = useCallback((retardId: number) => {
     toast({
       title: "Rappel envoyé",
       description: "Le rappel de paiement a été envoyé avec succès.",
@@ -110,7 +117,7 @@ export default function Retards() {
 
             <div className="mt-8">
               <RetardsTable
-                retards={enfantsAvecRetard}
+                retards={retardsPaiement}
                 onEnvoyerRappel={handleEnvoyerRappel}
               />
             </div>
