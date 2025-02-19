@@ -6,6 +6,7 @@ import Dashboard from "@/pages/Dashboard";
 import Enfants from "@/pages/Enfants";
 import Paiements from "@/pages/Paiements";
 import ListeAnnuelle from "@/pages/ListeAnnuelle";
+import Depart from "@/pages/Depart";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/liste-annuelle",
     element: <ListeAnnuelle />,
+  },
+  {
+    path: "/depart",
+    element: <Depart />,
   },
 ]);
 

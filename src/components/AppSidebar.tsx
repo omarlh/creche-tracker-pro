@@ -7,6 +7,7 @@ import {
   Home, 
   Users, 
   CreditCard,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,16 @@ export const AppSidebar = () => {
         >
           <CalendarDays size={16} />
           Liste Annuelle
+        </Link>
+        <Link
+          to="/depart"
+          className={cn(
+            buttonVariants({ variant: "ghost" }),
+            "w-full justify-start gap-2"
+          )}
+        >
+          <LogOut size={16} />
+          Départs
         </Link>
       </div>
     </Sidebar>

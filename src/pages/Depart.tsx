@@ -69,13 +69,11 @@ export default function Depart() {
       groupes.get(anneeScolaire)?.push(enfant);
     });
 
-    // Retourner tous les groupes si "all" est sélectionné
     if (selectedAnnee === "all") {
       return Array.from(groupes.entries())
         .sort((a, b) => b[0].localeCompare(a[0]));
     }
 
-    // Filtrer pour une année spécifique
     return Array.from(groupes.entries())
       .filter(([annee]) => annee === selectedAnnee);
   }, [allEnfants, getAnneeScolaire, selectedAnnee]);
