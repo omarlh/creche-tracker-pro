@@ -115,6 +115,20 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       statut: "actif",
       dernierPaiement: "2024-02-20",
     },
+    {
+      id: 5,
+      nom: "LHASNAOUI",
+      prenom: "Omar",
+      dateNaissance: "2020-01-01",
+      classe: "PS",
+      anneeScolaire: "2024-2025",
+      fraisInscription: {
+        montantTotal: 300,
+        montantPaye: 0,
+        paiements: []
+      },
+      statut: "actif",
+    },
   ],
   ajouterEnfant: (enfant) =>
     set((state) => ({
@@ -123,7 +137,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
         { 
           ...enfant, 
           id: Math.max(...state.enfants.map(e => e.id), 0) + 1,
-          anneeScolaire: enfant.anneeScolaire || "2024-2025", // Valeur par défaut si non spécifié
+          anneeScolaire: enfant.anneeScolaire || "2024-2025",
           fraisInscription: {
             montantTotal: enfant.fraisInscription?.montantTotal || 300,
             montantPaye: enfant.fraisInscription?.montantPaye || 0,
@@ -138,7 +152,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       enfants: state.enfants.map((e) =>
         e.id === enfant.id ? {
           ...enfant,
-          anneeScolaire: enfant.anneeScolaire || "2024-2025" // Assure qu'il y a toujours une année scolaire
+          anneeScolaire: enfant.anneeScolaire || "2024-2025"
         } : e
       ),
     })),
