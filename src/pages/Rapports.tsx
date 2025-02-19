@@ -53,6 +53,7 @@ const anneesDisponibles = [
 type RapportMensuel = {
   mois: string;
   totalPaiements: number;
+  totalFraisInscription: number;
   nombreEnfants: number;
   paiementsComplets: number;
   paiementsAttente: number;
@@ -105,6 +106,15 @@ const Rapports = () => {
             sum + paiement.montant, 0
           );
 
+          const totalFraisInscription = enfants
+            .filter(enfant => {
+              const dernierPaiement = new Date(enfant.dernierPaiement || '');
+              return dernierPaiement.getMonth() === date.getMonth() && 
+                     dernierPaiement.getFullYear() === date.getFullYear() &&
+                     enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-");
+            })
+            .reduce((sum, enfant) => sum + (enfant.fraisInscription?.montantPaye || 0), 0);
+
           const enfantsActifs = enfants.filter(enfant => 
             enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-") &&
             enfant.statut === "actif"
@@ -118,6 +128,7 @@ const Rapports = () => {
           rapportsGeneres.push({
             mois: moisCourant,
             totalPaiements,
+            totalFraisInscription,
             nombreEnfants: enfantsActifs.length,
             paiementsComplets: enfantsPaye.length,
             paiementsAttente: enfantsActifs.length - enfantsPaye.length,
@@ -164,6 +175,7 @@ const Rapports = () => {
           year: "numeric"
         }),
         "Total des paiements (DH)": rapport.totalPaiements,
+        "Total des frais d'inscription (DH)": rapport.totalFraisInscription,
         "Nombre d'enfants": rapport.nombreEnfants,
         "Paiements complétés": rapport.paiementsComplets,
         "Paiements en attente": rapport.paiementsAttente,
@@ -254,18 +266,18 @@ const Rapports = () => {
                   </div>
                   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                     <h3 className="text-sm font-medium text-gray-500 mb-2">
-                      Nombre d'enfants
+                      Total des frais d'inscription
                     </h3>
                     <p className="text-2xl font-semibold">
-                      {rapportsMensuels[0]?.nombreEnfants || 0}
+                      {rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalFraisInscription, 0)} DH
                     </p>
                   </div>
                   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                     <h3 className="text-sm font-medium text-gray-500 mb-2">
-                      Taux de recouvrement
+                      Nombre d'enfants
                     </h3>
                     <p className="text-2xl font-semibold">
-                      {rapportsMensuels[0]?.tauxRecouvrement || 0}%
+                      {rapportsMensuels[0]?.nombreEnfants || 0}
                     </p>
                   </div>
                 </div>
@@ -275,7 +287,8 @@ const Rapports = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Mois</TableHead>
-                        <TableHead>Total des paiements</TableHead>
+                        <TableHead>Paiements Mensuels</TableHead>
+                        <TableHead>Frais d'inscription</TableHead>
                         <TableHead>Nombre d'enfants</TableHead>
                         <TableHead>Paiements complétés</TableHead>
                         <TableHead>Paiements en attente</TableHead>
@@ -293,6 +306,7 @@ const Rapports = () => {
                             })}
                           </TableCell>
                           <TableCell>{rapport.totalPaiements} DH</TableCell>
+                          <TableCell>{rapport.totalFraisInscription} DH</TableCell>
                           <TableCell>{rapport.nombreEnfants}</TableCell>
                           <TableCell>
                             <span className="text-success">{rapport.paiementsComplets}</span>
@@ -300,7 +314,7 @@ const Rapports = () => {
                           <TableCell>
                             <span className="text-warning">{rapport.paiementsAttente}</span>
                           </TableCell>
-                          <TableCell>{rapport.tauxRecouvrement}%</TableCell>
+                          <TableCell>{rapport.tauxRecouvrement.toFixed(1)}%</TableCell>
                           <TableCell className="text-right">
                             <Button 
                               variant="outline" 
@@ -391,7 +405,7 @@ const Rapports = () => {
                         <TableHead>GSM Maman</TableHead>
                         <TableHead>GSM Papa</TableHead>
                         <TableHead>Statut</TableHead>
-                      </TableRow>
+                      </TableHead>
                     </TableHeader>
                     <TableBody>
                       {enfantsParAnneeScolaire[anneeScolaireSelectionnee]?.map((enfant) => (
@@ -453,8 +467,8 @@ const Rapports = () => {
                       <p className="text-lg font-semibold mt-1">{rapportSelectionne.totalPaiements} DH</p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Nombre d'enfants</h4>
-                      <p className="text-lg font-semibold mt-1">{rapportSelectionne.nombreEnfants}</p>
+                      <h4 className="text-sm font-medium text-gray-500">Total des frais d'inscription</h4>
+                      <p className="text-lg font-semibold mt-1">{rapportSelectionne.totalFraisInscription} DH</p>
                     </div>
                   </div>
 
