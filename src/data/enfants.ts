@@ -35,7 +35,7 @@ type EnfantStore = {
   supprimerEnfant: (id: number) => void;
 };
 
-export const useEnfantStore = create<EnfantStore>((set, get) => ({
+export const useEnfantStore = create<EnfantStore>((set) => ({
   enfants: [
     {
       id: 1,
@@ -136,14 +136,7 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
       ),
     })),
   supprimerEnfant: (id) =>
-    set((state) => {
-      const enfantASupprimer = state.enfants.find(e => e.id === id);
-      if (enfantASupprimer) {
-        console.log(`Suppression de l'enfant: ${enfantASupprimer.prenom} ${enfantASupprimer.nom}`);
-        return {
-          enfants: state.enfants.filter(e => e.id !== id)
-        };
-      }
-      return state;
-    }),
+    set((state) => ({
+      enfants: state.enfants.filter((enfant) => enfant.id !== id)
+    })),
 }));
