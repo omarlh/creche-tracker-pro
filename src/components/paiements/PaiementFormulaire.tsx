@@ -32,13 +32,19 @@ export const PaiementFormulaire = ({
     mois: selectedPaiement?.mois || "",
     montant: selectedPaiement?.montant || defaultMontant,
     datePaiement: selectedPaiement?.datePaiement || new Date().toISOString().split('T')[0],
+    moisConcerne: selectedPaiement?.moisConcerne || new Date().toISOString().slice(0, 7),
     methodePaiement: selectedPaiement?.methodePaiement || "especes",
+    statut: selectedPaiement?.statut || "en_attente",
     commentaire: selectedPaiement?.commentaire || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      enfantId: parseInt(formData.enfantId),
+      montant: parseFloat(formData.montant.toString()),
+    });
   };
 
   return (
@@ -87,6 +93,17 @@ export const PaiementFormulaire = ({
         </div>
 
         <div>
+          <Label htmlFor="moisConcerne">Mois concerné</Label>
+          <Input
+            id="moisConcerne"
+            type="month"
+            value={formData.moisConcerne}
+            onChange={(e) => setFormData({ ...formData, moisConcerne: e.target.value })}
+            required
+          />
+        </div>
+
+        <div>
           <Label htmlFor="methodePaiement">Méthode de paiement</Label>
           <Select 
             value={formData.methodePaiement}
@@ -99,6 +116,22 @@ export const PaiementFormulaire = ({
               <SelectItem value="carte">Carte</SelectItem>
               <SelectItem value="especes">Espèces</SelectItem>
               <SelectItem value="cheque">Chèque</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="statut">Statut</Label>
+          <Select 
+            value={formData.statut}
+            onValueChange={(value) => setFormData({ ...formData, statut: value as "complete" | "en_attente" })}
+          >
+            <SelectTrigger id="statut">
+              <SelectValue placeholder="Sélectionner un statut" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="complete">Complété</SelectItem>
+              <SelectItem value="en_attente">En attente</SelectItem>
             </SelectContent>
           </Select>
         </div>
