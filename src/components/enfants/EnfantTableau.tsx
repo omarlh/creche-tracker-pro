@@ -1,4 +1,3 @@
-
 import {
   Table,
   TableBody,
@@ -10,7 +9,7 @@ import { EnfantTableHeader } from "./table/EnfantTableHeader";
 import { EnfantStatut } from "./table/EnfantStatut";
 import { EnfantActions } from "./table/EnfantActions";
 import { EnfantFrais } from "./table/EnfantFrais";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface EnfantTableauProps {
   enfants: Enfant[];
@@ -20,12 +19,25 @@ interface EnfantTableauProps {
 }
 
 export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant }: EnfantTableauProps) => {
-  const supprimerEnfant = useEnfantStore((state) => state.supprimerEnfant);
+  const { supprimerEnfant, fetchEnfants } = useEnfantStore((state) => ({ 
+    supprimerEnfant: state.supprimerEnfant,
+    fetchEnfants: state.fetchEnfants 
+  }));
   const [enfantsLocaux, setEnfantsLocaux] = useState<Enfant[]>(enfants);
+
+  useEffect(() => {
+    fetchEnfants();
+  }, [fetchEnfants]);
 
   useEffect(() => {
     setEnfantsLocaux(enfants);
   }, [enfants]);
+
+  const handleDelete = async (enfantId: number) => {
+    console.log("Suppression de l'enfant avec l'ID:", enfantId);
+    await supprimerEnfant(enfantId);
+    setEnfantsLocaux(prev => prev.filter(e => e.id !== enfantId));
+  };
 
   const handlePrint = (enfant: Enfant) => {
     const printContent = `
@@ -103,12 +115,6 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
       printWindow.print();
       printWindow.close();
     }
-  };
-
-  const handleDelete = (enfantId: number) => {
-    console.log("Suppression de l'enfant avec l'ID:", enfantId);
-    supprimerEnfant(enfantId);
-    setEnfantsLocaux(prev => prev.filter(e => e.id !== enfantId));
   };
 
   return (

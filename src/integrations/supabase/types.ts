@@ -9,7 +9,86 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      enfants: {
+        Row: {
+          annee_scolaire: string | null
+          classe: string | null
+          date_inscription: string | null
+          date_naissance: string | null
+          dernier_paiement: string | null
+          gsm_maman: string | null
+          gsm_papa: string | null
+          id: number
+          montant_paye: number | null
+          montant_total: number | null
+          nom: string
+          prenom: string
+          statut: string | null
+        }
+        Insert: {
+          annee_scolaire?: string | null
+          classe?: string | null
+          date_inscription?: string | null
+          date_naissance?: string | null
+          dernier_paiement?: string | null
+          gsm_maman?: string | null
+          gsm_papa?: string | null
+          id?: number
+          montant_paye?: number | null
+          montant_total?: number | null
+          nom: string
+          prenom: string
+          statut?: string | null
+        }
+        Update: {
+          annee_scolaire?: string | null
+          classe?: string | null
+          date_inscription?: string | null
+          date_naissance?: string | null
+          dernier_paiement?: string | null
+          gsm_maman?: string | null
+          gsm_papa?: string | null
+          id?: number
+          montant_paye?: number | null
+          montant_total?: number | null
+          nom?: string
+          prenom?: string
+          statut?: string | null
+        }
+        Relationships: []
+      }
+      paiements_inscription: {
+        Row: {
+          date_paiement: string | null
+          enfant_id: number | null
+          id: number
+          methode_paiement: string | null
+          montant: number
+        }
+        Insert: {
+          date_paiement?: string | null
+          enfant_id?: number | null
+          id?: number
+          methode_paiement?: string | null
+          montant: number
+        }
+        Update: {
+          date_paiement?: string | null
+          enfant_id?: number | null
+          id?: number
+          methode_paiement?: string | null
+          montant?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paiements_inscription_enfant_id_fkey"
+            columns: ["enfant_id"]
+            isOneToOne: false
+            referencedRelation: "enfants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

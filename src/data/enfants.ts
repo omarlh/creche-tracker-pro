@@ -1,5 +1,6 @@
 
 import { create } from 'zustand';
+import { supabase } from "@/integrations/supabase/client";
 
 export type Classe = "TPS" | "PS" | "MS" | "GS";
 
@@ -31,145 +32,188 @@ export type Enfant = {
 
 type EnfantStore = {
   enfants: Enfant[];
-  ajouterEnfant: (enfant: Omit<Enfant, "id">) => void;
-  modifierEnfant: (enfant: Enfant) => void;
-  supprimerEnfant: (id: number) => void;
+  fetchEnfants: () => Promise<void>;
+  ajouterEnfant: (enfant: Omit<Enfant, "id">) => Promise<void>;
+  modifierEnfant: (enfant: Enfant) => Promise<void>;
+  supprimerEnfant: (id: number) => Promise<void>;
 };
 
 export const useEnfantStore = create<EnfantStore>((set) => ({
-  enfants: [
-    {
-      id: 1,
-      nom: "Dubois",
-      prenom: "Sophie",
-      dateNaissance: "2020-03-15",
-      classe: "MS",
-      gsmMaman: "0612345678",
-      gsmPapa: "0687654321",
-      anneeScolaire: "2023-2024",
-      fraisInscription: {
-        montantTotal: 300,
-        montantPaye: 300,
-        paiements: [{
-          id: 1,
-          montant: 300,
-          datePaiement: "2024-02-15",
-          methodePaiement: "carte"
-        }]
-      },
-      statut: "actif",
-      dernierPaiement: "2024-02-15",
-    },
-    {
-      id: 2,
-      nom: "Martin",
-      prenom: "Lucas",
-      dateNaissance: "2021-05-20",
-      classe: "PS",
-      anneeScolaire: "2023-2024",
-      fraisInscription: {
-        montantTotal: 300,
-        montantPaye: 150,
-        paiements: [{
-          id: 1,
-          montant: 150,
-          datePaiement: "2024-02-10",
-          methodePaiement: "cheque"
-        }]
-      },
-      statut: "actif",
-      dernierPaiement: "2024-02-10",
-    },
-    {
-      id: 3,
-      nom: "Bernard",
-      prenom: "Emma",
-      dateNaissance: "2020-11-08",
-      classe: "MS",
-      anneeScolaire: "2023-2024",
-      fraisInscription: {
-        montantTotal: 300,
-        montantPaye: 0,
-        paiements: []
-      },
-      statut: "inactif",
-      dernierPaiement: "2024-01-15",
-    },
-    {
-      id: 4,
-      nom: "BENNANI",
-      prenom: "Youssef",
-      dateNaissance: "2020-01-01",
-      classe: "GS",
-      anneeScolaire: "2024-2025",
-      fraisInscription: {
-        montantTotal: 300,
-        montantPaye: 300,
-        paiements: [{
-          id: 1,
-          montant: 300,
-          datePaiement: "2024-02-20",
-          methodePaiement: "carte"
-        }]
-      },
-      statut: "actif",
-      dernierPaiement: "2024-02-20",
-    },
-    {
-      id: 5,
-      nom: "LHASNAOUI",
-      prenom: "Omar",
-      dateNaissance: "2020-01-01",
-      classe: "PS",
-      anneeScolaire: "2024-2025",
-      dateInscription: "2024-03-19",
-      fraisInscription: {
-        montantTotal: 300,
-        montantPaye: 0,
-        paiements: []
-      },
-      statut: "actif",
-    },
-  ],
-  ajouterEnfant: (enfant) =>
-    set((state) => {
-      const newId = Math.max(...state.enfants.map(e => e.id), 0) + 1;
+  enfants: [],
+  
+  fetchEnfants: async () => {
+    try {
+      console.log("Fetching enfants from Supabase...");
+      const { data: enfantsData, error } = await supabase
+        .from('enfants')
+        .select(`
+          *,
+          paiements_inscription (
+            id,
+            montant,
+            date_paiement,
+            methode_paiement
+          )
+        `);
+
+      if (error) {
+        console.error("Error fetching enfants:", error);
+        return;
+      }
+
+      const formattedEnfants: Enfant[] = enfantsData.map(enfant => ({
+        id: enfant.id,
+        nom: enfant.nom,
+        prenom: enfant.prenom,
+        dateNaissance: enfant.date_naissance,
+        dateInscription: enfant.date_inscription,
+        classe: enfant.classe as Classe,
+        gsmMaman: enfant.gsm_maman,
+        gsmPapa: enfant.gsm_papa,
+        anneeScolaire: enfant.annee_scolaire,
+        fraisInscription: {
+          montantTotal: enfant.montant_total,
+          montantPaye: enfant.montant_paye,
+          paiements: (enfant.paiements_inscription || []).map(p => ({
+            id: p.id,
+            montant: p.montant,
+            datePaiement: p.date_paiement,
+            methodePaiement: p.methode_paiement,
+          }))
+        },
+        statut: enfant.statut as "actif" | "inactif",
+        dernierPaiement: enfant.dernier_paiement,
+      }));
+
+      console.log("Fetched enfants:", formattedEnfants);
+      set({ enfants: formattedEnfants });
+    } catch (error) {
+      console.error("Error in fetchEnfants:", error);
+    }
+  },
+
+  ajouterEnfant: async (enfant) => {
+    try {
+      console.log("Adding new enfant:", enfant);
       const currentDate = new Date().toISOString().split('T')[0];
       
-      return {
-        enfants: [
-          ...state.enfants,
-          {
-            ...enfant,
-            id: newId,
-            dateInscription: enfant.dateInscription || currentDate,
-            anneeScolaire: enfant.anneeScolaire || "2024-2025",
-            fraisInscription: {
-              montantTotal: enfant.fraisInscription?.montantTotal || 300,
-              montantPaye: enfant.fraisInscription?.montantPaye || 0,
-              paiements: enfant.fraisInscription?.paiements || []
-            },
-            statut: enfant.statut || "actif",
-          },
-        ],
-      };
-    }),
-  modifierEnfant: (enfant) =>
-    set((state) => ({
-      enfants: state.enfants.map((e) =>
-        e.id === enfant.id ? {
-          ...enfant,
-          anneeScolaire: enfant.anneeScolaire || "2024-2025",
-          fraisInscription: {
-            montantTotal: enfant.fraisInscription?.montantTotal || 300,
-            montantPaye: enfant.fraisInscription?.montantPaye || 0,
-            paiements: enfant.fraisInscription?.paiements || []
-          }
-        } : e
-      ),
-    })),
-  supprimerEnfant: (id) =>
-    set((state) => ({
-      enfants: state.enfants.filter((enfant) => enfant.id !== id)
-    })),
+      const { data: newEnfant, error } = await supabase
+        .from('enfants')
+        .insert([{
+          nom: enfant.nom,
+          prenom: enfant.prenom,
+          date_naissance: enfant.dateNaissance,
+          date_inscription: enfant.dateInscription || currentDate,
+          classe: enfant.classe,
+          gsm_maman: enfant.gsmMaman,
+          gsm_papa: enfant.gsmPapa,
+          annee_scolaire: enfant.anneeScolaire || "2024-2025",
+          montant_total: enfant.fraisInscription?.montantTotal || 300,
+          montant_paye: enfant.fraisInscription?.montantPaye || 0,
+          statut: enfant.statut || "actif",
+          dernier_paiement: enfant.dernierPaiement,
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error adding enfant:", error);
+        return;
+      }
+
+      if (enfant.fraisInscription?.paiements?.length) {
+        const { error: paiementError } = await supabase
+          .from('paiements_inscription')
+          .insert(
+            enfant.fraisInscription.paiements.map(p => ({
+              enfant_id: newEnfant.id,
+              montant: p.montant,
+              date_paiement: p.datePaiement,
+              methode_paiement: p.methodePaiement,
+            }))
+          );
+
+        if (paiementError) {
+          console.error("Error adding paiements:", paiementError);
+        }
+      }
+
+      const store = useEnfantStore.getState();
+      await store.fetchEnfants();
+    } catch (error) {
+      console.error("Error in ajouterEnfant:", error);
+    }
+  },
+
+  modifierEnfant: async (enfant) => {
+    try {
+      console.log("Updating enfant:", enfant);
+      const { error } = await supabase
+        .from('enfants')
+        .update({
+          nom: enfant.nom,
+          prenom: enfant.prenom,
+          date_naissance: enfant.dateNaissance,
+          date_inscription: enfant.dateInscription,
+          classe: enfant.classe,
+          gsm_maman: enfant.gsmMaman,
+          gsm_papa: enfant.gsmPapa,
+          annee_scolaire: enfant.anneeScolaire || "2024-2025",
+          montant_total: enfant.fraisInscription?.montantTotal,
+          montant_paye: enfant.fraisInscription?.montantPaye,
+          statut: enfant.statut,
+          dernier_paiement: enfant.dernierPaiement,
+        })
+        .eq('id', enfant.id);
+
+      if (error) {
+        console.error("Error updating enfant:", error);
+        return;
+      }
+
+      // Update or create new payments
+      if (enfant.fraisInscription?.paiements?.length) {
+        const { error: paiementError } = await supabase
+          .from('paiements_inscription')
+          .upsert(
+            enfant.fraisInscription.paiements.map(p => ({
+              id: p.id,
+              enfant_id: enfant.id,
+              montant: p.montant,
+              date_paiement: p.datePaiement,
+              methode_paiement: p.methodePaiement,
+            }))
+          );
+
+        if (paiementError) {
+          console.error("Error updating paiements:", paiementError);
+        }
+      }
+
+      const store = useEnfantStore.getState();
+      await store.fetchEnfants();
+    } catch (error) {
+      console.error("Error in modifierEnfant:", error);
+    }
+  },
+
+  supprimerEnfant: async (id) => {
+    try {
+      console.log("Deleting enfant:", id);
+      const { error } = await supabase
+        .from('enfants')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error("Error deleting enfant:", error);
+        return;
+      }
+
+      const store = useEnfantStore.getState();
+      await store.fetchEnfants();
+    } catch (error) {
+      console.error("Error in supprimerEnfant:", error);
+    }
+  },
 }));
