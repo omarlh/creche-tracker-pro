@@ -1,4 +1,3 @@
-
 import {
   Table,
   TableBody,
@@ -13,22 +12,17 @@ import { EnfantFrais } from "./table/EnfantFrais";
 import { useEffect } from "react";
 
 interface EnfantTableauProps {
-  enfants: Enfant[];
   onEdit: (enfant: Enfant) => void;
   onView: (enfant: Enfant) => void;
   calculerMontantRestant: (enfant: Enfant) => number;
 }
 
-export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant }: EnfantTableauProps) => {
-  const { supprimerEnfant, fetchEnfants } = useEnfantStore((state) => ({ 
-    supprimerEnfant: state.supprimerEnfant,
-    fetchEnfants: state.fetchEnfants 
-  }));
+export const EnfantTableau = ({ onEdit, onView, calculerMontantRestant }: EnfantTableauProps) => {
+  const { enfants, supprimerEnfant, fetchEnfants } = useEnfantStore();
 
   useEffect(() => {
-    // Fetch enfants only once when component mounts
     fetchEnfants();
-  }, []); // Remove fetchEnfants from dependencies to avoid infinite loop
+  }, []); // S'exécute une seule fois au montage du composant
 
   const handleDelete = async (enfantId: number) => {
     console.log("Suppression de l'enfant avec l'ID:", enfantId);
@@ -112,6 +106,10 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
       printWindow.close();
     }
   };
+
+  if (!enfants) {
+    return <div>Chargement...</div>;
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100">
