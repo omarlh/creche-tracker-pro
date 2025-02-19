@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
-import { BadgeCheck, CreditCard, Keyboard, Plus, Receipt, Trash2 } from "lucide-react";
+import { BadgeCheck, CreditCard, Keyboard, Plus, Printer, Receipt, Trash2 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/hooks/use-toast";
@@ -55,10 +56,10 @@ const anneesDisponibles = [
 
 const getCurrentSchoolYear = () => {
   const currentDate = new Date();
-  const currentMonth = currentDate.getMonth(); // 0-11
+  const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
   
-  if (currentMonth >= 6) { // Juillet ou après
+  if (currentMonth >= 6) {
     return `${currentYear}-${currentYear + 1}`;
   } else {
     return `${currentYear - 1}-${currentYear}`;
@@ -140,6 +141,10 @@ const Paiements = () => {
     setSelectedPaiement(null);
     setSearchTerm("");
     setIsSheetOpen(true);
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -233,10 +238,20 @@ const Paiements = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleAddClick}>
-                <Plus className="w-5 h-5 mr-2" />
-                Ajouter un paiement
-              </Button>
+              <div className="space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={handlePrint}
+                  className="print:hidden"
+                >
+                  <Printer className="w-5 h-5 mr-2" />
+                  Imprimer
+                </Button>
+                <Button onClick={handleAddClick}>
+                  <Plus className="w-5 h-5 mr-2" />
+                  Ajouter un paiement
+                </Button>
+              </div>
             </div>
 
             <div className="bg-white rounded-lg shadow-sm border border-gray-100">
@@ -249,7 +264,7 @@ const Paiements = () => {
                     <TableHead>Mois concerné</TableHead>
                     <TableHead>Méthode</TableHead>
                     <TableHead>Statut</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-right print:hidden">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -296,7 +311,7 @@ const Paiements = () => {
                             )}
                           </span>
                         </TableCell>
-                        <TableCell className="text-right space-x-2">
+                        <TableCell className="text-right space-x-2 print:hidden">
                           <Button
                             variant="outline"
                             size="sm"

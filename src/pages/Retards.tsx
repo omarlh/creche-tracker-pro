@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -7,7 +6,7 @@ import { useEnfantStore } from "@/data/enfants";
 import { RetardsHeader } from "@/components/retards/RetardsHeader";
 import { RetardsStats } from "@/components/retards/RetardsStats";
 import { RetardsTable, RetardPaiement } from "@/components/retards/RetardsTable";
-import { addMonths, startOfMonth, isBefore } from "date-fns";
+import { addMonths, startOfMonth, isBefore, format } from "date-fns";
 
 const Retards = () => {
   const [retards, setRetards] = useState<RetardPaiement[]>([]);
