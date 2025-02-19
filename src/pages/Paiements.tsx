@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -120,15 +121,28 @@ const Paiements = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    console.log("Mois concerné soumis:", formData.get("moisConcerne")); // Debug log
     
+    const moisConcerne = formData.get("moisConcerne");
+    if (!moisConcerne) {
+      toast({
+        title: "Erreur",
+        description: "Le mois concerné est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const nouveauPaiement: Omit<Paiement, "id"> = {
       enfantId: Number(formData.get("enfantId")),
       montant: Number(formData.get("montant")),
       datePaiement: (formData.get("datePaiement") as string) || new Date().toISOString().split('T')[0],
-      moisConcerne: formData.get("moisConcerne") as string,
+      moisConcerne: moisConcerne as string,
       methodePaiement: formData.get("methodePaiement") as "carte" | "especes" | "cheque",
-      statut: "complete", // Statut toujours défini comme "complete"
+      statut: "complete",
     };
+
+    console.log("Nouveau paiement à enregistrer:", nouveauPaiement); // Debug log
 
     if (selectedPaiement) {
       modifierPaiement({ ...nouveauPaiement, id: selectedPaiement.id });
@@ -344,31 +358,6 @@ const Paiements = () => {
             </SheetHeader>
             <form onSubmit={handleSubmit} className="space-y-6 pb-10">
               <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Année scolaire
-                </label>
-                <Select
-                  value={anneeScolaire}
-                  onValueChange={(value) => {
-                    console.log("Changement d'année scolaire dans le formulaire vers:", value);
-                    setAnneeScolaire(value);
-                    setSearchTerm("");
-                  }}
-                >
-                  <SelectTrigger className="w-full bg-blue-50 text-blue-900 border-blue-200">
-                    <SelectValue placeholder="Année scolaire" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {anneesDisponibles.map((annee) => (
-                      <SelectItem key={annee} value={annee} className="hover:bg-blue-50">
-                        {annee}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   Enfant
                   <span className="text-xs text-muted-foreground inline-flex items-center">
@@ -436,6 +425,19 @@ const Paiements = () => {
                   type="number"
                   defaultValue={selectedPaiement?.montant || 150}
                   min={0}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="datePaiement" className="text-sm font-medium">
+                  Date de paiement
+                </label>
+                <Input
+                  id="datePaiement"
+                  name="datePaiement"
+                  type="date"
+                  defaultValue={selectedPaiement?.datePaiement || new Date().toISOString().split('T')[0]}
                   required
                 />
               </div>
