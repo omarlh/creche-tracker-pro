@@ -61,7 +61,7 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
         return;
       }
 
-      const formattedEnfants: Enfant[] = enfantsData.map(enfant => ({
+      const formattedEnfants: Enfant[] = enfantsData?.map(enfant => ({
         id: enfant.id,
         nom: enfant.nom,
         prenom: enfant.prenom,
@@ -78,12 +78,12 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
             id: p.id,
             montant: p.montant,
             datePaiement: p.date_paiement,
-            methodePaiement: p.methode_paiement,
+            methodePaiement: p.methode_paiement as "carte" | "especes" | "cheque" | "virement",
           }))
         },
         statut: enfant.statut as "actif" | "inactif",
         dernierPaiement: enfant.dernier_paiement,
-      }));
+      })) || [];
 
       console.log("Fetched enfants:", formattedEnfants);
       set({ enfants: formattedEnfants });

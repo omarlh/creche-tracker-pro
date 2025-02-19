@@ -1,3 +1,4 @@
+
 import {
   Table,
   TableBody,
@@ -9,7 +10,7 @@ import { EnfantTableHeader } from "./table/EnfantTableHeader";
 import { EnfantStatut } from "./table/EnfantStatut";
 import { EnfantActions } from "./table/EnfantActions";
 import { EnfantFrais } from "./table/EnfantFrais";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 interface EnfantTableauProps {
   enfants: Enfant[];
@@ -23,20 +24,15 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
     supprimerEnfant: state.supprimerEnfant,
     fetchEnfants: state.fetchEnfants 
   }));
-  const [enfantsLocaux, setEnfantsLocaux] = useState<Enfant[]>(enfants);
 
   useEffect(() => {
+    // Fetch enfants only once when component mounts
     fetchEnfants();
-  }, [fetchEnfants]);
-
-  useEffect(() => {
-    setEnfantsLocaux(enfants);
-  }, [enfants]);
+  }, []); // Remove fetchEnfants from dependencies to avoid infinite loop
 
   const handleDelete = async (enfantId: number) => {
     console.log("Suppression de l'enfant avec l'ID:", enfantId);
     await supprimerEnfant(enfantId);
-    setEnfantsLocaux(prev => prev.filter(e => e.id !== enfantId));
   };
 
   const handlePrint = (enfant: Enfant) => {
@@ -122,7 +118,7 @@ export const EnfantTableau = ({ enfants, onEdit, onView, calculerMontantRestant 
       <Table>
         <EnfantTableHeader />
         <TableBody>
-          {enfantsLocaux.map((enfant) => (
+          {enfants.map((enfant) => (
             <TableRow key={enfant.id}>
               <TableCell className="font-medium">{enfant.nom}</TableCell>
               <TableCell>{enfant.prenom}</TableCell>
