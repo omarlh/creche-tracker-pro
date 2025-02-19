@@ -68,7 +68,7 @@ const Paiements = () => {
 
   const filteredEnfants = enfants.filter(enfant => 
     enfant.anneeScolaire === anneeScolaire &&
-    `${enfant.prenom} ${enfant.nom}`.toLowerCase().includes(searchTerm.toLowerCase())
+    (searchTerm === "" || `${enfant.prenom} ${enfant.nom}`.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const filteredPaiements = paiements.filter(paiement => {
