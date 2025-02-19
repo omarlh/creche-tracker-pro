@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 
 export type Classe = "TPS" | "PS" | "MS" | "GS";
@@ -122,17 +123,23 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
         { 
           ...enfant, 
           id: Math.max(...state.enfants.map(e => e.id), 0) + 1,
+          anneeScolaire: enfant.anneeScolaire || "2024-2025", // Valeur par défaut si non spécifié
           fraisInscription: {
-            ...enfant.fraisInscription,
+            montantTotal: enfant.fraisInscription?.montantTotal || 300,
+            montantPaye: enfant.fraisInscription?.montantPaye || 0,
             paiements: enfant.fraisInscription?.paiements || []
-          }
+          },
+          statut: enfant.statut || "actif"
         },
       ],
     })),
   modifierEnfant: (enfant) =>
     set((state) => ({
       enfants: state.enfants.map((e) =>
-        e.id === enfant.id ? enfant : e
+        e.id === enfant.id ? {
+          ...enfant,
+          anneeScolaire: enfant.anneeScolaire || "2024-2025" // Assure qu'il y a toujours une année scolaire
+        } : e
       ),
     })),
   supprimerEnfant: (id) =>
