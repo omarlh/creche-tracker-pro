@@ -36,17 +36,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-type RapportMensuel = {
-  mois: string;
-  totalPaiements: number;
-  nombreEnfants: number;
-  paiementsComplets: number;
-  paiementsAttente: number;
-  tauxRecouvrement: number;
-  enfantsPaye: number[];
-  enfantsNonPaye: number[];
-};
-
 const anneesDisponibles = [
   "2023/2024",
   "2024/2025",
@@ -59,6 +48,17 @@ const anneesDisponibles = [
   "2031/2032",
   "2032/2033"
 ];
+
+type RapportMensuel = {
+  mois: string;
+  totalPaiements: number;
+  nombreEnfants: number;
+  paiementsComplets: number;
+  paiementsAttente: number;
+  tauxRecouvrement: number;
+  enfantsPaye: number[];
+  enfantsNonPaye: number[];
+};
 
 const Rapports = () => {
   const [anneeScolaireSelectionnee, setAnneeScolaireSelectionnee] = useState<string>("2024/2025");
@@ -76,12 +76,13 @@ const Rapports = () => {
       console.log("Génération des rapports pour l'année scolaire:", anneeDebut, "-", anneeFin);
       
       const moisAGenerer = [];
-      const debutAnneeScolaire = new Date(parseInt(anneeDebut), 8, 1);
       
-      let currentDate = new Date(debutAnneeScolaire);
-      for (let i = 0; i < 10; i++) {
-        moisAGenerer.push(new Date(currentDate));
-        currentDate.setMonth(currentDate.getMonth() + 1);
+      for (let mois = 8; mois <= 11; mois++) {
+        moisAGenerer.push(new Date(parseInt(anneeDebut), mois, 1));
+      }
+      
+      for (let mois = 0; mois <= 5; mois++) {
+        moisAGenerer.push(new Date(parseInt(anneeFin), mois, 1));
       }
 
       console.log("Mois à générer:", moisAGenerer.map(d => 
