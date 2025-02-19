@@ -48,7 +48,20 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       const { data: enfantsData, error } = await supabase
         .from('enfants')
         .select(`
-          *,
+          id,
+          nom,
+          prenom,
+          date_naissance,
+          date_inscription,
+          classe,
+          gsm_maman,
+          gsm_papa,
+          annee_scolaire,
+          montant_total,
+          montant_paye,
+          frais_scolarite_mensuel,
+          statut,
+          dernier_paiement,
           paiements_inscription (
             id,
             montant,
