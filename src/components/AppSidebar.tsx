@@ -1,7 +1,9 @@
+
 import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/ui/sidebar";
 import { buttonVariants } from "@/components/ui/button";
 import { CalendarDays } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const AppSidebar = () => {
   return (
