@@ -78,11 +78,13 @@ const Rapports = () => {
       const moisAGenerer = [];
       
       for (let mois = 8; mois <= 11; mois++) {
-        moisAGenerer.push(new Date(parseInt(anneeDebut), mois, 1));
+        const date = new Date(parseInt(anneeDebut), mois);
+        moisAGenerer.push(date);
       }
       
       for (let mois = 0; mois <= 5; mois++) {
-        moisAGenerer.push(new Date(parseInt(anneeFin), mois, 1));
+        const date = new Date(parseInt(anneeFin), mois);
+        moisAGenerer.push(date);
       }
 
       console.log("Mois à générer:", moisAGenerer.map(d => 
@@ -96,14 +98,8 @@ const Rapports = () => {
           if (!enfant.dernierPaiement) return false;
           
           const datePaiement = new Date(enfant.dernierPaiement);
-          const moisPaiement = datePaiement.getMonth();
-          const anneePaiement = datePaiement.getFullYear();
-          
-          const moisDate = date.getMonth();
-          const anneeDate = date.getFullYear();
-          
-          return moisPaiement === moisDate && 
-                 anneePaiement === anneeDate &&
+          return datePaiement.getMonth() === date.getMonth() && 
+                 datePaiement.getFullYear() === date.getFullYear() &&
                  enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-");
         });
 
