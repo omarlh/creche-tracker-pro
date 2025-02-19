@@ -40,7 +40,6 @@ export const PaiementFormulaire = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Formatage correct de la date pour le mois concerné
     const [annee, mois] = formData.moisConcerne.split('-');
     const moisConcerneDate = new Date(parseInt(annee), parseInt(mois) - 1, 1);
     
@@ -48,13 +47,12 @@ export const PaiementFormulaire = ({
       ...formData,
       enfantId: parseInt(formData.enfantId),
       montant: parseFloat(formData.montant.toString()),
-      moisConcerne: moisConcerneDate.toISOString() // Format ISO pour la date
+      moisConcerne: moisConcerneDate.toISOString()
     });
   };
 
   const getMoisAvecAnnee = (mois: string) => {
     const [anneeDebut, anneeFin] = anneeScolaire.split('-');
-    // Les mois de septembre à décembre sont dans l'année de début
     const annee = ['septembre', 'octobre', 'novembre', 'décembre'].includes(mois.toLowerCase())
       ? anneeDebut
       : anneeFin;
@@ -66,9 +64,13 @@ export const PaiementFormulaire = ({
     "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
   ];
 
+  const getMoisIndex = (selectedMois: string): number => {
+    return mois.findIndex(m => m.toLowerCase() === selectedMois.toLowerCase()) + 1;
+  };
+
   const handleMoisChange = (selectedMois: string) => {
     const { mois, annee } = getMoisAvecAnnee(selectedMois);
-    const moisIndex = mois.findIndex(m => m.toLowerCase() === selectedMois.toLowerCase()) + 1;
+    const moisIndex = getMoisIndex(selectedMois);
     const moisConcerne = `${annee}-${String(moisIndex).padStart(2, '0')}`;
     setFormData({ ...formData, moisConcerne });
   };
