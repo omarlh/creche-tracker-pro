@@ -51,7 +51,7 @@ export default function Retards() {
           montantDu: joursRetard === Infinity ? 0 : montantDu,
           joursRetard,
           dernierRappel: null,
-          type: 'mensuel'
+          type: 'mensuel' as const // Spécifiquement typé comme "mensuel"
         };
       })
       .filter((retard) => {
