@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,13 +54,28 @@ const anneesDisponibles = [
   "2032-2033"
 ];
 
+// Fonction pour obtenir l'année scolaire actuelle
+const getCurrentSchoolYear = () => {
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth(); // 0-11
+  const currentYear = currentDate.getFullYear();
+  
+  // Si nous sommes entre juillet et décembre, l'année scolaire commence cette année
+  // Sinon, elle a commencé l'année précédente
+  if (currentMonth >= 6) { // Juillet ou après
+    return `${currentYear}-${currentYear + 1}`;
+  } else {
+    return `${currentYear - 1}-${currentYear}`;
+  }
+};
+
 const Paiements = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { paiements, ajouterPaiement, modifierPaiement, supprimerPaiement } = usePaiementStore();
   const [selectedPaiement, setSelectedPaiement] = useState<Paiement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [anneeScolaire, setAnneeScolaire] = useState("2024-2025");
+  const [anneeScolaire, setAnneeScolaire] = useState(getCurrentSchoolYear());
   const [deletePassword, setDeletePassword] = useState("");
   const [isPasswordError, setIsPasswordError] = useState(false);
   const [paiementToDelete, setPaiementToDelete] = useState<Paiement | null>(null);
