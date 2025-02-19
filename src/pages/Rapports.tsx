@@ -60,7 +60,7 @@ const anneesDisponibles = [
 ];
 
 const Rapports = () => {
-  const [anneeScolaireSelectionnee, setAnneeScolaireSelectionnee] = useState<string>("all");
+  const [anneeScolaireSelectionnee, setAnneeScolaireSelectionnee] = useState<string>("2024/2025");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const [rapportsMensuels, setRapportsMensuels] = useState<RapportMensuel[]>([]);
@@ -71,11 +71,8 @@ const Rapports = () => {
     const genererRapportsMensuels = () => {
       const rapportsGeneres: RapportMensuel[] = [];
       
-      const anneeSelectionnee = anneeScolaireSelectionnee === "all" 
-        ? anneesDisponibles[0]
-        : anneeScolaireSelectionnee;
-      
-      const [anneeDebut, anneeFin] = anneeSelectionnee.split("/");
+      const [anneeDebut, anneeFin] = anneeScolaireSelectionnee.split("/");
+      console.log("Génération des rapports pour l'année scolaire:", anneeDebut, "-", anneeFin);
       
       const moisAGenerer = [];
       const debutAnneeScolaire = new Date(parseInt(anneeDebut), 8, 1);
@@ -86,6 +83,8 @@ const Rapports = () => {
         moisAGenerer.push(new Date(currentDate));
         currentDate.setMonth(currentDate.getMonth() + 1);
       }
+
+      console.log("Mois à générer:", moisAGenerer.map(d => d.toISOString().slice(0, 7)));
 
       moisAGenerer.forEach(date => {
         const moisCourant = date.toISOString().slice(0, 7);
@@ -102,7 +101,7 @@ const Rapports = () => {
           
           return moisPaiement === moisDate && 
                  anneePaiement === anneeDate &&
-                 (anneeScolaireSelectionnee === "all" || enfant.anneeScolaire === anneeScolaireSelectionnee);
+                 enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-");
         });
 
         const paiementsComplets = enfantsDuMois.filter(enfant => 
@@ -135,6 +134,7 @@ const Rapports = () => {
 
       rapportsGeneres.sort((a, b) => a.mois.localeCompare(b.mois));
       
+      console.log("Rapports générés:", rapportsGeneres);
       setRapportsMensuels(rapportsGeneres);
     };
 
@@ -230,7 +230,6 @@ const Rapports = () => {
                         <SelectContent className="bg-gray-100">
                           <SelectGroup>
                             <SelectLabel>Sélectionner une année scolaire</SelectLabel>
-                            <SelectItem value="all">Toutes les années scolaires</SelectItem>
                             {anneesDisponibles.map(annee => (
                               <SelectItem key={annee} value={annee}>
                                 Année scolaire {annee}
