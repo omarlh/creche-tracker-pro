@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -224,6 +225,7 @@ const Rapports: React.FC = () => {
           <div className="max-w-6xl mx-auto">
             <div className="space-y-8">
               <div>
+                {/* En-tête des rapports mensuels */}
                 <h2 className="text-2xl font-semibold mb-6">Rapports Mensuels</h2>
                 <div className="flex justify-between items-center mb-6">
                   <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
@@ -255,33 +257,49 @@ const Rapports: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Cartes de statistiques */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">
-                      Total des paiements
-                    </h3>
-                    <p className="text-2xl font-semibold">
-                      {rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
-                    </p>
-                  </div>
-                  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">
-                      Total des frais d'inscription
-                    </h3>
-                    <p className="text-2xl font-semibold">
-                      {rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalFraisInscription, 0)} DH
-                    </p>
-                  </div>
-                  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">
-                      Nombre d'enfants
-                    </h3>
-                    <p className="text-2xl font-semibold">
-                      {rapportsMensuels[0]?.nombreEnfants || 0}
-                    </p>
-                  </div>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        Total des paiements mensuels
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-semibold">
+                        {rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        Total des frais d'inscription
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-semibold">
+                        {rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalFraisInscription, 0)} DH
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        Nombre d'enfants
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-semibold">
+                        {rapportsMensuels[0]?.nombreEnfants || 0}
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
 
+                {/* Tableau des rapports mensuels */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-100">
                   <Table>
                     <TableHeader>
@@ -332,11 +350,13 @@ const Rapports: React.FC = () => {
                 </div>
               </div>
 
+              {/* Section des inscriptions par année scolaire */}
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-semibold">Inscriptions par Année Scolaire</h2>
                 </div>
 
+                {/* Cartes de statistiques des inscriptions */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   <Card>
                     <CardHeader className="pb-2">
@@ -350,7 +370,7 @@ const Rapports: React.FC = () => {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -363,7 +383,7 @@ const Rapports: React.FC = () => {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -394,6 +414,7 @@ const Rapports: React.FC = () => {
                   </Card>
                 </div>
 
+                {/* Tableau des élèves */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-100">
                   <Table>
                     <TableHeader>
@@ -405,7 +426,7 @@ const Rapports: React.FC = () => {
                         <TableHead>GSM Maman</TableHead>
                         <TableHead>GSM Papa</TableHead>
                         <TableHead>Statut</TableHead>
-                      </TableHead>
+                      </TableRow>
                     </TableHeader>
                     <TableBody>
                       {enfantsParAnneeScolaire[anneeScolaireSelectionnee]?.map((enfant) => (
@@ -438,105 +459,106 @@ const Rapports: React.FC = () => {
             </div>
           </div>
         </main>
+      </div>
 
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetContent className="w-full sm:max-w-xl overflow-y-auto print:w-full print:max-w-none print:overflow-visible">
-            <SheetHeader>
-              <SheetTitle>
-                Détails du rapport - {rapportSelectionne && new Date(rapportSelectionne.mois).toLocaleDateString("fr-FR", {
-                  month: "long",
-                  year: "numeric",
-                })}
-              </SheetTitle>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handlePrintRapport}
-                className="print:hidden"
-              >
-                <Printer className="w-4 h-4 mr-2" />
-                Imprimer
-              </Button>
-            </SheetHeader>
-            <div className="py-6">
-              {rapportSelectionne && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Total des paiements</h4>
-                      <p className="text-lg font-semibold mt-1">{rapportSelectionne.totalPaiements} DH</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Total des frais d'inscription</h4>
-                      <p className="text-lg font-semibold mt-1">{rapportSelectionne.totalFraisInscription} DH</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Paiements complétés</h4>
-                      <p className="text-lg font-semibold text-success mt-1">{rapportSelectionne.paiementsComplets}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Paiements en attente</h4>
-                      <p className="text-lg font-semibold text-warning mt-1">{rapportSelectionne.paiementsAttente}</p>
-                    </div>
-                  </div>
-
+      {/* Panneau latéral des détails */}
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent className="w-full sm:max-w-xl overflow-y-auto print:w-full print:max-w-none print:overflow-visible">
+          <SheetHeader>
+            <SheetTitle>
+              Détails du rapport - {rapportSelectionne && new Date(rapportSelectionne.mois).toLocaleDateString("fr-FR", {
+                month: "long",
+                year: "numeric",
+              })}
+            </SheetTitle>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handlePrintRapport}
+              className="print:hidden"
+            >
+              <Printer className="w-4 h-4 mr-2" />
+              Imprimer
+            </Button>
+          </SheetHeader>
+          <div className="py-6">
+            {rapportSelectionne && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Taux de recouvrement</h4>
-                    <p className="text-lg font-semibold mt-1">{rapportSelectionne.tauxRecouvrement}%</p>
+                    <h4 className="text-sm font-medium text-gray-500">Total des paiements</h4>
+                    <p className="text-lg font-semibold mt-1">{rapportSelectionne.totalPaiements} DH</p>
                   </div>
-
-                  <div className="mt-6">
-                    <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
-                      <BadgeCheck className="w-4 h-4 mr-2 text-success" />
-                      Enfants ayant payé
-                    </h4>
-                    <div className="space-y-2">
-                      {rapportSelectionne.enfantsPaye.map((enfantId) => {
-                        const enfant = getEnfantById(enfantId);
-                        return enfant ? (
-                          <div key={enfant.id} className="p-2 bg-success/5 rounded-md">
-                            <p className="text-sm font-medium">
-                              {enfant.prenom} {enfant.nom}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Classe: {enfant.classe}
-                            </p>
-                          </div>
-                        ) : null;
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
-                      <AlertCircle className="w-4 h-4 mr-2 text-warning" />
-                      Enfants en attente de paiement
-                    </h4>
-                    <div className="space-y-2">
-                      {rapportSelectionne.enfantsNonPaye.map((enfantId) => {
-                        const enfant = getEnfantById(enfantId);
-                        return enfant ? (
-                          <div key={enfant.id} className="p-2 bg-warning/5 rounded-md">
-                            <p className="text-sm font-medium">
-                              {enfant.prenom} {enfant.nom}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Classe: {enfant.classe}
-                            </p>
-                          </div>
-                        ) : null;
-                      })}
-                    </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500">Total des frais d'inscription</h4>
+                    <p className="text-lg font-semibold mt-1">{rapportSelectionne.totalFraisInscription} DH</p>
                   </div>
                 </div>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500">Paiements complétés</h4>
+                    <p className="text-lg font-semibold text-success mt-1">{rapportSelectionne.paiementsComplets}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500">Paiements en attente</h4>
+                    <p className="text-lg font-semibold text-warning mt-1">{rapportSelectionne.paiementsAttente}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Taux de recouvrement</h4>
+                  <p className="text-lg font-semibold mt-1">{rapportSelectionne.tauxRecouvrement}%</p>
+                </div>
+
+                <div className="mt-6">
+                  <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
+                    <BadgeCheck className="w-4 h-4 mr-2 text-success" />
+                    Enfants ayant payé
+                  </h4>
+                  <div className="space-y-2">
+                    {rapportSelectionne.enfantsPaye.map((enfantId) => {
+                      const enfant = getEnfantById(enfantId);
+                      return enfant ? (
+                        <div key={enfant.id} className="p-2 bg-success/5 rounded-md">
+                          <p className="text-sm font-medium">
+                            {enfant.prenom} {enfant.nom}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Classe: {enfant.classe}
+                          </p>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-2 text-warning" />
+                    Enfants en attente de paiement
+                  </h4>
+                  <div className="space-y-2">
+                    {rapportSelectionne.enfantsNonPaye.map((enfantId) => {
+                      const enfant = getEnfantById(enfantId);
+                      return enfant ? (
+                        <div key={enfant.id} className="p-2 bg-warning/5 rounded-md">
+                          <p className="text-sm font-medium">
+                            {enfant.prenom} {enfant.nom}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Classe: {enfant.classe}
+                          </p>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </React.Fragment>
   );
 };
