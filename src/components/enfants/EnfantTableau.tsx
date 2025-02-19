@@ -1,3 +1,4 @@
+
 import {
   Table,
   TableBody,
@@ -11,14 +12,20 @@ import { EnfantActions } from "./table/EnfantActions";
 import { EnfantFrais } from "./table/EnfantFrais";
 import { useEffect } from "react";
 
-interface EnfantTableauProps {
+export interface EnfantTableauProps {
+  enfants: Enfant[];
   onEdit: (enfant: Enfant) => void;
   onView: (enfant: Enfant) => void;
   calculerMontantRestant: (enfant: Enfant) => number;
 }
 
-export const EnfantTableau = ({ onEdit, onView, calculerMontantRestant }: EnfantTableauProps) => {
-  const { enfants, supprimerEnfant, fetchEnfants } = useEnfantStore();
+export const EnfantTableau = ({ 
+  enfants, 
+  onEdit, 
+  onView, 
+  calculerMontantRestant 
+}: EnfantTableauProps) => {
+  const { fetchEnfants, supprimerEnfant } = useEnfantStore();
 
   useEffect(() => {
     fetchEnfants();
