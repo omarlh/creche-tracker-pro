@@ -317,13 +317,17 @@ const Paiements = () => {
         </main>
 
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetContent className="w-full sm:max-w-xl">
-            <SheetHeader>
+          <SheetContent 
+            side="right"
+            className="w-full sm:max-w-xl overflow-y-auto"
+            style={{ height: '100vh' }}
+          >
+            <SheetHeader className="sticky top-0 bg-background z-10 pb-4">
               <SheetTitle>
                 {selectedPaiement ? "Modifier le paiement" : "Nouveau paiement"}
               </SheetTitle>
             </SheetHeader>
-            <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+            <form onSubmit={handleSubmit} className="space-y-6 pb-10">
               <div className="space-y-2">
                 <label className="text-sm font-medium">
                   Année scolaire
@@ -467,7 +471,7 @@ const Paiements = () => {
                 </select>
               </div>
 
-              <div className="pt-4 space-x-2 flex justify-end">
+              <div className="sticky bottom-0 bg-background pt-4 border-t flex justify-end space-x-2">
                 <Button
                   variant="outline"
                   type="button"
