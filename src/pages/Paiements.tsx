@@ -118,7 +118,7 @@ const Paiements = () => {
   });
 
   const handleSubmit = (data: any) => {
-    const { enfantId, anneeScolaire, mois, montant, datePaiement, methodePaiement, commentaire } = data;
+    const { enfantId, anneeScolaire, mois, montant, datePaiement, methodePaiement, commentaire, moisConcerne, statut } = data;
 
     const nouveauPaiement = {
       enfantId: parseInt(enfantId),
@@ -128,6 +128,8 @@ const Paiements = () => {
       datePaiement,
       methodePaiement,
       commentaire,
+      moisConcerne,
+      statut
     };
 
     if (selectedPaiement) {
