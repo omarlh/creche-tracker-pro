@@ -1,48 +1,13 @@
 
 import { useState, useMemo, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { AlertTriangle, Printer, Send } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useEnfantStore } from "@/data/enfants";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { format, addMonths, differenceInMonths, startOfMonth, isBefore } from "date-fns";
-import { fr } from "date-fns/locale";
-
-type RetardPaiement = {
-  id: number;
-  enfantId: number;
-  enfantNom: string;
-  enfantPrenom: string;
-  moisConcerne: string;
-  montantDu: number;
-  joursRetard: number;
-  dernierRappel: string | null;
-  type: 'inscription' | 'mensuel';
-};
-
-const anneesDisponibles = [
-  "2023-2024",
-  "2024-2025",
-  "2025-2026",
-  "2026-2027",
-  "2027-2028",
-];
+import { RetardsHeader } from "@/components/retards/RetardsHeader";
+import { RetardsStats } from "@/components/retards/RetardsStats";
+import { RetardsTable, RetardPaiement } from "@/components/retards/RetardsTable";
+import { addMonths, startOfMonth, isBefore } from "date-fns";
 
 const Retards = () => {
   const [retards, setRetards] = useState<RetardPaiement[]>([]);
@@ -55,7 +20,7 @@ const Retards = () => {
     const mois = dateObj.getMonth();
     const annee = dateObj.getFullYear();
     
-    if (mois >= 8) { // À partir de septembre
+    if (mois >= 8) {
       return `${annee}-${annee + 1}`;
     } else {
       return `${annee - 1}-${annee}`;
@@ -104,7 +69,6 @@ const Retards = () => {
             if (anneeScolaire === selectedAnnee) {
               const joursRetard = Math.floor((maintenant.getTime() - moisCourant.getTime()) / (1000 * 3600 * 24));
               
-              // Si pas de dernier paiement ou si le dernier paiement est avant le mois courant
               if (!dernierPaiement || isBefore(dernierPaiement, moisCourant)) {
                 retardsGeneres.push({
                   id: Math.random(),
@@ -171,128 +135,20 @@ const Retards = () => {
         <AppSidebar />
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-              <div className="space-y-1">
-                <h1 className="text-3xl font-semibold">Gestion des Retards de Paiement</h1>
-                <div className="w-[200px]">
-                  <Select
-                    value={selectedAnnee}
-                    onValueChange={setSelectedAnnee}
-                  >
-                    <SelectTrigger className="text-sm">
-                      <SelectValue placeholder="Sélectionner une année" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {anneesDisponibles.map((annee) => (
-                        <SelectItem key={annee} value={annee}>
-                          Année {annee}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <Button
-                onClick={handlePrint}
-                variant="outline"
-                className="print:hidden"
-              >
-                <Printer className="mr-2 h-4 w-4" />
-                Imprimer
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  Total des retards
-                </h3>
-                <p className="text-2xl font-semibold">{retardsFiltres.length}</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  Montant total dû
-                </h3>
-                <p className="text-2xl font-semibold">
-                  {getTotalRetards()} DH
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  Retard moyen
-                </h3>
-                <p className="text-2xl font-semibold">
-                  {getMoyenneJoursRetard()} jours
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Enfant</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Mois concerné</TableHead>
-                    <TableHead>Montant dû</TableHead>
-                    <TableHead>Jours de retard</TableHead>
-                    <TableHead>Dernier rappel</TableHead>
-                    <TableHead className="text-right print:hidden">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {retardsFiltres.map((retard) => (
-                    <TableRow key={retard.id}>
-                      <TableCell>
-                        {retard.enfantPrenom} {retard.enfantNom}
-                      </TableCell>
-                      <TableCell>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          retard.type === 'inscription'
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-purple-100 text-purple-800"
-                        }`}>
-                          {retard.type === 'inscription' ? 'Inscription' : 'Mensuel'}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(retard.moisConcerne), 'MMMM yyyy', { locale: fr })}
-                      </TableCell>
-                      <TableCell>{retard.montantDu} DH</TableCell>
-                      <TableCell>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          retard.joursRetard > 20
-                            ? "bg-destructive/10 text-destructive"
-                            : retard.joursRetard > 10
-                            ? "bg-warning/10 text-warning"
-                            : "bg-muted/10 text-muted-foreground"
-                        }`}>
-                          <AlertTriangle className="w-3 h-3 mr-1" />
-                          {retard.joursRetard} jours
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {retard.dernierRappel ? (
-                          new Date(retard.dernierRappel).toLocaleDateString("fr-FR")
-                        ) : (
-                          <span className="text-muted-foreground">Aucun rappel</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right print:hidden">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => envoyerRappel(retard.id)}
-                        >
-                          <Send className="w-4 h-4 mr-2" />
-                          Envoyer rappel
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <RetardsHeader
+              selectedAnnee={selectedAnnee}
+              setSelectedAnnee={setSelectedAnnee}
+              handlePrint={handlePrint}
+            />
+            <RetardsStats
+              totalRetards={retardsFiltres.length}
+              montantTotal={getTotalRetards()}
+              moyenneJours={getMoyenneJoursRetard()}
+            />
+            <RetardsTable
+              retards={retardsFiltres}
+              onEnvoyerRappel={envoyerRappel}
+            />
           </div>
         </main>
       </div>
