@@ -16,6 +16,8 @@ export const usePaiementManager = () => {
   const [paiementToDelete, setPaiementToDelete] = useState<Paiement | null>(null);
   const [moisDisponibles, setMoisDisponibles] = useState(getMoisAnneeScolaire(anneeScolaire));
   const [defaultMontant] = useState<number>(800);
+  const [selectedEnfant, setSelectedEnfant] = useState("");
+  const [selectedMois, setSelectedMois] = useState("");
 
   const { toast } = useToast();
   const { paiements, ajouterPaiement, modifierPaiement, supprimerPaiement, fetchPaiements } = usePaiementStore();
@@ -33,6 +35,14 @@ export const usePaiementManager = () => {
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
+  };
+
+  const handleEnfantFilter = (enfantId: string) => {
+    setSelectedEnfant(enfantId);
+  };
+
+  const handleMoisFilter = (mois: string) => {
+    setSelectedMois(mois);
   };
 
   const handleSubmit = (data: any) => {
@@ -71,6 +81,31 @@ export const usePaiementManager = () => {
     setIsSheetOpen(false);
   };
 
+  const handleAddMultiplePayments = (enfantId: number) => {
+    const enfant = enfants.find(e => e.id === enfantId);
+    if (!enfant) return;
+
+    moisDisponibles.forEach(mois => {
+      const nouveauPaiement = {
+        enfantId,
+        anneeScolaire,
+        mois: mois.toLowerCase(),
+        montant: defaultMontant,
+        datePaiement: new Date().toISOString().split('T')[0],
+        moisConcerne: mois.toLowerCase(),
+        methodePaiement: "especes",
+        statut: "en_attente",
+        commentaire: `Paiement mensuel pour ${mois}`
+      };
+      ajouterPaiement(nouveauPaiement);
+    });
+
+    toast({
+      title: "Paiements mensuels ajoutés",
+      description: `Les paiements mensuels ont été créés pour ${enfant.prenom} ${enfant.nom}`,
+    });
+  };
+
   const confirmDeletePaiement = (paiement: Paiement) => {
     setPaiementToDelete(paiement);
   };
@@ -99,7 +134,12 @@ export const usePaiementManager = () => {
   const filteredPaiements = paiements.filter(paiement => {
     const enfant = enfants.find(e => e.id === paiement.enfantId);
     const nomComplet = enfant ? `${enfant.prenom} ${enfant.nom}`.toLowerCase() : '';
-    return nomComplet.includes(searchTerm.toLowerCase());
+    
+    const matchesSearch = nomComplet.includes(searchTerm.toLowerCase());
+    const matchesEnfant = selectedEnfant ? paiement.enfantId === parseInt(selectedEnfant) : true;
+    const matchesMois = selectedMois ? paiement.moisConcerne === selectedMois : true;
+
+    return matchesSearch && matchesEnfant && matchesMois;
   });
 
   return {
@@ -117,10 +157,15 @@ export const usePaiementManager = () => {
     defaultMontant,
     enfants,
     filteredPaiements,
+    selectedEnfant,
+    selectedMois,
     handleAddClick,
     handleEditClick,
     handleSearch,
     handleSubmit,
+    handleEnfantFilter,
+    handleMoisFilter,
+    handleAddMultiplePayments,
     confirmDeletePaiement,
     cancelDeletePaiement,
     handleDeletePaiement,

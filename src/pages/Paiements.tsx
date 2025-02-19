@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { PaiementTableau } from "@/components/paiements/PaiementTableau";
 import { PaiementFormulaire } from "@/components/paiements/PaiementFormulaire";
 import { PaiementSearchBar } from "@/components/paiements/PaiementSearchBar";
+import { PaiementFilters } from "@/components/paiements/PaiementFilters";
 import { DeletePaiementDialog } from "@/components/paiements/DeletePaiementDialog";
 import { usePaiementManager } from "@/hooks/usePaiementManager";
 import { useEffect } from "react";
@@ -27,10 +28,14 @@ const Paiements = () => {
     defaultMontant,
     enfants,
     filteredPaiements,
+    selectedEnfant,
+    selectedMois,
     handleAddClick,
     handleEditClick,
     handleSearch,
     handleSubmit,
+    handleEnfantFilter,
+    handleMoisFilter,
     confirmDeletePaiement,
     cancelDeletePaiement,
     handleDeletePaiement,
@@ -68,6 +73,15 @@ const Paiements = () => {
                 Ajouter un paiement
               </Button>
             </div>
+
+            <PaiementFilters
+              selectedEnfant={selectedEnfant}
+              selectedMois={selectedMois}
+              onEnfantChange={handleEnfantFilter}
+              onMoisChange={handleMoisFilter}
+              enfants={enfants}
+              moisDisponibles={moisDisponibles}
+            />
 
             <PaiementTableau
               paiements={filteredPaiements}
