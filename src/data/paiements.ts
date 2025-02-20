@@ -1,5 +1,6 @@
 
 import { create } from 'zustand';
+import { supabase } from "@/integrations/supabase/client";
 
 export type Paiement = {
   id: number;
@@ -9,6 +10,7 @@ export type Paiement = {
   moisConcerne: string;
   methodePaiement: "carte" | "especes" | "cheque";
   statut: "complete" | "en_attente";
+  typePaiement: "mensualite" | "inscription";
   anneeScolaire?: string;
   mois?: string;
   commentaire?: string;
@@ -16,58 +18,115 @@ export type Paiement = {
 
 interface PaiementStore {
   paiements: Paiement[];
-  ajouterPaiement: (paiement: Omit<Paiement, "id">) => void;
-  modifierPaiement: (paiement: Paiement) => void;
-  supprimerPaiement: (id: number) => void;
-  fetchPaiements: () => void;
+  ajouterPaiement: (paiement: Omit<Paiement, "id">) => Promise<void>;
+  modifierPaiement: (paiement: Paiement) => Promise<void>;
+  supprimerPaiement: (id: number) => Promise<void>;
+  fetchPaiements: () => Promise<void>;
 }
 
 export const usePaiementStore = create<PaiementStore>((set) => ({
   paiements: [],
+  
   fetchPaiements: async () => {
-    // Simulation d'un appel API
-    set({
-      paiements: [
-        {
-          id: 1,
-          enfantId: 1,
-          montant: 800,
-          datePaiement: "2024-02-15",
-          moisConcerne: "2024-02",
-          methodePaiement: "carte",
-          statut: "complete",
-        },
-        {
-          id: 2,
-          enfantId: 2,
-          montant: 800,
-          datePaiement: "2024-02-10",
-          moisConcerne: "2024-02",
-          methodePaiement: "cheque",
-          statut: "complete",
-        },
-        {
-          id: 3,
-          enfantId: 3,
-          montant: 800,
-          datePaiement: "2024-02-01",
-          moisConcerne: "2024-02",
-          methodePaiement: "especes",
-          statut: "en_attente",
-        },
-      ],
-    });
+    const { data, error } = await supabase
+      .from('paiements')
+      .select('*')
+      .order('date_paiement', { ascending: false });
+
+    if (error) {
+      console.error('Erreur lors du chargement des paiements:', error);
+      return;
+    }
+
+    const formattedData = data.map(p => ({
+      id: p.id,
+      enfantId: p.enfant_id,
+      montant: p.montant,
+      datePaiement: p.date_paiement,
+      moisConcerne: p.mois_concerne,
+      methodePaiement: p.methode_paiement,
+      statut: p.statut,
+      typePaiement: p.type_paiement,
+      commentaire: p.commentaire
+    }));
+
+    set({ paiements: formattedData });
   },
-  ajouterPaiement: (paiement) =>
-    set((state) => ({
-      paiements: [...state.paiements, { ...paiement, id: Date.now() }],
-    })),
-  modifierPaiement: (paiement) =>
-    set((state) => ({
-      paiements: state.paiements.map((p) => (p.id === paiement.id ? paiement : p)),
-    })),
-  supprimerPaiement: (id) =>
-    set((state) => ({
-      paiements: state.paiements.filter((paiement) => paiement.id !== id),
-    })),
+
+  ajouterPaiement: async (paiement) => {
+    const { data, error } = await supabase
+      .from('paiements')
+      .insert([{
+        enfant_id: paiement.enfantId,
+        montant: paiement.montant,
+        date_paiement: paiement.datePaiement,
+        mois_concerne: paiement.moisConcerne,
+        methode_paiement: paiement.methodePaiement,
+        statut: paiement.statut,
+        type_paiement: paiement.typePaiement,
+        commentaire: paiement.commentaire
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Erreur lors de l\'ajout du paiement:', error);
+      return;
+    }
+
+    set(state => ({
+      paiements: [...state.paiements, {
+        id: data.id,
+        enfantId: data.enfant_id,
+        montant: data.montant,
+        datePaiement: data.date_paiement,
+        moisConcerne: data.mois_concerne,
+        methodePaiement: data.methode_paiement,
+        statut: data.statut,
+        typePaiement: data.type_paiement,
+        commentaire: data.commentaire
+      }]
+    }));
+  },
+
+  modifierPaiement: async (paiement) => {
+    const { error } = await supabase
+      .from('paiements')
+      .update({
+        enfant_id: paiement.enfantId,
+        montant: paiement.montant,
+        date_paiement: paiement.datePaiement,
+        mois_concerne: paiement.moisConcerne,
+        methode_paiement: paiement.methodePaiement,
+        statut: paiement.statut,
+        type_paiement: paiement.typePaiement,
+        commentaire: paiement.commentaire
+      })
+      .eq('id', paiement.id);
+
+    if (error) {
+      console.error('Erreur lors de la modification du paiement:', error);
+      return;
+    }
+
+    set(state => ({
+      paiements: state.paiements.map(p => p.id === paiement.id ? paiement : p)
+    }));
+  },
+
+  supprimerPaiement: async (id) => {
+    const { error } = await supabase
+      .from('paiements')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Erreur lors de la suppression du paiement:', error);
+      return;
+    }
+
+    set(state => ({
+      paiements: state.paiements.filter(paiement => paiement.id !== id)
+    }));
+  },
 }));

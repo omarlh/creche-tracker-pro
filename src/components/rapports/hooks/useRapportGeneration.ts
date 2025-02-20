@@ -36,26 +36,32 @@ export const useRapportGeneration = (
         if (date.getMonth() !== 7) {
           const moisCourant = date.toISOString().slice(0, 7);
           
-          const paiementsDuMois = paiements.filter(paiement => {
+          // Filtrer les paiements mensuels
+          const paiementsMensuels = paiements.filter(paiement => {
             const datePaiement = new Date(paiement.datePaiement);
-            return datePaiement.getMonth() === date.getMonth() && 
-                   datePaiement.getFullYear() === date.getFullYear();
+            const moisConcerne = new Date(paiement.moisConcerne);
+            return moisConcerne.getMonth() === date.getMonth() && 
+                   moisConcerne.getFullYear() === date.getFullYear() &&
+                   paiement.typePaiement === "mensualite";
           });
 
-          const enfantsAvecPaiement = new Set(paiementsDuMois.map(p => p.enfantId));
+          // Filtrer les paiements d'inscription
+          const paiementsInscription = paiements.filter(paiement => {
+            const datePaiement = new Date(paiement.datePaiement);
+            return datePaiement.getMonth() === date.getMonth() && 
+                   datePaiement.getFullYear() === date.getFullYear() &&
+                   paiement.typePaiement === "inscription";
+          });
+
+          const enfantsAvecPaiement = new Set(paiementsMensuels.map(p => p.enfantId));
           
-          const totalPaiements = paiementsDuMois.reduce((sum, paiement) => 
+          const totalPaiements = paiementsMensuels.reduce((sum, paiement) => 
             sum + paiement.montant, 0
           );
 
-          const totalFraisInscription = enfants
-            .filter(enfant => {
-              const dernierPaiement = new Date(enfant.dernierPaiement || '');
-              return dernierPaiement.getMonth() === date.getMonth() && 
-                     dernierPaiement.getFullYear() === date.getFullYear() &&
-                     enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-");
-            })
-            .reduce((sum, enfant) => sum + (enfant.fraisInscription?.montantPaye || 0), 0);
+          const totalFraisInscription = paiementsInscription.reduce((sum, paiement) => 
+            sum + paiement.montant, 0
+          );
 
           const enfantsActifs = enfants.filter(enfant => 
             enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-") &&

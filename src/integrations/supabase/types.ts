@@ -60,6 +60,53 @@ export type Database = {
         }
         Relationships: []
       }
+      paiements: {
+        Row: {
+          commentaire: string | null
+          created_at: string | null
+          date_paiement: string | null
+          enfant_id: number | null
+          id: number
+          methode_paiement: string | null
+          mois_concerne: string
+          montant: number
+          statut: string | null
+          type_paiement: string | null
+        }
+        Insert: {
+          commentaire?: string | null
+          created_at?: string | null
+          date_paiement?: string | null
+          enfant_id?: number | null
+          id?: number
+          methode_paiement?: string | null
+          mois_concerne: string
+          montant: number
+          statut?: string | null
+          type_paiement?: string | null
+        }
+        Update: {
+          commentaire?: string | null
+          created_at?: string | null
+          date_paiement?: string | null
+          enfant_id?: number | null
+          id?: number
+          methode_paiement?: string | null
+          mois_concerne?: string
+          montant?: number
+          statut?: string | null
+          type_paiement?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paiements_enfant_id_fkey"
+            columns: ["enfant_id"]
+            isOneToOne: false
+            referencedRelation: "enfants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       paiements_inscription: {
         Row: {
           date_paiement: string | null
