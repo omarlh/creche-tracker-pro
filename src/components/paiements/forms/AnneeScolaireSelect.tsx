@@ -23,10 +23,10 @@ export const AnneeScolaireSelect = ({ value, onChange }: AnneeScolaireSelectProp
     <div>
       <Label htmlFor="anneeScolaire">Année scolaire</Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger id="anneeScolaire" className="bg-gray-200 text-black opacity-75">
+        <SelectTrigger id="anneeScolaire" className="bg-gray-200 text-black">
           <SelectValue placeholder="Sélectionner une année scolaire" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {genererAnnesScolaires().map((annee) => (
             <SelectItem key={annee} value={annee}>
               {annee}
