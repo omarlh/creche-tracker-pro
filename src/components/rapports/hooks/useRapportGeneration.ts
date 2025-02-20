@@ -22,11 +22,13 @@ export const useRapportGeneration = (
       
       const moisAGenerer = [];
       
+      // Générer les mois de septembre à décembre de l'année de début
       for (let mois = 8; mois < 12; mois++) {
         const date = new Date(parseInt(anneeDebut), mois);
         moisAGenerer.push(date);
       }
       
+      // Générer les mois de janvier à juin de l'année de fin
       for (let mois = 0; mois <= 6; mois++) {
         const date = new Date(parseInt(anneeFin), mois);
         moisAGenerer.push(date);
@@ -38,12 +40,16 @@ export const useRapportGeneration = (
           
           // Filtrer les paiements mensuels pour ce mois
           const paiementsMensuels = paiements.filter(paiement => {
-            const datePaiement = new Date(paiement.datePaiement);
             const moisConcerne = new Date(paiement.moisConcerne);
             return moisConcerne.getMonth() === date.getMonth() && 
                    moisConcerne.getFullYear() === date.getFullYear() &&
                    paiement.typePaiement === "mensualite";
           });
+
+          // Calculer le total des paiements mensuels
+          const totalPaiementsMensuels = paiementsMensuels.reduce((sum, paiement) => 
+            sum + paiement.montant, 0
+          );
 
           // Filtrer les paiements d'inscription pour ce mois
           const paiementsInscription = paiements.filter(paiement => {
@@ -53,30 +59,10 @@ export const useRapportGeneration = (
                    paiement.typePaiement === "inscription";
           });
 
-          // Calculer le total des frais d'inscription payés ce mois-ci à partir des paiements
-          const totalFraisInscriptionPaiements = paiementsInscription.reduce((sum, paiement) => 
+          // Calculer le total des frais d'inscription
+          const totalFraisInscription = paiementsInscription.reduce((sum, paiement) => 
             sum + paiement.montant, 0
           );
-
-          // Calculer le total des frais mensuels payés ce mois-ci
-          const totalFraisMensuels = paiementsMensuels.reduce((sum, paiement) => 
-            sum + paiement.montant, 0
-          );
-
-          // Calculer le total des frais d'inscription enregistrés dans les fiches enfants ce mois-ci
-          const enfantsInscritsThisMonth = enfants.filter(enfant => {
-            const dateInscription = new Date(enfant.dateInscription || "");
-            return dateInscription.getMonth() === date.getMonth() && 
-                   dateInscription.getFullYear() === date.getFullYear() &&
-                   enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-");
-          });
-
-          const totalFraisInscriptionEnfants = enfantsInscritsThisMonth.reduce((sum, enfant) => 
-            sum + (enfant.fraisInscription?.montantPaye || 0), 0
-          );
-
-          // Le total final des frais d'inscription combine les deux sources
-          const totalFraisInscription = totalFraisInscriptionPaiements + totalFraisInscriptionEnfants;
 
           const enfantsActifs = enfants.filter(enfant => 
             enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-") &&
@@ -91,7 +77,7 @@ export const useRapportGeneration = (
 
           rapportsGeneres.push({
             mois: moisCourant,
-            totalPaiements: totalFraisMensuels,
+            totalPaiements: totalPaiementsMensuels,
             totalFraisInscription,
             nombreEnfants: enfantsActifs.length,
             paiementsComplets: enfantsPaye.length,
