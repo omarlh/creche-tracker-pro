@@ -48,24 +48,25 @@ export const useRapportGeneration = (
         }
       }
 
-      // Récupérer les frais d'inscription pour l'année scolaire
-      const debutAnneeScolaire = `${anneeDebut}-09-01`;
-      const finAnneeScolaire = `${anneeFin}-07-31`;
-
+      // Récupérer tous les frais d'inscription pour l'année scolaire
       const { data: fraisInscription, error: fraisError } = await supabase
         .from('paiements_inscription')
         .select('*')
-        .gte('date_paiement', debutAnneeScolaire)
-        .lte('date_paiement', finAnneeScolaire)
-        .order('date_paiement', { ascending: true });
+        .gte('date_paiement', `${anneeDebut}-09-01`)
+        .lte('date_paiement', `${anneeFin}-07-31`);
 
       if (fraisError) {
         console.error("Erreur lors de la récupération des frais d'inscription:", fraisError);
+        return;
       }
 
       for (const date of moisAGenerer) {
-        if (date.getMonth() !== 7) {  // Exclure juillet
+        if (date.getMonth() !== 7) {  // Exclure août
           const moisCourant = date.toISOString().slice(0, 7);
+          const premierJourMois = new Date(date.getFullYear(), date.getMonth(), 1)
+            .toISOString().split('T')[0];
+          const dernierJourMois = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+            .toISOString().split('T')[0];
 
           // Filtrer les enfants actifs pour l'année scolaire
           const enfantsActifs = enfants.filter(enfant => 
@@ -85,16 +86,21 @@ export const useRapportGeneration = (
           // Filtrer les frais d'inscription pour ce mois spécifique
           const fraisInscriptionMois = fraisInscription?.filter(frais => {
             const datePaiement = new Date(frais.date_paiement);
-            return datePaiement.getMonth() === date.getMonth() &&
-                   datePaiement.getFullYear() === date.getFullYear();
+            return datePaiement >= new Date(premierJourMois) && 
+                   datePaiement <= new Date(dernierJourMois);
           }) || [];
 
-          const totalFraisInscription = fraisInscriptionMois.reduce((sum, frais) => {
-            return sum + Number(frais.montant);
-          }, 0);
+          console.log(`Mois ${moisCourant} - Frais d'inscription trouvés:`, 
+            fraisInscriptionMois.map(f => ({
+              date: f.date_paiement,
+              montant: f.montant
+            }))
+          );
 
-          console.log(`Mois: ${moisCourant} - Frais d'inscription trouvés:`, fraisInscriptionMois);
-          console.log(`Total frais d'inscription pour ${moisCourant}:`, totalFraisInscription);
+          // Calculer le total des frais d'inscription pour ce mois
+          const totalFraisInscription = fraisInscriptionMois.reduce((sum, frais) => 
+            sum + Number(frais.montant), 0
+          );
 
           const enfantsAvecPaiement = new Set(paiementsMensuels.map(p => p.enfantId));
           const enfantsPaye = Array.from(enfantsAvecPaiement);
@@ -121,6 +127,7 @@ export const useRapportGeneration = (
         }
       }
 
+      // Trier les rapports par date
       rapportsGeneres.sort((a, b) => a.mois.localeCompare(b.mois));
       setRapportsMensuels(rapportsGeneres);
     };
