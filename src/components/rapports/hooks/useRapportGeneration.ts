@@ -62,8 +62,8 @@ export const useRapportGeneration = (
 
           // Calculer le total des frais d'inscription des enfants inscrits ce mois
           const totalFraisInscription = enfantsInscritsThisMonth.reduce((sum, enfant) => {
-            if (typeof enfant.montantPaye === 'number') {
-              return sum + enfant.montantPaye;
+            if (enfant.fraisInscription?.montantPaye) {
+              return sum + enfant.fraisInscription.montantPaye;
             }
             return sum;
           }, 0);
