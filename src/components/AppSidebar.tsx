@@ -40,90 +40,35 @@ export const AppSidebar = () => {
     }
   };
 
+  const navLinks = [
+    { to: "/", icon: <Home size={16} />, label: "Tableau de bord" },
+    { to: "/enfants", icon: <Users size={16} />, label: "Enfants" },
+    { to: "/paiements", icon: <CreditCard size={16} />, label: "Paiements" },
+    { to: "/liste-annuelle", icon: <CalendarDays size={16} />, label: "Liste Annuelle" },
+    { to: "/retards", icon: <Clock size={16} />, label: "Retards de Paiement" },
+    { to: "/depart", icon: <LogOut size={16} />, label: "Départs" },
+    { to: "/rapports", icon: <BarChart size={16} />, label: "Rapports" },
+    { to: "/tableau-croise", icon: <TableProperties size={16} />, label: "Tableau Croisé" }
+  ];
+
   return (
     <Sidebar className="h-screen md:block">
       <SidebarContent>
         <div className="space-y-1">
-          <Link
-            to="/"
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              "w-full justify-start gap-2"
-            )}
-          >
-            <Home size={16} />
-            Tableau de bord
-          </Link>
-          <Link
-            to="/enfants"
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              "w-full justify-start gap-2"
-            )}
-          >
-            <Users size={16} />
-            Enfants
-          </Link>
-          <Link
-            to="/paiements"
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              "w-full justify-start gap-2"
-            )}
-          >
-            <CreditCard size={16} />
-            Paiements
-          </Link>
-          <Link
-            to="/liste-annuelle"
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              "w-full justify-start gap-2"
-            )}
-          >
-            <CalendarDays size={16} />
-            Liste Annuelle
-          </Link>
-          <Link
-            to="/retards"
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              "w-full justify-start gap-2"
-            )}
-          >
-            <Clock size={16} />
-            Retards de Paiement
-          </Link>
-          <Link
-            to="/depart"
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              "w-full justify-start gap-2"
-            )}
-          >
-            <LogOut size={16} />
-            Départs
-          </Link>
-          <Link
-            to="/rapports"
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              "w-full justify-start gap-2"
-            )}
-          >
-            <BarChart size={16} />
-            Rapports
-          </Link>
-          <Link
-            to="/tableau-croise"
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              "w-full justify-start gap-2"
-            )}
-          >
-            <TableProperties size={16} />
-            Tableau Croisé
-          </Link>
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={cn(
+                buttonVariants({ variant: "ghost" }),
+                "w-full justify-start gap-2"
+              )}
+              preventScrollReset={true}
+            >
+              {link.icon}
+              {link.label}
+            </Link>
+          ))}
         </div>
       </SidebarContent>
       
