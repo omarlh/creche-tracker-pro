@@ -103,7 +103,7 @@ const ListeAnnuelle = () => {
                           </span>
                         </TableCell>
                         <TableCell className="text-right">
-                          {enfant.fraisScolariteMensuel || 800} DH
+                          {enfant.fraisScolariteMensuel} DH
                         </TableCell>
                       </TableRow>
                     ))}
