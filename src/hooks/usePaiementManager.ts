@@ -46,11 +46,7 @@ export const usePaiementManager = () => {
   };
 
   const handleSubmit = (data: any) => {
-    const { enfantId, montant, datePaiement, methodePaiement, commentaire, moisConcerne, statut, typePaiement } = data;
-
-    // Créer la date correcte pour le mois concerné
-    const [year, month] = moisConcerne.split('-');
-    const moisConcerneFinal = `${year}-${month}-01`;
+    const { enfantId, montant, datePaiement, methodePaiement, commentaire, moisConcerne, statut } = data;
 
     if (selectedPaiement) {
       const paiementModifie: Paiement = {
@@ -60,9 +56,8 @@ export const usePaiementManager = () => {
         datePaiement,
         methodePaiement,
         commentaire,
-        moisConcerne: moisConcerneFinal,
-        statut,
-        typePaiement
+        moisConcerne,
+        statut
       };
       modifierPaiement(paiementModifie);
       toast({
@@ -76,9 +71,8 @@ export const usePaiementManager = () => {
         datePaiement,
         methodePaiement,
         commentaire,
-        moisConcerne: moisConcerneFinal,
-        statut,
-        typePaiement
+        moisConcerne,
+        statut
       };
       ajouterPaiement(nouveauPaiement);
       toast({
@@ -97,7 +91,6 @@ export const usePaiementManager = () => {
     const currentYear = new Date().getFullYear();
 
     moisDisponibles.forEach((mois, index) => {
-      // Déterminer la bonne année pour chaque mois
       const moisIndex = index + 9; // Septembre = 9
       const annee = moisIndex > 12 ? currentYear + 1 : currentYear;
       const moisNum = moisIndex > 12 ? moisIndex - 12 : moisIndex;
@@ -110,7 +103,6 @@ export const usePaiementManager = () => {
         moisConcerne: moisFormate,
         methodePaiement: "especes" as const,
         statut: "en_attente" as const,
-        typePaiement: "mensualite" as const,
         commentaire: `Paiement mensuel pour ${mois}`
       };
       ajouterPaiement(nouveauPaiement);

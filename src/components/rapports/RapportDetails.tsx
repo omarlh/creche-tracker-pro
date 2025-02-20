@@ -9,7 +9,7 @@ interface RapportDetailsProps {
   rapport: RapportMensuel;
   onPrint: () => void;
   getEnfantById: (id: number) => Enfant | undefined;
-  paiements: Paiement[];  // Ajout des paiements comme prop
+  paiements: Paiement[];
 }
 
 export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: RapportDetailsProps) {
@@ -21,18 +21,6 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
       month: 'long',
       day: 'numeric'
     });
-  };
-
-  // Formater le type de paiement en français
-  const formatTypePaiement = (type: string) => {
-    switch (type) {
-      case "mensualite":
-        return "Mensualité";
-      case "inscription":
-        return "Frais d'inscription";
-      default:
-        return type;
-    }
   };
 
   return (
@@ -100,7 +88,6 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
                   </div>
                 </div>
 
-                {/* Liste des paiements */}
                 <div className="space-y-2">
                   <h5 className="text-sm font-medium text-gray-600 mb-2 flex items-center">
                     <Calendar className="w-4 h-4 mr-2" />
@@ -113,7 +100,7 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
                     >
                       <div>
                         <p className="text-sm font-medium">
-                          {formatTypePaiement(paiement.typePaiement)}
+                          Paiement mensuel
                         </p>
                         <p className="text-xs text-gray-500">
                           {formatDate(paiement.datePaiement)}

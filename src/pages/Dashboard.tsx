@@ -25,16 +25,8 @@ const Dashboard = () => {
   // Filtrer les paiements par année scolaire
   const paiementsFiltres = paiements.filter(p => p.anneeScolaire === anneeScolaire)
   
-  // Calculer les totaux des paiements
-  const totalMensualites = paiementsFiltres
-    .filter(p => p.typePaiement === "mensualite")
-    .reduce((sum, p) => sum + p.montant, 0)
-
-  const totalInscriptions = paiementsFiltres
-    .filter(p => p.typePaiement === "inscription")
-    .reduce((sum, p) => sum + p.montant, 0)
-
-  const totalPaiements = totalMensualites + totalInscriptions
+  // Calculer le total des paiements
+  const totalPaiements = paiementsFiltres.reduce((sum, p) => sum + p.montant, 0)
 
   // Calculer la moyenne par enfant (uniquement pour les enfants actifs)
   const moyennePaiements = enfantsActifs ? (totalPaiements / enfantsActifs).toFixed(2) : 0
@@ -82,10 +74,6 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{totalPaiements} DH</div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Mensualités: {totalMensualites} DH</span>
-                    <span>Inscriptions: {totalInscriptions} DH</span>
-                  </div>
                 </CardContent>
               </Card>
 
