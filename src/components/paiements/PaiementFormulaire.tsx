@@ -1,6 +1,13 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import type { Paiement } from "@/data/paiements";
 import type { Enfant } from "@/data/enfants";
 import { EnfantSelect } from "./forms/EnfantSelect";
@@ -33,16 +40,19 @@ export const PaiementFormulaire = ({
     montant: selectedPaiement?.montant || defaultMontant,
     datePaiement: selectedPaiement?.datePaiement || new Date().toISOString().split('T')[0],
     moisConcerne: selectedPaiement?.moisConcerne?.split('-')[1] || "",
-    anneeConcerne: selectedPaiement?.moisConcerne?.split('-')[0] || "",
     methodePaiement: selectedPaiement?.methodePaiement || "especes",
-    statut: selectedPaiement?.statut || "en_attente",
     typePaiement: selectedPaiement?.typePaiement || "mensualite",
     commentaire: selectedPaiement?.commentaire || "",
   });
 
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setShowConfirmDialog(true);
+  };
+
+  const confirmPaiement = () => {
     const mois = [
       "septembre", "octobre", "novembre", "décembre",
       "janvier", "février", "mars", "avril", "mai", "juin"
@@ -54,79 +64,91 @@ export const PaiementFormulaire = ({
       return String(moisNum).padStart(2, '0');
     };
 
+    const annee = formData.anneeScolaire.split('-')[0];
     const moisNumero = formData.moisConcerne ? getMoisNumero(formData.moisConcerne) : "";
-    const annee = formData.anneeConcerne;
-    const moisConcerneFinal = annee && moisNumero ? `${annee}-${moisNumero}-01` : "";
-
-    if (!moisConcerneFinal) {
-      console.error("Données incomplètes:", { 
-        mois: formData.moisConcerne,
-        annee: formData.anneeConcerne,
-        moisNumero,
-        moisConcerneFinal 
-      });
-      return;
-    }
+    const moisConcerneFinal = `${annee}-${moisNumero}-01`;
 
     const data = {
       ...formData,
-      moisConcerne: moisConcerneFinal
+      moisConcerne: moisConcerneFinal,
+      statut: "complete"
     };
     
-    console.log("Données soumises:", data);
+    setShowConfirmDialog(false);
     onSubmit(data);
   };
 
   const selectStyle = "bg-yellow-500 text-black hover:bg-yellow-600";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4">
-        <EnfantSelect
-          value={formData.enfantId}
-          onChange={(value) => setFormData({ ...formData, enfantId: value })}
-          enfants={enfants}
-          selectStyle={selectStyle}
-        />
+    <>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-4">
+          <EnfantSelect
+            value={formData.enfantId}
+            onChange={(value) => setFormData({ ...formData, enfantId: value })}
+            enfants={enfants}
+            selectStyle={selectStyle}
+          />
 
-        <AnneeScolaireSelect
-          value={formData.anneeScolaire}
-          onChange={(value) => setFormData({ ...formData, anneeScolaire: value })}
-        />
+          <AnneeScolaireSelect
+            value={formData.anneeScolaire}
+            onChange={(value) => setFormData({ ...formData, anneeScolaire: value })}
+          />
 
-        <MoisConcerneSelect
-          moisValue={formData.moisConcerne}
-          anneeValue={formData.anneeConcerne}
-          onMoisChange={(value) => setFormData({ ...formData, moisConcerne: value })}
-          onAnneeChange={(value) => setFormData({ ...formData, anneeConcerne: value })}
-          anneeScolaire={formData.anneeScolaire}
-          selectStyle={selectStyle}
-        />
+          <MoisConcerneSelect
+            moisValue={formData.moisConcerne}
+            onMoisChange={(value) => setFormData({ ...formData, moisConcerne: value })}
+            selectStyle={selectStyle}
+          />
 
-        <PaiementDetails
-          montant={formData.montant}
-          datePaiement={formData.datePaiement}
-          methodePaiement={formData.methodePaiement}
-          typePaiement={formData.typePaiement}
-          statut={formData.statut}
-          commentaire={formData.commentaire}
-          onMontantChange={(value) => setFormData({ ...formData, montant: value })}
-          onDatePaiementChange={(value) => setFormData({ ...formData, datePaiement: value })}
-          onMethodePaiementChange={(value) => setFormData({ ...formData, methodePaiement: value })}
-          onTypePaiementChange={(value) => setFormData({ ...formData, typePaiement: value })}
-          onStatutChange={(value) => setFormData({ ...formData, statut: value })}
-          onCommentaireChange={(value) => setFormData({ ...formData, commentaire: value })}
-        />
-      </div>
+          <PaiementDetails
+            montant={formData.montant}
+            datePaiement={formData.datePaiement}
+            methodePaiement={formData.methodePaiement}
+            typePaiement={formData.typePaiement}
+            commentaire={formData.commentaire}
+            onMontantChange={(value) => setFormData({ ...formData, montant: value })}
+            onDatePaiementChange={(value) => setFormData({ ...formData, datePaiement: value })}
+            onMethodePaiementChange={(value) => setFormData({ ...formData, methodePaiement: value })}
+            onTypePaiementChange={(value) => setFormData({ ...formData, typePaiement: value })}
+            onCommentaireChange={(value) => setFormData({ ...formData, commentaire: value })}
+          />
+        </div>
 
-      <div className="flex justify-end space-x-2">
-        <Button variant="outline" onClick={onCancel} type="button">
-          Annuler
-        </Button>
-        <Button type="submit">
-          {selectedPaiement ? "Modifier" : "Ajouter"}
-        </Button>
-      </div>
-    </form>
+        <div className="flex justify-end space-x-2">
+          <Button variant="outline" onClick={onCancel} type="button">
+            Annuler
+          </Button>
+          <Button type="submit">
+            {selectedPaiement ? "Modifier" : "Ajouter"}
+          </Button>
+        </div>
+      </form>
+
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmation du paiement</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 space-y-4">
+            <div>
+              <strong>Mois concerné:</strong> {formData.moisConcerne}
+            </div>
+            <div>
+              <strong>Année scolaire:</strong> {formData.anneeScolaire}
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+              Annuler
+            </Button>
+            <Button onClick={confirmPaiement}>
+              Confirmer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

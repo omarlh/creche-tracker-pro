@@ -8,13 +8,11 @@ interface PaiementDetailsProps {
   datePaiement: string;
   methodePaiement: "carte" | "especes" | "cheque";
   typePaiement: "mensualite" | "inscription";
-  statut: "complete" | "en_attente";
   commentaire: string;
   onMontantChange: (value: number) => void;
   onDatePaiementChange: (value: string) => void;
   onMethodePaiementChange: (value: "carte" | "especes" | "cheque") => void;
   onTypePaiementChange: (value: "mensualite" | "inscription") => void;
-  onStatutChange: (value: "complete" | "en_attente") => void;
   onCommentaireChange: (value: string) => void;
 }
 
@@ -23,13 +21,11 @@ export const PaiementDetails = ({
   datePaiement,
   methodePaiement,
   typePaiement,
-  statut,
   commentaire,
   onMontantChange,
   onDatePaiementChange,
   onMethodePaiementChange,
   onTypePaiementChange,
-  onStatutChange,
   onCommentaireChange,
 }: PaiementDetailsProps) => {
   return (
@@ -80,19 +76,6 @@ export const PaiementDetails = ({
           <SelectContent>
             <SelectItem value="mensualite">Mensualité</SelectItem>
             <SelectItem value="inscription">Frais d'inscription</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <Label htmlFor="statut">Statut</Label>
-        <Select value={statut} onValueChange={onStatutChange}>
-          <SelectTrigger id="statut">
-            <SelectValue placeholder="Sélectionner un statut" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="complete">Complété</SelectItem>
-            <SelectItem value="en_attente">En attente</SelectItem>
           </SelectContent>
         </Select>
       </div>
