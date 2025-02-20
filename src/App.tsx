@@ -2,6 +2,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import Dashboard from "@/pages/Dashboard";
 import Enfants from "@/pages/Enfants";
 import Paiements from "@/pages/Paiements";
@@ -49,8 +50,10 @@ const router = createBrowserRouter([
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <RouterProvider router={router} />
-      <Toaster />
+      <SidebarProvider>
+        <RouterProvider router={router} />
+        <Toaster />
+      </SidebarProvider>
     </ThemeProvider>
   );
 }
