@@ -175,6 +175,7 @@ const Rapports: React.FC = () => {
                 rapport={rapportSelectionne}
                 onPrint={handlePrintRapport}
                 getEnfantById={getEnfantById}
+                paiements={paiements}
               />
             )}
           </div>
