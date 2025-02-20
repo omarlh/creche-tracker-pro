@@ -75,7 +75,6 @@ export type Database = {
           mois_concerne: string
           montant: number
           statut: string | null
-          type_paiement: string | null
         }
         Insert: {
           annee_scolaire?: string | null
@@ -88,7 +87,6 @@ export type Database = {
           mois_concerne: string
           montant: number
           statut?: string | null
-          type_paiement?: string | null
         }
         Update: {
           annee_scolaire?: string | null
@@ -101,7 +99,6 @@ export type Database = {
           mois_concerne?: string
           montant?: number
           statut?: string | null
-          type_paiement?: string | null
         }
         Relationships: [
           {

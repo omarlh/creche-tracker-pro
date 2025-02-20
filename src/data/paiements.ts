@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -9,7 +10,6 @@ export type Paiement = {
   moisConcerne: string;
   methodePaiement: "carte" | "especes" | "cheque";
   statut: "complete" | "en_attente";
-  typePaiement: "mensualite" | "inscription";
   anneeScolaire: string;
   commentaire?: string;
 };
@@ -45,7 +45,6 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
       moisConcerne: p.mois_concerne,
       methodePaiement: p.methode_paiement as "carte" | "especes" | "cheque",
       statut: p.statut as "complete" | "en_attente",
-      typePaiement: p.type_paiement as "mensualite" | "inscription",
       commentaire: p.commentaire,
       anneeScolaire: p.annee_scolaire || ''
     }));
@@ -71,7 +70,6 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
         mois_concerne: paiement.moisConcerne,
         methode_paiement: paiement.methodePaiement,
         statut: paiement.statut,
-        type_paiement: paiement.typePaiement,
         commentaire: paiement.commentaire,
         annee_scolaire: anneeScolaire
       }])
@@ -91,7 +89,6 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
       moisConcerne: data.mois_concerne,
       methodePaiement: data.methode_paiement as "carte" | "especes" | "cheque",
       statut: data.statut as "complete" | "en_attente",
-      typePaiement: data.type_paiement as "mensualite" | "inscription",
       commentaire: data.commentaire,
       anneeScolaire: data.annee_scolaire || ''
     };
@@ -119,7 +116,6 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
         mois_concerne: paiement.moisConcerne,
         methode_paiement: paiement.methodePaiement,
         statut: paiement.statut,
-        type_paiement: paiement.typePaiement,
         commentaire: paiement.commentaire,
         annee_scolaire: anneeScolaire
       })
@@ -165,7 +161,6 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
             mois_concerne: p.moisConcerne,
             methode_paiement: p.methodePaiement,
             statut: p.statut,
-            type_paiement: p.typePaiement,
             commentaire: p.commentaire,
             annee_scolaire: p.anneeScolaire
           }))

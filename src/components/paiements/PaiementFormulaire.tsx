@@ -43,7 +43,6 @@ export const PaiementFormulaire = ({
       ? new Date(selectedPaiement.moisConcerne).toLocaleDateString('fr-FR', { month: 'long' }).toLowerCase()
       : "",
     methodePaiement: selectedPaiement?.methodePaiement || "especes",
-    typePaiement: selectedPaiement?.typePaiement || "mensualite",
     commentaire: selectedPaiement?.commentaire || "",
   });
 
@@ -110,12 +109,10 @@ export const PaiementFormulaire = ({
             montant={formData.montant}
             datePaiement={formData.datePaiement}
             methodePaiement={formData.methodePaiement}
-            typePaiement={formData.typePaiement}
             commentaire={formData.commentaire}
             onMontantChange={(value) => setFormData({ ...formData, montant: value })}
             onDatePaiementChange={(value) => setFormData({ ...formData, datePaiement: value })}
             onMethodePaiementChange={(value) => setFormData({ ...formData, methodePaiement: value })}
-            onTypePaiementChange={(value) => setFormData({ ...formData, typePaiement: value })}
             onCommentaireChange={(value) => setFormData({ ...formData, commentaire: value })}
           />
         </div>
