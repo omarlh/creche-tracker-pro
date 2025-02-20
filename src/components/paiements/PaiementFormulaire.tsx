@@ -7,7 +7,6 @@ import { EnfantSelect } from "./forms/EnfantSelect";
 import { AnneeScolaireSelect } from "./forms/AnneeScolaireSelect";
 import { MoisConcerneSelect } from "./forms/MoisConcerneSelect";
 import { PaiementDetails } from "./forms/PaiementDetails";
-import { getFormattedMoisConcerne } from "./utils/dateUtils";
 
 interface PaiementFormulaireProps {
   selectedPaiement: Paiement | null;
@@ -33,7 +32,8 @@ export const PaiementFormulaire = ({
     anneeScolaire: selectedPaiement?.anneeScolaire || anneeScolaire,
     montant: selectedPaiement?.montant || defaultMontant,
     datePaiement: selectedPaiement?.datePaiement || new Date().toISOString().split('T')[0],
-    moisConcerne: selectedPaiement?.moisConcerne || new Date().toISOString().slice(0, 7),
+    moisConcerne: selectedPaiement?.moisConcerne?.split('-')[1] || "",
+    anneeConcerne: selectedPaiement?.moisConcerne?.split('-')[0] || "",
     methodePaiement: selectedPaiement?.methodePaiement || "especes",
     statut: selectedPaiement?.statut || "en_attente",
     typePaiement: selectedPaiement?.typePaiement || "mensualite",
@@ -43,24 +43,31 @@ export const PaiementFormulaire = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const mois = [
-      "Septembre", "Octobre", "Novembre", "Décembre",
-      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin"
-    ];
-    
     const data = {
       ...formData,
-      moisConcerne: getFormattedMoisConcerne(formData.anneeScolaire, formData.moisConcerne, mois)
+      moisConcerne: `${formData.anneeConcerne}-${formData.moisConcerne}`
     };
     
     onSubmit(data);
   };
 
-  const handleMoisChange = (selectedMois: string) => {
-    setFormData({ ...formData, moisConcerne: selectedMois });
+  const getMoisNumero = (mois: string): string => {
+    const moisList = [
+      "septembre", "octobre", "novembre", "décembre",
+      "janvier", "février", "mars", "avril", "mai", "juin"
+    ];
+    const index = moisList.indexOf(mois.toLowerCase());
+    return String(index < 4 ? index + 9 : index - 3 + 1).padStart(2, '0');
   };
 
-  const selectTriggerStyle = "bg-[#8E9196] text-white hover:bg-[#8E9196]/90";
+  const handleMoisChange = (selectedMois: string) => {
+    setFormData({
+      ...formData,
+      moisConcerne: getMoisNumero(selectedMois)
+    });
+  };
+
+  const selectStyle = "bg-yellow-500 text-black hover:bg-yellow-600";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -69,7 +76,7 @@ export const PaiementFormulaire = ({
           value={formData.enfantId}
           onChange={(value) => setFormData({ ...formData, enfantId: value })}
           enfants={enfants}
-          selectStyle={selectTriggerStyle}
+          selectStyle={selectStyle}
         />
 
         <AnneeScolaireSelect
@@ -78,9 +85,12 @@ export const PaiementFormulaire = ({
         />
 
         <MoisConcerneSelect
-          value={formData.moisConcerne.split('-')[1]}
-          onChange={handleMoisChange}
-          selectStyle={selectTriggerStyle}
+          moisValue={formData.moisConcerne}
+          anneeValue={formData.anneeConcerne}
+          onMoisChange={handleMoisChange}
+          onAnneeChange={(value) => setFormData({ ...formData, anneeConcerne: value })}
+          anneeScolaire={formData.anneeScolaire}
+          selectStyle={selectStyle}
         />
 
         <PaiementDetails
