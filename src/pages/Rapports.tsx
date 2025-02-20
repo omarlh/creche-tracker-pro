@@ -9,8 +9,6 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { StatisticsCards } from "@/components/rapports/StatisticsCards";
 import { RapportsTable } from "@/components/rapports/RapportsTable";
-import { InscriptionsStats } from "@/components/rapports/InscriptionsStats";
-import { EnfantsTable } from "@/components/rapports/EnfantsTable";
 import { RapportDetails } from "@/components/rapports/RapportDetails";
 import { RapportsHeader } from "@/components/rapports/RapportsHeader";
 import { useRapportGeneration } from "@/components/rapports/hooks/useRapportGeneration";
@@ -49,24 +47,6 @@ const Rapports: React.FC = () => {
     enfants,
     paiements
   );
-
-  const enfantsParAnneeScolaire = ["2023/2024", "2024/2025", "2025/2026"].reduce((acc, annee) => {
-    acc[annee] = enfants.filter(enfant => enfant.anneeScolaire === annee);
-    return acc;
-  }, {} as Record<string, Enfant[]>);
-
-  const getStatistiquesAnnee = (annee: string) => {
-    const enfantsAnnee = enfantsParAnneeScolaire[annee] || [];
-    const total = enfantsAnnee.length;
-    const actifs = enfantsAnnee.filter(e => e.statut === "actif").length;
-    const inactifs = total - actifs;
-    
-    return {
-      total,
-      actifs,
-      inactifs
-    };
-  };
 
   const handleExportRapport = () => {
     try {
@@ -137,21 +117,6 @@ const Rapports: React.FC = () => {
                 <RapportsTable 
                   rapportsMensuels={rapportsMensuels}
                   onDetailsClick={handleDetailsClick}
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-semibold">Inscriptions par Année Scolaire</h2>
-                </div>
-
-                <InscriptionsStats
-                  anneeScolaireSelectionnee={anneeScolaireSelectionnee}
-                  getStatistiquesAnnee={getStatistiquesAnnee}
-                />
-
-                <EnfantsTable 
-                  enfants={enfantsParAnneeScolaire[anneeScolaireSelectionnee] || []}
                 />
               </div>
             </div>

@@ -7,17 +7,21 @@ interface StatisticsCardsProps {
 }
 
 export function StatisticsCards({ rapportsMensuels }: StatisticsCardsProps) {
+  const totalMensuel = rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalPaiements, 0);
+  const totalInscriptions = rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalFraisInscription, 0);
+  const totalAnnee = totalMensuel + totalInscriptions;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Total des paiements mensuels
+            Total mensualités
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-semibold">
-            {rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalPaiements, 0)} DH
+            {totalMensuel} DH
           </p>
         </CardContent>
       </Card>
@@ -30,7 +34,7 @@ export function StatisticsCards({ rapportsMensuels }: StatisticsCardsProps) {
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-semibold">
-            {rapportsMensuels.reduce((sum, rapport) => sum + rapport.totalFraisInscription, 0)} DH
+            {totalInscriptions} DH
           </p>
         </CardContent>
       </Card>
@@ -38,12 +42,12 @@ export function StatisticsCards({ rapportsMensuels }: StatisticsCardsProps) {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Nombre d'enfants
+            Total de l'année
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-semibold">
-            {rapportsMensuels[0]?.nombreEnfants || 0}
+            {totalAnnee} DH
           </p>
         </CardContent>
       </Card>
