@@ -97,24 +97,19 @@ export const RetardsTable = ({ retards, onEnvoyerRappel }: RetardsTableProps) =>
               </TableCell>
               <TableCell className="text-right print:hidden">
                 <div className="flex justify-end gap-2">
-                  <a
-                    href={`https://wa.me/?text=${formatMessage(retard)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onEnvoyerRappel(retard.id);
+                      const whatsappUrl = `https://wa.me/send?text=${formatMessage(retard)}`;
+                      window.open(whatsappUrl, '_blank');
+                    }}
                   >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onEnvoyerRappel(retard.id);
-                        window.open(`https://wa.me/?text=${formatMessage(retard)}`, '_blank');
-                      }}
-                    >
-                      <Send className="w-4 h-4 mr-2" />
-                      Envoyer rappel
-                    </Button>
-                  </a>
+                    <Send className="w-4 h-4 mr-2" />
+                    Envoyer rappel
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>
