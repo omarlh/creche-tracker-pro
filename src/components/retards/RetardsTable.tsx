@@ -36,11 +36,20 @@ export const RetardsTable = ({ retards, onEnvoyerRappel }: RetardsTableProps) =>
       ? "l'inscription" 
       : format(new Date(retard.moisConcerne), 'MMMM yyyy', { locale: fr });
     
-    return encodeURIComponent(
-      `Bonjour, nous vous rappelons que le paiement de ${typeRetard} pour ${retard.enfantPrenom} ${retard.enfantNom} ` +
+    const message = `Bonjour, nous vous rappelons que le paiement de ${typeRetard} pour ${retard.enfantPrenom} ${retard.enfantNom} ` +
       `pour ${periode} d'un montant de ${retard.montantDu} DH est en retard de ${retard.joursRetard} jours. ` +
-      `Merci de régulariser la situation dès que possible.`
-    );
+      `Merci de régulariser la situation dès que possible.`;
+    
+    return encodeURIComponent(message);
+  };
+
+  const handleWhatsAppClick = (retard: RetardPaiement) => {
+    onEnvoyerRappel(retard.id);
+    const message = formatMessage(retard);
+    const baseUrl = "https://api.whatsapp.com/send";
+    const url = new URL(baseUrl);
+    url.searchParams.append("text", decodeURIComponent(message));
+    window.open(url.toString(), '_blank');
   };
 
   return (
@@ -100,12 +109,7 @@ export const RetardsTable = ({ retards, onEnvoyerRappel }: RetardsTableProps) =>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onEnvoyerRappel(retard.id);
-                      const whatsappUrl = `https://wa.me/send?text=${formatMessage(retard)}`;
-                      window.open(whatsappUrl, '_blank');
-                    }}
+                    onClick={() => handleWhatsAppClick(retard)}
                   >
                     <Send className="w-4 h-4 mr-2" />
                     Envoyer rappel
