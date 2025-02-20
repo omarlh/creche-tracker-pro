@@ -14,20 +14,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+const anneesDisponibles = [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026",
+  "2026-2027",
+  "2027-2028",
+  "2028-2029",
+  "2029-2030",
+  "2030-2031",
+  "2031-2032",
+  "2032-2033"
+];
+
 const ListeAnnuelle = () => {
   const { enfants, fetchEnfants } = useEnfantStore();
   const [selectedAnneeScolaire, setSelectedAnneeScolaire] = useState("all");
-  const [anneesScolaires, setAnneesScolaires] = useState<string[]>([]);
 
   useEffect(() => {
     fetchEnfants();
   }, [fetchEnfants]);
-
-  useEffect(() => {
-    // Extraire les années scolaires uniques de la liste des enfants
-    const annees = [...new Set(enfants.map(enfant => enfant.anneeScolaire || "2024-2025"))];
-    setAnneesScolaires(annees.sort());
-  }, [enfants]);
 
   const filteredEnfants = enfants.filter(enfant => 
     selectedAnneeScolaire === "all" || enfant.anneeScolaire === selectedAnneeScolaire
@@ -55,7 +61,7 @@ const ListeAnnuelle = () => {
               <AnneeScolaireFilter
                 selectedAnneeScolaire={selectedAnneeScolaire}
                 onAnneeScolaireChange={setSelectedAnneeScolaire}
-                anneesScolaires={anneesScolaires}
+                anneesScolaires={anneesDisponibles}
               />
             </div>
 
@@ -81,7 +87,7 @@ const ListeAnnuelle = () => {
                       <TableHead>Classe</TableHead>
                       <TableHead>Année Scolaire</TableHead>
                       <TableHead>Statut</TableHead>
-                      <TableHead className="text-right">Frais Mensuel</TableHead>
+                      <TableHead className="text-right">Frais Mensuel Négocié</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -97,7 +103,7 @@ const ListeAnnuelle = () => {
                           </span>
                         </TableCell>
                         <TableCell className="text-right">
-                          {enfant.fraisScolariteMensuel} DH
+                          {enfant.fraisScolariteMensuel || 800} DH
                         </TableCell>
                       </TableRow>
                     ))}
