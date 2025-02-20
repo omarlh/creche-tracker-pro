@@ -1,4 +1,3 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Printer, CreditCard, Receipt, BadgeCheck, Pencil, Trash2, Calendar } from "lucide-react";
@@ -22,7 +21,7 @@ export const PaiementTableau = ({ paiements, enfants, onEdit, confirmDeletePaiem
   const [dateDebut, setDateDebut] = useState("");
   const [dateFin, setDateFin] = useState("");
 
-  const handlePrintEnfant = (enfantId: number, dateDebut: string, dateFin: string) => {
+  const handlePrintEnfant = (enfantId: number, startDate: string, endDate: string) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
@@ -33,7 +32,7 @@ export const PaiementTableau = ({ paiements, enfants, onEdit, confirmDeletePaiem
       .filter(p => p.enfantId === enfantId)
       .filter(p => {
         const paiementDate = new Date(p.datePaiement);
-        return paiementDate >= new Date(dateDebut) && paiementDate <= new Date(dateFin);
+        return paiementDate >= new Date(startDate) && paiementDate <= new Date(endDate);
       });
 
     const paiementsMensuels = paiementsEnfant.filter(p => !p.anneeScolaire);
@@ -42,12 +41,6 @@ export const PaiementTableau = ({ paiements, enfants, onEdit, confirmDeletePaiem
     const totalMensuel = paiementsMensuels.reduce((acc, curr) => acc + curr.montant, 0);
     const totalInscription = paiementsInscription.reduce((acc, curr) => acc + curr.montant, 0);
 
-    // Trouver les dates de début et de fin de paiement
-    const datesPaiements = paiementsEnfant.map(p => new Date(p.datePaiement));
-    const dateDebut = datesPaiements.length > 0 ? new Date(Math.min(...datesPaiements.map(d => d.getTime()))) : null;
-    const dateFin = datesPaiements.length > 0 ? new Date(Math.max(...datesPaiements.map(d => d.getTime()))) : null;
-
-    // Créer le contenu HTML pour l'impression
     const printContent = `
       <!DOCTYPE html>
       <html>
@@ -89,8 +82,8 @@ export const PaiementTableau = ({ paiements, enfants, onEdit, confirmDeletePaiem
 
           <div class="date-block">
             <div class="date-item"><strong>Période sélectionnée:</strong></div>
-            <div class="date-item"><strong>Du:</strong> ${new Date(dateDebut).toLocaleDateString('fr-FR')}</div>
-            <div class="date-item"><strong>Au:</strong> ${new Date(dateFin).toLocaleDateString('fr-FR')}</div>
+            <div class="date-item"><strong>Du:</strong> ${new Date(startDate).toLocaleDateString('fr-FR')}</div>
+            <div class="date-item"><strong>Au:</strong> ${new Date(endDate).toLocaleDateString('fr-FR')}</div>
           </div>
 
           <div class="paiements-section">
