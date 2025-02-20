@@ -22,62 +22,67 @@ export const useRapportGeneration = (
       
       const moisAGenerer = [];
       
-      // Générer les mois de septembre à décembre de l'année de début
-      for (let mois = 8; mois < 12; mois++) {
-        const date = new Date(parseInt(anneeDebut), mois);
-        moisAGenerer.push(date);
-      }
-      
-      // Générer les mois de janvier à juin de l'année de fin
-      for (let mois = 0; mois <= 6; mois++) {
-        const date = new Date(parseInt(anneeFin), mois);
-        moisAGenerer.push(date);
+      // Si un mois spécifique est sélectionné
+      if (moisSelectionne !== "Tous les mois") {
+        const moisIndex = Object.keys(moisDisponibles).indexOf(moisSelectionne);
+        const annee = moisIndex >= 8 ? parseInt(anneeDebut) : parseInt(anneeFin);
+        moisAGenerer.push(new Date(annee, moisIndex));
+      } else {
+        // Générer les mois de septembre à décembre de l'année de début
+        for (let mois = 8; mois < 12; mois++) {
+          moisAGenerer.push(new Date(parseInt(anneeDebut), mois));
+        }
+        
+        // Générer les mois de janvier à juin de l'année de fin
+        for (let mois = 0; mois <= 6; mois++) {
+          moisAGenerer.push(new Date(parseInt(anneeFin), mois));
+        }
       }
 
       moisAGenerer.forEach(date => {
         if (date.getMonth() !== 7) { // Exclure août
           const moisCourant = date.toISOString().slice(0, 7);
-          
-          // Filtrer les paiements mensuels pour ce mois
+          const anneeScolaireFormatted = anneeScolaireSelectionnee.replace("/", "-");
+
+          // Filtrer les enfants actifs pour cette année scolaire
+          const enfantsActifs = enfants.filter(enfant => 
+            enfant.anneeScolaire === anneeScolaireFormatted &&
+            enfant.statut === "actif"
+          );
+
+          // Filtrer les paiements pour ce mois et cette année scolaire
           const paiementsMensuels = paiements.filter(paiement => {
             const moisConcerne = new Date(paiement.moisConcerne);
             return moisConcerne.getMonth() === date.getMonth() && 
                    moisConcerne.getFullYear() === date.getFullYear() &&
-                   paiement.typePaiement === "mensualite";
+                   paiement.typePaiement === "mensualite" &&
+                   paiement.anneeScolaire === anneeScolaireFormatted;
           });
 
-          // Calculer le total des paiements mensuels
-          const totalPaiementsMensuels = paiementsMensuels.reduce((sum, paiement) => 
-            sum + paiement.montant, 0
-          );
-
-          // Trouver les enfants inscrits ce mois-ci
-          const enfantsInscritsThisMonth = enfants.filter(enfant => {
-            if (!enfant.dateInscription) return false;
-            const dateInscription = new Date(enfant.dateInscription);
-            return dateInscription.getMonth() === date.getMonth() && 
-                   dateInscription.getFullYear() === date.getFullYear() &&
-                   enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-");
-          });
-
-          // Calculer le total des frais d'inscription des enfants inscrits ce mois
-          const totalFraisInscription = enfantsInscritsThisMonth.reduce((sum, enfant) => {
-            if (enfant.fraisInscription?.montantPaye) {
-              return sum + enfant.fraisInscription.montantPaye;
-            }
-            return sum;
-          }, 0);
-
-          const enfantsActifs = enfants.filter(enfant => 
-            enfant.anneeScolaire === anneeScolaireSelectionnee.replace("/", "-") &&
-            enfant.statut === "actif"
-          );
-
+          // Trouver les enfants avec paiement pour ce mois
           const enfantsAvecPaiement = new Set(paiementsMensuels.map(p => p.enfantId));
           const enfantsPaye = Array.from(enfantsAvecPaiement);
           const enfantsNonPaye = enfantsActifs
             .filter(enfant => !enfantsAvecPaiement.has(enfant.id))
             .map(enfant => enfant.id);
+
+          // Calculer les totaux
+          const totalPaiementsMensuels = paiementsMensuels.reduce((sum, paiement) => 
+            sum + paiement.montant, 0
+          );
+
+          // Calculer les frais d'inscription pour ce mois
+          const fraisInscriptionMois = paiements.filter(paiement => {
+            const datePaiement = new Date(paiement.datePaiement);
+            return datePaiement.getMonth() === date.getMonth() && 
+                   datePaiement.getFullYear() === date.getFullYear() &&
+                   paiement.typePaiement === "inscription" &&
+                   paiement.anneeScolaire === anneeScolaireFormatted;
+          });
+
+          const totalFraisInscription = fraisInscriptionMois.reduce((sum, paiement) => 
+            sum + paiement.montant, 0
+          );
 
           rapportsGeneres.push({
             mois: moisCourant,
@@ -95,33 +100,7 @@ export const useRapportGeneration = (
       });
 
       rapportsGeneres.sort((a, b) => a.mois.localeCompare(b.mois));
-      
-      if (moisSelectionne !== "Tous les mois") {
-        // Création d'un mapping des mois en français vers leur index (0-11)
-        const moisVersIndex = {
-          "Janvier": 0,
-          "Février": 1,
-          "Mars": 2,
-          "Avril": 3,
-          "Mai": 4,
-          "Juin": 5,
-          "Juillet": 6,
-          "Août": 7,
-          "Septembre": 8,
-          "Octobre": 9,
-          "Novembre": 10,
-          "Décembre": 11
-        };
-
-        // Utiliser directement l'index du mois à partir du mapping
-        const moisIndex = moisVersIndex[moisSelectionne as keyof typeof moisVersIndex];
-        
-        setRapportsMensuels(rapportsGeneres.filter(rapport => 
-          new Date(rapport.mois).getMonth() === moisIndex
-        ));
-      } else {
-        setRapportsMensuels(rapportsGeneres);
-      }
+      setRapportsMensuels(rapportsGeneres);
     };
 
     genererRapportsMensuels();
