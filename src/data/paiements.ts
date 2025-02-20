@@ -17,7 +17,7 @@ export type Paiement = {
 
 interface PaiementStore {
   paiements: Paiement[];
-  ajouterPaiement: (paiement: Omit<Paiement, "id">) => Promise<void>;
+  ajouterPaiement: (paiement: Omit<Paiement, "id" | "anneeScolaire">) => Promise<void>;
   modifierPaiement: (paiement: Paiement) => Promise<void>;
   supprimerPaiement: (id: number) => Promise<void>;
   fetchPaiements: () => Promise<void>;
@@ -96,7 +96,7 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
       statut: data.statut as "complete" | "en_attente",
       typePaiement: data.type_paiement as "mensualite" | "inscription",
       commentaire: data.commentaire,
-      anneeScolaire: data.annee_scolaire
+      anneeScolaire: data.annee_scolaire || ''
     };
 
     set(state => ({

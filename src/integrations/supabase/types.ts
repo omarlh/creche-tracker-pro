@@ -62,6 +62,7 @@ export type Database = {
       }
       paiements: {
         Row: {
+          annee_scolaire: string | null
           commentaire: string | null
           created_at: string | null
           date_paiement: string | null
@@ -74,6 +75,7 @@ export type Database = {
           type_paiement: string | null
         }
         Insert: {
+          annee_scolaire?: string | null
           commentaire?: string | null
           created_at?: string | null
           date_paiement?: string | null
@@ -86,6 +88,7 @@ export type Database = {
           type_paiement?: string | null
         }
         Update: {
+          annee_scolaire?: string | null
           commentaire?: string | null
           created_at?: string | null
           date_paiement?: string | null
