@@ -97,10 +97,27 @@ export const useRapportGeneration = (
       rapportsGeneres.sort((a, b) => a.mois.localeCompare(b.mois));
       
       if (moisSelectionne !== "Tous les mois") {
-        const moisIndex = moisDisponibles.indexOf(moisSelectionne) - 1;
-        const moisAjuste = moisIndex >= 3 ? moisIndex - 3 : moisIndex + 9;
+        // Création d'un mapping des mois en français vers leur index (0-11)
+        const moisVersIndex = {
+          "Janvier": 0,
+          "Février": 1,
+          "Mars": 2,
+          "Avril": 3,
+          "Mai": 4,
+          "Juin": 5,
+          "Juillet": 6,
+          "Août": 7,
+          "Septembre": 8,
+          "Octobre": 9,
+          "Novembre": 10,
+          "Décembre": 11
+        };
+
+        // Utiliser directement l'index du mois à partir du mapping
+        const moisIndex = moisVersIndex[moisSelectionne as keyof typeof moisVersIndex];
+        
         setRapportsMensuels(rapportsGeneres.filter(rapport => 
-          new Date(rapport.mois).getMonth() === moisAjuste
+          new Date(rapport.mois).getMonth() === moisIndex
         ));
       } else {
         setRapportsMensuels(rapportsGeneres);
