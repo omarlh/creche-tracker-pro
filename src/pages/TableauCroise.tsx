@@ -71,8 +71,7 @@ const TableauCroise = () => {
 
     return paiements.find(p => 
       p.enfantId === enfantId && 
-      p.moisConcerne === dateMois &&
-      p.typePaiement === "mensualite"
+      p.moisConcerne === dateMois
     );
   };
 
