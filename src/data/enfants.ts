@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -37,6 +36,7 @@ type EnfantStore = {
   ajouterEnfant: (enfant: Omit<Enfant, "id">) => Promise<void>;
   modifierEnfant: (enfant: Enfant) => Promise<void>;
   supprimerEnfant: (id: number) => Promise<void>;
+  saveEnfants: () => Promise<void>;
 };
 
 type EnfantRow = {
@@ -62,7 +62,7 @@ type EnfantRow = {
   }> | null;
 };
 
-export const useEnfantStore = create<EnfantStore>((set) => ({
+export const useEnfantStore = create<EnfantStore>((set, get) => ({
   enfants: [],
   
   fetchEnfants: async () => {
@@ -234,4 +234,36 @@ export const useEnfantStore = create<EnfantStore>((set) => ({
       console.error("Error in supprimerEnfant:", error);
     }
   },
+
+  saveEnfants: async () => {
+    const { enfants } = get();
+    try {
+      // Sauvegarder tous les enfants
+      const { error } = await supabase
+        .from('enfants')
+        .upsert(
+          enfants.map(enfant => ({
+            id: enfant.id,
+            nom: enfant.nom,
+            prenom: enfant.prenom,
+            date_naissance: enfant.dateNaissance,
+            date_inscription: enfant.dateInscription,
+            classe: enfant.classe,
+            gsm_maman: enfant.gsmMaman,
+            gsm_papa: enfant.gsmPapa,
+            annee_scolaire: enfant.anneeScolaire,
+            montant_total: enfant.fraisInscription?.montantTotal,
+            montant_paye: enfant.fraisInscription?.montantPaye,
+            frais_scolarite_mensuel: enfant.fraisScolariteMensuel,
+            statut: enfant.statut,
+            dernier_paiement: enfant.dernierPaiement,
+          }))
+        );
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde des enfants:", error);
+      throw error;
+    }
+  }
 }));

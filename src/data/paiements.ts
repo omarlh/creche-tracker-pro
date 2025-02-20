@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,9 +20,10 @@ interface PaiementStore {
   modifierPaiement: (paiement: Paiement) => Promise<void>;
   supprimerPaiement: (id: number) => Promise<void>;
   fetchPaiements: () => Promise<void>;
+  savePaiements: () => Promise<void>;
 }
 
-export const usePaiementStore = create<PaiementStore>((set) => ({
+export const usePaiementStore = create<PaiementStore>((set, get) => ({
   paiements: [],
   
   fetchPaiements: async () => {
@@ -54,13 +54,10 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
   },
 
   ajouterPaiement: async (paiement) => {
-    // Déterminer l'année scolaire en fonction du mois concerné
     const dateMoisConcerne = new Date(paiement.moisConcerne);
-    const mois = dateMoisConcerne.getMonth(); // 0-11
+    const mois = dateMoisConcerne.getMonth();
     const annee = dateMoisConcerne.getFullYear();
     
-    // Si le mois est entre septembre et décembre (8-11), l'année scolaire commence cette année
-    // Si le mois est entre janvier et juillet (0-6), l'année scolaire a commencé l'année précédente
     const anneeScolaire = mois >= 8 
       ? `${annee}-${annee + 1}`
       : `${annee - 1}-${annee}`;
@@ -105,7 +102,6 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
   },
 
   modifierPaiement: async (paiement) => {
-    // Mise à jour de l'année scolaire lors de la modification
     const dateMoisConcerne = new Date(paiement.moisConcerne);
     const mois = dateMoisConcerne.getMonth();
     const annee = dateMoisConcerne.getFullYear();
@@ -154,4 +150,31 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
       paiements: state.paiements.filter(paiement => paiement.id !== id)
     }));
   },
+
+  savePaiements: async () => {
+    const { paiements } = get();
+    try {
+      const { error } = await supabase
+        .from('paiements')
+        .upsert(
+          paiements.map(p => ({
+            id: p.id,
+            enfant_id: p.enfantId,
+            montant: p.montant,
+            date_paiement: p.datePaiement,
+            mois_concerne: p.moisConcerne,
+            methode_paiement: p.methodePaiement,
+            statut: p.statut,
+            type_paiement: p.typePaiement,
+            commentaire: p.commentaire,
+            annee_scolaire: p.anneeScolaire
+          }))
+        );
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde des paiements:", error);
+      throw error;
+    }
+  }
 }));
