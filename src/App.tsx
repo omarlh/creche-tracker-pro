@@ -3,6 +3,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Enfants from "@/pages/Enfants";
 import Paiements from "@/pages/Paiements";
@@ -14,36 +16,72 @@ import TableauCroise from "@/pages/TableauCroise";
 
 const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <Login />,
+  },
+  {
     path: "/",
-    element: <Dashboard />,
+    element: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/enfants",
-    element: <Enfants />,
+    element: (
+      <ProtectedRoute>
+        <Enfants />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/paiements",
-    element: <Paiements />,
+    element: (
+      <ProtectedRoute>
+        <Paiements />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/liste-annuelle",
-    element: <ListeAnnuelle />,
+    element: (
+      <ProtectedRoute>
+        <ListeAnnuelle />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/depart",
-    element: <Depart />,
+    element: (
+      <ProtectedRoute>
+        <Depart />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/rapports",
-    element: <Rapports />,
+    element: (
+      <ProtectedRoute>
+        <Rapports />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/retards",
-    element: <Retards />,
+    element: (
+      <ProtectedRoute>
+        <Retards />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/tableau-croise",
-    element: <TableauCroise />,
+    element: (
+      <ProtectedRoute>
+        <TableauCroise />
+      </ProtectedRoute>
+    ),
   },
 ]);
 
