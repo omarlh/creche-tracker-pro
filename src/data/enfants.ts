@@ -126,9 +126,9 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
           gsm_maman: enfant.gsmMaman,
           gsm_papa: enfant.gsmPapa,
           annee_scolaire: enfant.anneeScolaire || "2024-2025",
-          montant_total: enfant.fraisInscription?.montantTotal || 800, // Modification ici
+          montant_total: enfant.fraisInscription?.montantTotal || 800,
           montant_paye: enfant.fraisInscription?.montantPaye || 0,
-          frais_scolarite_mensuel: enfant.fraisScolariteMensuel || 300,
+          frais_scolarite_mensuel: enfant.fraisScolariteMensuel || 800, // Modification ici
           statut: enfant.statut || "actif",
           dernier_paiement: enfant.dernierPaiement,
         }])

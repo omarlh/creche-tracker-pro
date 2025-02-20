@@ -49,7 +49,7 @@ export const PaymentForm = ({
           type="number"
           min="0"
           step="0.01"
-          defaultValue={selectedEnfant?.fraisScolariteMensuel || 300}
+          defaultValue={selectedEnfant?.fraisScolariteMensuel || 800}
           required
         />
       </div>
