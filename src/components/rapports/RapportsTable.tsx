@@ -2,7 +2,7 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, Printer, FileSpreadsheet } from "lucide-react";
+import { Eye, Printer, FileText } from "lucide-react";
 import { type RapportMensuel } from "@/pages/Rapports";
 import * as XLSX from 'xlsx';
 
@@ -20,22 +20,21 @@ export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTabl
     try {
       const data = [
         {
-          "Mois": new Date(rapport.mois).toLocaleDateString("fr-FR", {
+          "Date": new Date(rapport.mois).toLocaleDateString("fr-FR", {
+            year: "numeric",
             month: "long",
-            year: "numeric"
+            day: "numeric"
           }),
-          "Total mensualités": rapport.totalPaiements,
-          "Total Frais inscription": rapport.totalFraisInscription,
-          "Total général": rapport.totalPaiements + rapport.totalFraisInscription,
-          "Paiements complétés": rapport.paiementsComplets,
-          "Paiements en attente": rapport.paiementsAttente
+          "Total des frais de scolarité": rapport.totalPaiements,
+          "Total des frais d'inscription": rapport.totalFraisInscription,
+          "Total général": rapport.totalPaiements + rapport.totalFraisInscription
         }
       ];
 
       const workbook = XLSX.utils.book_new();
       const worksheet = XLSX.utils.json_to_sheet(data);
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Rapport Mensuel");
-      XLSX.writeFile(workbook, `rapport_${new Date(rapport.mois).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}.xlsx`);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Rapport Journalier");
+      XLSX.writeFile(workbook, `rapport_${rapport.mois}.xlsx`);
     } catch (error) {
       console.error("Erreur lors de l'export:", error);
     }
@@ -46,12 +45,10 @@ export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTabl
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Mois</TableHead>
-            <TableHead className="text-right">Total mensualités</TableHead>
-            <TableHead className="text-right">Total Frais inscription</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead className="text-right">Total des frais de scolarité</TableHead>
+            <TableHead className="text-right">Total des frais d'inscription</TableHead>
             <TableHead className="text-right">Total général</TableHead>
-            <TableHead className="text-right">Paiements complétés</TableHead>
-            <TableHead className="text-right">Paiements en attente</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -60,15 +57,14 @@ export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTabl
             <TableRow key={rapport.mois}>
               <TableCell>
                 {new Date(rapport.mois).toLocaleDateString("fr-FR", {
+                  year: "numeric",
                   month: "long",
-                  year: "numeric"
+                  day: "numeric"
                 })}
               </TableCell>
               <TableCell className="text-right">{rapport.totalPaiements} DH</TableCell>
               <TableCell className="text-right">{rapport.totalFraisInscription} DH</TableCell>
               <TableCell className="text-right">{rapport.totalPaiements + rapport.totalFraisInscription} DH</TableCell>
-              <TableCell className="text-right text-success">{rapport.paiementsComplets}</TableCell>
-              <TableCell className="text-right text-warning">{rapport.paiementsAttente}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button
@@ -93,7 +89,7 @@ export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTabl
                     onClick={() => handleExportExcel(rapport)}
                     title="Exporter en Excel"
                   >
-                    <FileSpreadsheet className="h-4 w-4" />
+                    <FileText className="h-4 w-4" />
                   </Button>
                 </div>
               </TableCell>

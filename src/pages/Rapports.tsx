@@ -32,8 +32,9 @@ export type RapportMensuel = {
 };
 
 const Rapports: React.FC = () => {
-  const [anneeScolaireSelectionnee, setAnneeScolaireSelectionnee] = useState<string>("2024/2025");
-  const [moisSelectionne, setMoisSelectionne] = useState<string>("Tous les mois");
+  const today = new Date().toISOString().split('T')[0];
+  const [dateDebut, setDateDebut] = useState<string>(today);
+  const [dateFin, setDateFin] = useState<string>(today);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   
@@ -41,31 +42,25 @@ const Rapports: React.FC = () => {
   const { paiements } = usePaiementStore();
   const { toast } = useToast();
 
-  const rapportsMensuels = useRapportGeneration(
-    anneeScolaireSelectionnee,
-    moisSelectionne,
-    enfants,
-    paiements
-  );
+  const rapportsMensuels = useRapportGeneration(dateDebut, dateFin, enfants, paiements);
 
   const handleExportRapport = () => {
     try {
       const data = rapportsMensuels.map(rapport => ({
-        "Mois": new Date(rapport.mois).toLocaleDateString("fr-FR", {
+        "Date": new Date(rapport.mois).toLocaleDateString("fr-FR", {
+          year: "numeric",
           month: "long",
-          year: "numeric"
+          day: "numeric"
         }),
-        "Total des paiements (DH)": rapport.totalPaiements,
-        "Nombre d'enfants": rapport.nombreEnfants,
-        "Paiements complétés": rapport.paiementsComplets,
-        "Paiements en attente": rapport.paiementsAttente,
-        "Taux de recouvrement (%)": rapport.tauxRecouvrement
+        "Total des frais de scolarité": rapport.totalPaiements,
+        "Total des frais d'inscription": rapport.totalFraisInscription,
+        "Total général": rapport.totalPaiements + rapport.totalFraisInscription
       }));
 
       const workbook = XLSX.utils.book_new();
       const worksheet = XLSX.utils.json_to_sheet(data);
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Rapports Mensuels");
-      XLSX.writeFile(workbook, `rapport_mensuel_${new Date().toISOString().slice(0, 7)}.xlsx`);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Rapports Journaliers");
+      XLSX.writeFile(workbook, `rapport_${dateDebut}_${dateFin}.xlsx`);
 
       toast({
         title: "Export réussi",
@@ -105,10 +100,10 @@ const Rapports: React.FC = () => {
             <div className="space-y-8">
               <div>
                 <RapportsHeader
-                  anneeScolaireSelectionnee={anneeScolaireSelectionnee}
-                  moisSelectionne={moisSelectionne}
-                  onAnneeChange={setAnneeScolaireSelectionnee}
-                  onMoisChange={setMoisSelectionne}
+                  dateDebut={dateDebut}
+                  dateFin={dateFin}
+                  onDateDebutChange={setDateDebut}
+                  onDateFinChange={setDateFin}
                   onExport={handleExportRapport}
                 />
 
@@ -128,6 +123,7 @@ const Rapports: React.FC = () => {
           <SheetHeader>
             <SheetTitle>
               Détails du rapport - {rapportSelectionne && new Date(rapportSelectionne.mois).toLocaleDateString("fr-FR", {
+                day: "numeric",
                 month: "long",
                 year: "numeric",
               })}
