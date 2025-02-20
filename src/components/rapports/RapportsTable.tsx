@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Eye, Printer, FileSpreadsheet } from "lucide-react";
 import { type RapportMensuel } from "@/pages/Rapports";
+import * as XLSX from 'xlsx';
 
 interface RapportsTableProps {
   rapportsMensuels: RapportMensuel[];
@@ -16,8 +17,28 @@ export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTabl
   };
 
   const handleExportExcel = (rapport: RapportMensuel) => {
-    // La logique d'export Excel sera gérée au niveau supérieur
-    onDetailsClick(rapport);
+    try {
+      const data = [
+        {
+          "Mois": new Date(rapport.mois).toLocaleDateString("fr-FR", {
+            month: "long",
+            year: "numeric"
+          }),
+          "Total mensualités": rapport.totalPaiements,
+          "Total inscriptions": rapport.totalFraisInscription,
+          "Total général": rapport.totalPaiements + rapport.totalFraisInscription,
+          "Paiements complétés": rapport.paiementsComplets,
+          "Paiements en attente": rapport.paiementsAttente
+        }
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Rapport Mensuel");
+      XLSX.writeFile(workbook, `rapport_${new Date(rapport.mois).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}.xlsx`);
+    } catch (error) {
+      console.error("Erreur lors de l'export:", error);
+    }
   };
 
   return (
