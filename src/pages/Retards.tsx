@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -49,7 +50,7 @@ export default function Retards() {
       const montantDu = (enfant.fraisScolariteMensuel || 0) * Math.ceil(joursRetard / 30);
       
       return {
-        id: enfant.id * 1000, // Pour éviter les conflits d'ID avec les retards d'inscription
+        id: enfant.id * 1000,
         enfantId: enfant.id,
         enfantNom: enfant.nom,
         enfantPrenom: enfant.prenom,
@@ -61,7 +62,6 @@ export default function Retards() {
       };
     });
 
-    // Ajout des retards de frais d'inscription
     const retardsInscription = enfantsFiltres
       .filter((enfant) => {
         const montantPaye = enfant.fraisInscription?.montantPaye || 0;
@@ -127,20 +127,11 @@ export default function Retards() {
 
   const handleEnvoyerRappel = useCallback((retardId: number) => {
     const maintenant = new Date().toISOString();
-    // Mettre à jour la date du dernier rappel
-    const retardIndex = retardsPaiement.findIndex(r => r.id === retardId);
-    if (retardIndex !== -1) {
-      retardsPaiement[retardIndex] = {
-        ...retardsPaiement[retardIndex],
-        dernierRappel: maintenant
-      };
-    }
-    
     toast({
       title: "Rappel envoyé",
       description: "Le rappel de paiement WhatsApp a été ouvert.",
     });
-  }, [toast, retardsPaiement]);
+  }, [toast]);
 
   const handlePrint = () => {
     window.print();
@@ -178,55 +169,53 @@ export default function Retards() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="grid lg:grid-cols-5 min-h-screen w-full">
-        <AppSidebar />
-        <div className="col-span-4 bg-background overflow-y-auto">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold">Retards de Paiement</h1>
-              <div className="flex items-center gap-2 print:hidden">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handlePrint}
-                >
-                  <Printer className="mr-2 h-4 w-4" />
-                  Imprimer
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExportExcel}
-                >
-                  <FileSpreadsheet className="mr-2 h-4 w-4" />
-                  Exporter Excel
-                </Button>
-              </div>
+    <div className="grid lg:grid-cols-5 min-h-screen w-full">
+      <AppSidebar />
+      <div className="col-span-4 bg-background overflow-y-auto">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold">Retards de Paiement</h1>
+            <div className="flex items-center gap-2 print:hidden">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrint}
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                Imprimer
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportExcel}
+              >
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                Exporter Excel
+              </Button>
             </div>
+          </div>
 
-            <div className="space-y-4">
-              <RetardsHeader
-                filtreStatus={filtreStatus}
-                setFiltreStatus={setFiltreStatus}
-                filtreDelai={filtreDelai}
-                setFiltreDelai={setFiltreDelai}
-                filtreClasse={filtreClasse}
-                setFiltreClasse={setFiltreClasse}
-                filtreAnnee={filtreAnnee}
-                setFiltreAnnee={setFiltreAnnee}
-              />
-              
-              <RetardsStats statistiques={statistiques} />
+          <div className="space-y-4">
+            <RetardsHeader
+              filtreStatus={filtreStatus}
+              setFiltreStatus={setFiltreStatus}
+              filtreDelai={filtreDelai}
+              setFiltreDelai={setFiltreDelai}
+              filtreClasse={filtreClasse}
+              setFiltreClasse={setFiltreClasse}
+              filtreAnnee={filtreAnnee}
+              setFiltreAnnee={setFiltreAnnee}
+            />
+            
+            <RetardsStats statistiques={statistiques} />
 
-              <RetardsTable
-                retards={retardsPaiement}
-                onEnvoyerRappel={handleEnvoyerRappel}
-              />
-            </div>
+            <RetardsTable
+              retards={retardsPaiement}
+              onEnvoyerRappel={handleEnvoyerRappel}
+            />
           </div>
         </div>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }
