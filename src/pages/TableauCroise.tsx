@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -61,10 +62,17 @@ const TableauCroise = () => {
   };
 
   const getMontantInscription = (enfantId: number) => {
-    const enfant = enfants.find(e => e.id === enfantId);
+    const paiementsInscription = paiements.filter(p => 
+      p.enfantId === enfantId && 
+      p.typePaiement === "inscription"
+    );
+    
+    const montantPaye = paiementsInscription.reduce((sum, p) => sum + p.montant, 0);
+    const montantTotal = 800; // Montant fixe des frais d'inscription
+
     return {
-      montantTotal: enfant?.fraisInscription?.montantTotal || 800,
-      montantPaye: enfant?.fraisInscription?.paiements?.reduce((sum, p) => sum + p.montant, 0) || 0
+      montantTotal,
+      montantPaye
     };
   };
 
@@ -81,7 +89,7 @@ const TableauCroise = () => {
           const row: any = {
             "Nom": `${enfant.prenom} ${enfant.nom}`,
             "Date d'inscription": enfant.dateInscription ? new Date(enfant.dateInscription).toLocaleDateString() : "-",
-            "Frais d'inscription payés": `${inscription.montantPaye}/${inscription.montantTotal} DH`,
+            "Frais d'inscription": `${inscription.montantPaye}/${inscription.montantTotal} DH`,
           };
 
           moisScolaires.forEach(mois => {
