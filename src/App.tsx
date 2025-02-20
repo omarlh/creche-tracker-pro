@@ -11,6 +11,10 @@ import Rapports from "@/pages/Rapports";
 import Retards from "@/pages/Retards";
 import TableauCroise from "@/pages/TableauCroise";
 
+const basePath = window.location.pathname.endsWith('/') 
+  ? window.location.pathname.slice(0, -1) 
+  : window.location.pathname;
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -45,7 +49,7 @@ const router = createBrowserRouter([
     element: <TableauCroise />,
   },
 ], {
-  basename: import.meta.env.BASE_URL || '/',
+  basename: basePath || '/'
 });
 
 function App() {
