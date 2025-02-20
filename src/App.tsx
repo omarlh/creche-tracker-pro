@@ -44,7 +44,9 @@ const router = createBrowserRouter([
     path: "/tableau-croise",
     element: <TableauCroise />,
   },
-]);
+], {
+  basename: import.meta.env.BASE_URL || '/',
+});
 
 function App() {
   return (
