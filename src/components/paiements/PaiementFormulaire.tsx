@@ -39,7 +39,9 @@ export const PaiementFormulaire = ({
     anneeScolaire: selectedPaiement?.anneeScolaire || anneeScolaire,
     montant: selectedPaiement?.montant || defaultMontant,
     datePaiement: selectedPaiement?.datePaiement || new Date().toISOString().split('T')[0],
-    moisConcerne: selectedPaiement?.moisConcerne?.split('-')[1] || "",
+    moisConcerne: selectedPaiement?.moisConcerne 
+      ? new Date(selectedPaiement.moisConcerne).toLocaleDateString('fr-FR', { month: 'long' }).toLowerCase()
+      : "",
     methodePaiement: selectedPaiement?.methodePaiement || "especes",
     typePaiement: selectedPaiement?.typePaiement || "mensualite",
     commentaire: selectedPaiement?.commentaire || "",
@@ -54,19 +56,21 @@ export const PaiementFormulaire = ({
 
   const confirmPaiement = () => {
     const mois = [
-      "septembre", "octobre", "novembre", "décembre",
-      "janvier", "février", "mars", "avril", "mai", "juin"
+      "janvier", "février", "mars", "avril", "mai", "juin",
+      "juillet", "août", "septembre", "octobre", "novembre", "décembre"
     ];
     
-    const getMoisNumero = (moisNom: string): string => {
-      const index = mois.indexOf(moisNom.toLowerCase());
-      const moisNum = index < 4 ? index + 9 : index - 3 + 1;
-      return String(moisNum).padStart(2, '0');
+    const getMoisNumero = (moisNom: string): number => {
+      return mois.indexOf(moisNom.toLowerCase()) + 1;
     };
 
     const annee = formData.anneeScolaire.split('-')[0];
-    const moisNumero = formData.moisConcerne ? getMoisNumero(formData.moisConcerne) : "";
-    const moisConcerneFinal = `${annee}-${moisNumero}-01`;
+    const moisNum = getMoisNumero(formData.moisConcerne);
+    const moisFormate = moisNum < 10 ? `0${moisNum}` : `${moisNum}`;
+    
+    // Ajuster l'année en fonction du mois scolaire
+    const anneeFinale = moisNum >= 9 ? annee : String(parseInt(annee) + 1);
+    const moisConcerneFinal = `${anneeFinale}-${moisFormate}-01`;
 
     const data = {
       ...formData,
