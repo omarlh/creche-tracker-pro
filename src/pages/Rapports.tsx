@@ -22,7 +22,6 @@ import {
 export type RapportMensuel = {
   mois: string;
   totalPaiements: number;
-  totalFraisInscription: number;
   nombreEnfants: number;
   paiementsComplets: number;
   paiementsAttente: number;
@@ -56,7 +55,6 @@ const Rapports: React.FC = () => {
           year: "numeric"
         }),
         "Total des paiements (DH)": rapport.totalPaiements,
-        "Total des frais d'inscription (DH)": rapport.totalFraisInscription,
         "Nombre d'enfants": rapport.nombreEnfants,
         "Paiements complétés": rapport.paiementsComplets,
         "Paiements en attente": rapport.paiementsAttente,
