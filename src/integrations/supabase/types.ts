@@ -63,30 +63,6 @@ export type Database = {
         }
         Relationships: []
       }
-      logs_utilisation: {
-        Row: {
-          action: string
-          created_at: string | null
-          details: Json | null
-          id: number
-          page: string
-        }
-        Insert: {
-          action: string
-          created_at?: string | null
-          details?: Json | null
-          id?: number
-          page: string
-        }
-        Update: {
-          action?: string
-          created_at?: string | null
-          details?: Json | null
-          id?: number
-          page?: string
-        }
-        Relationships: []
-      }
       paiements: {
         Row: {
           annee_scolaire: string | null
