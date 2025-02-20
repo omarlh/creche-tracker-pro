@@ -15,10 +15,10 @@ export const EnfantSelect = ({ value, onChange, enfants, selectStyle }: EnfantSe
     <div>
       <Label htmlFor="enfant">Enfant</Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger id="enfant" className={selectStyle}>
+        <SelectTrigger id="enfant" className="bg-gray-200 text-black">
           <SelectValue placeholder="Sélectionner un enfant" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {enfants.map((enfant) => (
             <SelectItem key={enfant.id} value={enfant.id.toString()}>
               {enfant.prenom} {enfant.nom}

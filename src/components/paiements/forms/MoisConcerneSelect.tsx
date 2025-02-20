@@ -10,7 +10,7 @@ interface MoisConcerneSelectProps {
 
 export const MoisConcerneSelect = ({ 
   moisValue, 
-  onMoisChange, 
+  onMoisChange,
   selectStyle 
 }: MoisConcerneSelectProps) => {
   const mois = [
@@ -22,10 +22,10 @@ export const MoisConcerneSelect = ({
     <div>
       <Label htmlFor="moisConcerne">Mois concerné</Label>
       <Select value={moisValue} onValueChange={onMoisChange}>
-        <SelectTrigger id="moisConcerne" className={selectStyle}>
+        <SelectTrigger id="moisConcerne" className="bg-gray-200 text-black">
           <SelectValue placeholder="Sélectionner le mois" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {mois.map((mois) => (
             <SelectItem key={mois} value={mois.toLowerCase()}>
               {mois}
