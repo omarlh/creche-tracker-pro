@@ -11,8 +11,7 @@ export type Paiement = {
   methodePaiement: "carte" | "especes" | "cheque";
   statut: "complete" | "en_attente";
   typePaiement: "mensualite" | "inscription";
-  anneeScolaire?: string;
-  mois?: string;
+  anneeScolaire: string;
   commentaire?: string;
 };
 
@@ -47,7 +46,8 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
       methodePaiement: p.methode_paiement as "carte" | "especes" | "cheque",
       statut: p.statut as "complete" | "en_attente",
       typePaiement: p.type_paiement as "mensualite" | "inscription",
-      commentaire: p.commentaire
+      commentaire: p.commentaire,
+      anneeScolaire: p.annee_scolaire || ''
     }));
 
     set({ paiements: formattedData });
