@@ -51,7 +51,7 @@ export const useRapportGeneration = (
             enfant.statut === "actif"
           );
 
-          // Filtrer les paiements pour ce mois et cette année scolaire
+          // Filtrer les paiements mensuels pour ce mois et cette année scolaire
           const paiementsMensuels = paiements.filter(paiement => {
             const moisConcerne = new Date(paiement.moisConcerne);
             return moisConcerne.getMonth() === date.getMonth() && 
@@ -60,21 +60,27 @@ export const useRapportGeneration = (
                    paiement.anneeScolaire === anneeScolaireFormatted;
           });
 
-          // Récupérer les frais d'inscription pour ce mois depuis la table paiements_inscription
-          const { data: fraisInscriptionMois, error } = await supabase
-            .from('paiements_inscription')
-            .select('montant')
-            .gte('date_paiement', `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`)
-            .lt('date_paiement', `${date.getFullYear()}-${String(date.getMonth() + 2).padStart(2, '0')}-01`);
+          // Récupérer les montants totaux d'inscription pour les enfants actifs de cette année scolaire
+          let totalFraisInscription = 0;
+          try {
+            const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+            const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            
+            const { data: fraisInscriptionMois, error } = await supabase
+              .from('paiements_inscription')
+              .select('montant')
+              .gte('date_paiement', startOfMonth.toISOString().split('T')[0])
+              .lte('date_paiement', endOfMonth.toISOString().split('T')[0]);
 
-          if (error) {
-            console.error("Erreur lors de la récupération des frais d'inscription:", error);
+            if (error) {
+              console.error("Erreur lors de la récupération des frais d'inscription:", error);
+            } else {
+              totalFraisInscription = fraisInscriptionMois?.reduce((sum, p) => sum + Number(p.montant), 0) || 0;
+              console.log(`Total frais d'inscription pour ${moisCourant}:`, totalFraisInscription);
+            }
+          } catch (error) {
+            console.error("Erreur lors du calcul des frais d'inscription:", error);
           }
-
-          // Calculer le total des frais d'inscription pour ce mois
-          const totalFraisInscription = fraisInscriptionMois
-            ? fraisInscriptionMois.reduce((sum, paiement) => sum + Number(paiement.montant), 0)
-            : 0;
 
           // Trouver les enfants avec paiement pour ce mois
           const enfantsAvecPaiement = new Set(paiementsMensuels.map(p => p.enfantId));
