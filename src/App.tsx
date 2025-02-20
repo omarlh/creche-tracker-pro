@@ -9,6 +9,7 @@ import ListeAnnuelle from "@/pages/ListeAnnuelle";
 import Depart from "@/pages/Depart";
 import Rapports from "@/pages/Rapports";
 import Retards from "@/pages/Retards";
+import TableauCroise from "@/pages/TableauCroise";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
   {
     path: "/retards",
     element: <Retards />,
+  },
+  {
+    path: "/tableau-croise",
+    element: <TableauCroise />,
   },
 ]);
 

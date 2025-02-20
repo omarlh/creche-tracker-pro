@@ -10,7 +10,8 @@ import {
   LogOut,
   BarChart,
   Clock,
-  Power
+  Power,
+  TableProperties
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEnfantStore } from "@/data/enfants";
@@ -23,7 +24,6 @@ export const AppSidebar = () => {
 
   const handleQuit = async () => {
     try {
-      // Sauvegarde des données
       await Promise.all([
         saveEnfants(),
         savePaiements()
@@ -31,7 +31,6 @@ export const AppSidebar = () => {
       
       toast.success("Données sauvegardées avec succès");
       
-      // Fermeture de l'application après une courte pause
       setTimeout(() => {
         window.close();
       }, 1000);
@@ -114,6 +113,16 @@ export const AppSidebar = () => {
           >
             <BarChart size={16} />
             Rapports
+          </Link>
+          <Link
+            to="/tableau-croise"
+            className={cn(
+              buttonVariants({ variant: "ghost" }),
+              "w-full justify-start gap-2"
+            )}
+          >
+            <TableProperties size={16} />
+            Tableau Croisé
           </Link>
         </div>
       </SidebarContent>
