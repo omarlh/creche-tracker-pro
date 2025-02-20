@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -17,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { Classe } from "@/data/enfants";
 
 const moisScolaires = [
   "Septembre", "Octobre", "Novembre", "Décembre",
@@ -36,10 +38,13 @@ const moisMapping = {
   "Juin": "06"
 };
 
+const classes: Classe[] = ["TPS", "PS", "MS", "GS"];
+
 const TableauCroise = () => {
   const { enfants, fetchEnfants } = useEnfantStore();
   const { paiements, fetchPaiements } = usePaiementStore();
   const [selectedAnneeScolaire, setSelectedAnneeScolaire] = useState("2024-2025");
+  const [selectedClasse, setSelectedClasse] = useState<string>("all");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -82,10 +87,12 @@ const TableauCroise = () => {
     try {
       const data = enfants
         .filter(e => e.anneeScolaire === selectedAnneeScolaire)
+        .filter(e => selectedClasse === "all" || e.classe === selectedClasse)
         .map(enfant => {
           const inscription = getMontantInscription(enfant.id);
           const row: any = {
             "Nom": `${enfant.prenom} ${enfant.nom}`,
+            "Classe": enfant.classe || "-",
             "Date d'inscription": enfant.dateInscription ? new Date(enfant.dateInscription).toLocaleDateString() : "-",
             "Frais d'inscription": `${inscription.montantPaye}/${inscription.montantTotal} DH`,
           };
@@ -144,6 +151,25 @@ const TableauCroise = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Classe:</span>
+                  <Select 
+                    value={selectedClasse} 
+                    onValueChange={setSelectedClasse}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Sélectionner une classe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes les classes</SelectItem>
+                      {classes.map((classe) => (
+                        <SelectItem key={classe} value={classe}>
+                          {classe}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="flex items-center gap-2 print:hidden">
                   <Button
                     variant="outline"
@@ -176,6 +202,7 @@ const TableauCroise = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead rowSpan={2} className="bg-muted">Nom</TableHead>
+                      <TableHead rowSpan={2} className="bg-muted">Classe</TableHead>
                       <TableHead rowSpan={2} className="bg-muted">Date d'inscription</TableHead>
                       <TableHead rowSpan={2} className="bg-muted text-right">
                         Frais d'inscription
@@ -195,12 +222,16 @@ const TableauCroise = () => {
                   <TableBody>
                     {enfants
                       .filter(e => e.anneeScolaire === selectedAnneeScolaire)
+                      .filter(e => selectedClasse === "all" || e.classe === selectedClasse)
                       .map((enfant) => {
                         const inscription = getMontantInscription(enfant.id);
                         return (
                           <TableRow key={enfant.id}>
                             <TableCell className="font-medium">
                               {enfant.prenom} {enfant.nom}
+                            </TableCell>
+                            <TableCell>
+                              {enfant.classe || "-"}
                             </TableCell>
                             <TableCell>
                               {enfant.dateInscription ? new Date(enfant.dateInscription).toLocaleDateString() : "-"}
