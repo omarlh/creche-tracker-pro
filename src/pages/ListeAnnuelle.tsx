@@ -13,6 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { Classe } from "@/data/enfants";
 
 const anneesDisponibles = [
   "2023-2024",
@@ -27,17 +29,22 @@ const anneesDisponibles = [
   "2032-2033"
 ];
 
+const classes: Classe[] = ["TPS", "PS", "MS", "GS"];
+
 const ListeAnnuelle = () => {
   const { enfants, fetchEnfants } = useEnfantStore();
   const [selectedAnneeScolaire, setSelectedAnneeScolaire] = useState("all");
+  const [selectedClasse, setSelectedClasse] = useState<string>("all");
 
   useEffect(() => {
     fetchEnfants();
   }, [fetchEnfants]);
 
-  const filteredEnfants = enfants.filter(enfant => 
-    selectedAnneeScolaire === "all" || enfant.anneeScolaire === selectedAnneeScolaire
-  );
+  const filteredEnfants = enfants.filter(enfant => {
+    const matchesAnnee = selectedAnneeScolaire === "all" || enfant.anneeScolaire === selectedAnneeScolaire;
+    const matchesClasse = selectedClasse === "all" || enfant.classe === selectedClasse;
+    return matchesAnnee && matchesClasse;
+  });
 
   const getStatutColor = (statut: "actif" | "inactif" | undefined) => {
     if (statut === "actif") return "text-green-600 bg-green-50";
@@ -57,12 +64,35 @@ const ListeAnnuelle = () => {
               </h1>
             </div>
 
-            <div className="mb-6">
-              <AnneeScolaireFilter
-                selectedAnneeScolaire={selectedAnneeScolaire}
-                onAnneeScolaireChange={setSelectedAnneeScolaire}
-                anneesScolaires={anneesDisponibles}
-              />
+            <div className="mb-6 flex gap-4">
+              <div className="flex-1">
+                <AnneeScolaireFilter
+                  selectedAnneeScolaire={selectedAnneeScolaire}
+                  onAnneeScolaireChange={setSelectedAnneeScolaire}
+                  anneesScolaires={anneesDisponibles}
+                />
+              </div>
+              <div className="flex-1">
+                <label className="flex items-center gap-2 mb-2 text-sm font-medium">
+                  Classe
+                </label>
+                <Select 
+                  value={selectedClasse} 
+                  onValueChange={setSelectedClasse}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sélectionner une classe" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les classes</SelectItem>
+                    {classes.map((classe) => (
+                      <SelectItem key={classe} value={classe}>
+                        {classe}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <Card>
@@ -72,6 +102,7 @@ const ListeAnnuelle = () => {
                     {selectedAnneeScolaire === "all" 
                       ? "Tous les enfants" 
                       : `Enfants inscrits en ${selectedAnneeScolaire}`}
+                    {selectedClasse !== "all" && ` - Classe ${selectedClasse}`}
                   </span>
                   <span className="text-sm text-muted-foreground">
                     Total: {filteredEnfants.length} enfants
