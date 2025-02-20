@@ -48,21 +48,17 @@ export const usePaiementManager = () => {
   const handleSubmit = (data: any) => {
     const { enfantId, montant, datePaiement, methodePaiement, commentaire, moisConcerne, statut, typePaiement } = data;
 
-    const nouveauPaiement: Omit<Paiement, "id"> = {
-      enfantId: parseInt(enfantId),
-      montant: parseFloat(montant),
-      datePaiement,
-      methodePaiement,
-      commentaire,
-      moisConcerne,
-      statut,
-      typePaiement
-    };
-
     if (selectedPaiement) {
       const paiementModifie: Paiement = {
-        ...nouveauPaiement,
-        id: selectedPaiement.id,
+        ...selectedPaiement,
+        enfantId: parseInt(enfantId),
+        montant: parseFloat(montant),
+        datePaiement,
+        methodePaiement,
+        commentaire,
+        moisConcerne,
+        statut,
+        typePaiement
       };
       modifierPaiement(paiementModifie);
       toast({
@@ -70,6 +66,16 @@ export const usePaiementManager = () => {
         description: `Le paiement a été mis à jour.`,
       });
     } else {
+      const nouveauPaiement = {
+        enfantId: parseInt(enfantId),
+        montant: parseFloat(montant),
+        datePaiement,
+        methodePaiement,
+        commentaire,
+        moisConcerne,
+        statut,
+        typePaiement
+      };
       ajouterPaiement(nouveauPaiement);
       toast({
         title: "Ajout réussi",
@@ -85,14 +91,14 @@ export const usePaiementManager = () => {
     if (!enfant) return;
 
     moisDisponibles.forEach(mois => {
-      const nouveauPaiement: Omit<Paiement, "id"> = {
+      const nouveauPaiement = {
         enfantId,
         montant: defaultMontant,
         datePaiement: new Date().toISOString().split('T')[0],
         moisConcerne: mois.toLowerCase(),
-        methodePaiement: "especes",
-        statut: "en_attente",
-        typePaiement: "mensualite",
+        methodePaiement: "especes" as const,
+        statut: "en_attente" as const,
+        typePaiement: "mensualite" as const,
         commentaire: `Paiement mensuel pour ${mois}`
       };
       ajouterPaiement(nouveauPaiement);
