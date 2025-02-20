@@ -80,9 +80,9 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
       montant: data.montant,
       datePaiement: data.date_paiement,
       moisConcerne: data.mois_concerne,
-      methodePaiement: data.methode_paiement,
-      statut: data.statut,
-      typePaiement: data.type_paiement,
+      methodePaiement: data.methode_paiement as "carte" | "especes" | "cheque",
+      statut: data.statut as "complete" | "en_attente",
+      typePaiement: data.type_paiement as "mensualite" | "inscription",
       commentaire: data.commentaire
     };
 

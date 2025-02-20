@@ -26,47 +26,23 @@ export const PaiementFormulaire = ({
   defaultMontant,
   enfants,
 }: PaiementFormulaireProps) => {
-  // Liste des années scolaires (on peut ajouter plus d'années si nécessaire)
-  const anneesDisponibles = [
-    "2023-2024",
-    "2024-2025",
-    "2025-2026"
-  ];
-
   const [formData, setFormData] = useState({
     enfantId: selectedPaiement?.enfantId?.toString() || "",
     anneeScolaire: selectedPaiement?.anneeScolaire || anneeScolaire,
-    mois: selectedPaiement?.mois || "",
     montant: selectedPaiement?.montant || defaultMontant,
     datePaiement: selectedPaiement?.datePaiement || new Date().toISOString().split('T')[0],
     moisConcerne: selectedPaiement?.moisConcerne || new Date().toISOString().slice(0, 7),
     methodePaiement: selectedPaiement?.methodePaiement || "especes",
     statut: selectedPaiement?.statut || "en_attente",
+    typePaiement: selectedPaiement?.typePaiement || "mensualite",
     commentaire: selectedPaiement?.commentaire || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const [annee, mois] = formData.moisConcerne.split('-');
-    const moisConcerneDate = new Date(parseInt(annee), parseInt(mois) - 1, 1);
-    
-    onSubmit({
-      ...formData,
-      enfantId: parseInt(formData.enfantId),
-      montant: parseFloat(formData.montant.toString()),
-      moisConcerne: moisConcerneDate.toISOString()
-    });
+    onSubmit(formData);
   };
 
-  const getMoisAvecAnnee = (mois: string) => {
-    const [anneeDebut, anneeFin] = formData.anneeScolaire.split('-');
-    const annee = ['septembre', 'octobre', 'novembre', 'décembre'].includes(mois.toLowerCase())
-      ? anneeDebut
-      : anneeFin;
-    return { mois, annee };
-  };
-
-  // Liste des mois de l'année scolaire (septembre à juin)
   const mois = [
     "Septembre", "Octobre", "Novembre", "Décembre",
     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin"
@@ -74,15 +50,15 @@ export const PaiementFormulaire = ({
 
   const getMoisIndex = (selectedMois: string): number => {
     const moisIndex = mois.findIndex(m => m.toLowerCase() === selectedMois.toLowerCase());
-    // Pour janvier-juin, on ajoute 1 au mois
-    // Pour septembre-décembre, on ajoute 9 pour obtenir le bon numéro de mois
     return moisIndex < 4 ? moisIndex + 9 : moisIndex - 3;
   };
 
   const handleMoisChange = (selectedMois: string) => {
-    const { mois, annee } = getMoisAvecAnnee(selectedMois);
     const moisIndex = getMoisIndex(selectedMois);
-    const moisConcerne = `${annee}-${String(moisIndex).padStart(2, '0')}`;
+    const annee = moisIndex >= 9 ? 
+      parseInt(formData.anneeScolaire.split('-')[0]) : 
+      parseInt(formData.anneeScolaire.split('-')[1]);
+    const moisConcerne = `${annee}-${String(moisIndex + 1).padStart(2, '0')}`;
     setFormData({ ...formData, moisConcerne });
   };
 
@@ -110,21 +86,12 @@ export const PaiementFormulaire = ({
 
         <div>
           <Label htmlFor="anneeScolaire">Année scolaire</Label>
-          <Select 
+          <Input
+            id="anneeScolaire"
             value={formData.anneeScolaire}
-            onValueChange={(value) => setFormData({ ...formData, anneeScolaire: value })}
-          >
-            <SelectTrigger id="anneeScolaire">
-              <SelectValue placeholder="Sélectionner une année scolaire" />
-            </SelectTrigger>
-            <SelectContent>
-              {anneesDisponibles.map((annee) => (
-                <SelectItem key={annee} value={annee}>
-                  {annee}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            readOnly
+            className="bg-gray-100"
+          />
         </div>
 
         <div>
@@ -152,11 +119,11 @@ export const PaiementFormulaire = ({
 
         <div>
           <Label htmlFor="moisConcerne">Mois concerné</Label>
-          <Select 
+          <Select
             value={formData.moisConcerne.split('-')[1]}
             onValueChange={handleMoisChange}
           >
-            <SelectTrigger id="moisConcerne" className="bg-gray-100 pointer-events-none">
+            <SelectTrigger id="moisConcerne">
               <SelectValue placeholder="Sélectionner le mois" />
             </SelectTrigger>
             <SelectContent>
@@ -176,7 +143,9 @@ export const PaiementFormulaire = ({
           <Label htmlFor="methodePaiement">Méthode de paiement</Label>
           <Select 
             value={formData.methodePaiement}
-            onValueChange={(value) => setFormData({ ...formData, methodePaiement: value as "carte" | "especes" | "cheque" })}
+            onValueChange={(value: "carte" | "especes" | "cheque") => 
+              setFormData({ ...formData, methodePaiement: value })
+            }
           >
             <SelectTrigger id="methodePaiement">
               <SelectValue placeholder="Sélectionner une méthode" />
@@ -190,10 +159,30 @@ export const PaiementFormulaire = ({
         </div>
 
         <div>
+          <Label htmlFor="typePaiement">Type de paiement</Label>
+          <Select 
+            value={formData.typePaiement}
+            onValueChange={(value: "mensualite" | "inscription") => 
+              setFormData({ ...formData, typePaiement: value })
+            }
+          >
+            <SelectTrigger id="typePaiement">
+              <SelectValue placeholder="Sélectionner un type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="mensualite">Mensualité</SelectItem>
+              <SelectItem value="inscription">Frais d'inscription</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
           <Label htmlFor="statut">Statut</Label>
           <Select 
             value={formData.statut}
-            onValueChange={(value) => setFormData({ ...formData, statut: value as "complete" | "en_attente" })}
+            onValueChange={(value: "complete" | "en_attente") => 
+              setFormData({ ...formData, statut: value })
+            }
           >
             <SelectTrigger id="statut">
               <SelectValue placeholder="Sélectionner un statut" />
@@ -203,6 +192,16 @@ export const PaiementFormulaire = ({
               <SelectItem value="en_attente">En attente</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="commentaire">Commentaire</Label>
+          <Input
+            id="commentaire"
+            value={formData.commentaire}
+            onChange={(e) => setFormData({ ...formData, commentaire: e.target.value })}
+            placeholder="Ajouter un commentaire (optionnel)"
+          />
         </div>
       </div>
 
