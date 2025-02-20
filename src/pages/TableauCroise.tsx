@@ -64,7 +64,7 @@ const TableauCroise = () => {
   const getMontantInscription = (enfantId: number) => {
     const enfant = enfants.find(e => e.id === enfantId);
     return {
-      montantTotal: enfant?.montantTotal || 0,
+      montantTotal: enfant?.fraisInscription?.montantTotal || 0,
       montantPaye: paiements
         .filter(p => 
           p.enfantId === enfantId && 
