@@ -43,28 +43,26 @@ export const PaiementFormulaire = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const data = {
-      ...formData,
-      moisConcerne: `${formData.anneeConcerne}-${formData.moisConcerne}`
-    };
-    
-    onSubmit(data);
-  };
-
-  const getMoisNumero = (mois: string): string => {
-    const moisList = [
+    const mois = [
       "septembre", "octobre", "novembre", "décembre",
       "janvier", "février", "mars", "avril", "mai", "juin"
     ];
-    const index = moisList.indexOf(mois.toLowerCase());
-    return String(index < 4 ? index + 9 : index - 3 + 1).padStart(2, '0');
-  };
+    
+    const getMoisNumero = (moisNom: string): string => {
+      const index = mois.indexOf(moisNom.toLowerCase());
+      return String(index < 4 ? index + 9 : index - 3 + 1).padStart(2, '0');
+    };
 
-  const handleMoisChange = (selectedMois: string) => {
-    setFormData({
+    const moisNumero = formData.moisConcerne ? getMoisNumero(formData.moisConcerne) : "";
+    const moisConcerneFinal = moisNumero && formData.anneeConcerne ? 
+      `${formData.anneeConcerne}-${moisNumero}` : "";
+
+    const data = {
       ...formData,
-      moisConcerne: getMoisNumero(selectedMois)
-    });
+      moisConcerne: moisConcerneFinal
+    };
+    
+    onSubmit(data);
   };
 
   const selectStyle = "bg-yellow-500 text-black hover:bg-yellow-600";
@@ -87,7 +85,7 @@ export const PaiementFormulaire = ({
         <MoisConcerneSelect
           moisValue={formData.moisConcerne}
           anneeValue={formData.anneeConcerne}
-          onMoisChange={handleMoisChange}
+          onMoisChange={(value) => setFormData({ ...formData, moisConcerne: value })}
           onAnneeChange={(value) => setFormData({ ...formData, anneeConcerne: value })}
           anneeScolaire={formData.anneeScolaire}
           selectStyle={selectStyle}
