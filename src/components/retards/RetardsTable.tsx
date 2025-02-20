@@ -26,10 +26,23 @@ export interface RetardPaiement {
 
 interface RetardsTableProps {
   retards: RetardPaiement[];
-  onEnvoyerRappel: (retardId: number) => void;
+  onEnvoyerRappel: (retardId: number, gsmMaman?: string, gsmPapa?: string) => void;
 }
 
 export const RetardsTable = ({ retards, onEnvoyerRappel }: RetardsTableProps) => {
+  const formatMessage = (retard: RetardPaiement) => {
+    const typeRetard = retard.type === 'inscription' ? "frais d'inscription" : "mensualité";
+    const periode = retard.type === 'inscription' 
+      ? "l'inscription" 
+      : format(new Date(retard.moisConcerne), 'MMMM yyyy', { locale: fr });
+    
+    return encodeURIComponent(
+      `Bonjour, nous vous rappelons que le paiement de ${typeRetard} pour ${retard.enfantPrenom} ${retard.enfantNom} ` +
+      `pour ${periode} d'un montant de ${retard.montantDu} DH est en retard de ${retard.joursRetard} jours. ` +
+      `Merci de régulariser la situation dès que possible.`
+    );
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100">
       <Table>
@@ -83,14 +96,26 @@ export const RetardsTable = ({ retards, onEnvoyerRappel }: RetardsTableProps) =>
                 )}
               </TableCell>
               <TableCell className="text-right print:hidden">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onEnvoyerRappel(retard.id)}
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  Envoyer rappel
-                </Button>
+                <div className="flex justify-end gap-2">
+                  <a
+                    href={`https://wa.me/?text=${formatMessage(retard)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onEnvoyerRappel(retard.id);
+                        window.open(`https://wa.me/?text=${formatMessage(retard)}`, '_blank');
+                      }}
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      Envoyer rappel
+                    </Button>
+                  </a>
+                </div>
               </TableCell>
             </TableRow>
           ))}

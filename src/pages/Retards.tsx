@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -127,11 +126,21 @@ export default function Retards() {
   }, [retardsPaiement]);
 
   const handleEnvoyerRappel = useCallback((retardId: number) => {
+    const maintenant = new Date().toISOString();
+    // Mettre à jour la date du dernier rappel
+    const retardIndex = retardsPaiement.findIndex(r => r.id === retardId);
+    if (retardIndex !== -1) {
+      retardsPaiement[retardIndex] = {
+        ...retardsPaiement[retardIndex],
+        dernierRappel: maintenant
+      };
+    }
+    
     toast({
       title: "Rappel envoyé",
-      description: "Le rappel de paiement a été envoyé avec succès.",
+      description: "Le rappel de paiement WhatsApp a été ouvert.",
     });
-  }, [toast]);
+  }, [toast, retardsPaiement]);
 
   const handlePrint = () => {
     window.print();
