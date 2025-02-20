@@ -43,6 +43,20 @@ const anneesDisponibles = [
   "2032/2033"
 ];
 
+const moisDisponibles = [
+  "Tous les mois",
+  "Septembre",
+  "Octobre",
+  "Novembre",
+  "Décembre",
+  "Janvier",
+  "Février",
+  "Mars",
+  "Avril",
+  "Mai",
+  "Juin"
+];
+
 export type RapportMensuel = {
   mois: string;
   totalPaiements: number;
@@ -57,6 +71,7 @@ export type RapportMensuel = {
 
 const Rapports: React.FC = () => {
   const [anneeScolaireSelectionnee, setAnneeScolaireSelectionnee] = useState<string>("2024/2025");
+  const [moisSelectionne, setMoisSelectionne] = useState<string>("Tous les mois");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
   const [rapportsMensuels, setRapportsMensuels] = useState<RapportMensuel[]>([]);
@@ -135,12 +150,20 @@ const Rapports: React.FC = () => {
 
       rapportsGeneres.sort((a, b) => a.mois.localeCompare(b.mois));
       
-      console.log("Rapports générés:", rapportsGeneres);
-      setRapportsMensuels(rapportsGeneres);
+      if (moisSelectionne !== "Tous les mois") {
+        const moisIndex = moisDisponibles.indexOf(moisSelectionne) - 1;
+        // Ajuster l'index pour les mois de septembre à décembre
+        const moisAjuste = moisIndex >= 3 ? moisIndex - 3 : moisIndex + 9;
+        setRapportsMensuels(rapportsGeneres.filter(rapport => 
+          new Date(rapport.mois).getMonth() === moisAjuste
+        ));
+      } else {
+        setRapportsMensuels(rapportsGeneres);
+      }
     };
 
     genererRapportsMensuels();
-  }, [anneeScolaireSelectionnee, enfants, paiements]);
+  }, [anneeScolaireSelectionnee, moisSelectionne, enfants, paiements]);
 
   const enfantsParAnneeScolaire = anneesDisponibles.reduce((acc, annee) => {
     acc[annee] = enfants.filter(enfant => enfant.anneeScolaire === annee);
@@ -235,6 +258,24 @@ const Rapports: React.FC = () => {
                             {anneesDisponibles.map(annee => (
                               <SelectItem key={annee} value={annee}>
                                 Année scolaire {annee}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <Select 
+                        value={moisSelectionne}
+                        onValueChange={setMoisSelectionne}
+                      >
+                        <SelectTrigger className="w-[200px] bg-gray-200 border-0">
+                          <SelectValue placeholder="Sélectionner un mois" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-100">
+                          <SelectGroup>
+                            <SelectLabel>Sélectionner un mois</SelectLabel>
+                            {moisDisponibles.map(mois => (
+                              <SelectItem key={mois} value={mois}>
+                                {mois}
                               </SelectItem>
                             ))}
                           </SelectGroup>
