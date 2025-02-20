@@ -2,12 +2,12 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -42,38 +42,48 @@ export const RapportsHeader: React.FC<RapportsHeaderProps> = ({
   return (
     <div>
       <h2 className="text-2xl font-semibold mb-6">Rapports Mensuels</h2>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-semibold">Rapports Mensuels</h1>
+          <Button onClick={onExport}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporter
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label className="mb-2 block">Filtrer par année scolaire</Label>
             <Select 
               value={anneeScolaireSelectionnee}
               onValueChange={onAnneeChange}
             >
-              <SelectTrigger className="w-[200px] bg-gray-200 border-0">
-                <SelectValue placeholder="Année scolaire" />
+              <SelectTrigger className="w-full bg-gray-100">
+                <SelectValue placeholder="Sélectionner une année scolaire" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-100">
+              <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Sélectionner une année scolaire</SelectLabel>
                   {anneesDisponibles.map(annee => (
                     <SelectItem key={annee} value={annee}>
-                      Année scolaire {annee}
+                      {annee}
                     </SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
+          </div>
+
+          <div>
+            <Label className="mb-2 block">Filtrer par mois</Label>
             <Select 
               value={moisSelectionne}
               onValueChange={onMoisChange}
             >
-              <SelectTrigger className="w-[200px] bg-gray-200 border-0">
+              <SelectTrigger className="w-full bg-gray-100">
                 <SelectValue placeholder="Sélectionner un mois" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-100">
+              <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Sélectionner un mois</SelectLabel>
                   {moisDisponibles.map(mois => (
                     <SelectItem key={mois} value={mois}>
                       {mois}
@@ -83,10 +93,6 @@ export const RapportsHeader: React.FC<RapportsHeaderProps> = ({
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={onExport}>
-            <Download className="w-4 h-4 mr-2" />
-            Exporter
-          </Button>
         </div>
       </div>
     </div>
