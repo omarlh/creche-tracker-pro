@@ -5,6 +5,10 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useEnfantStore } from "@/data/enfants";
 import { usePaiementStore } from "@/data/paiements";
+import { Button } from "@/components/ui/button";
+import { Printer, FileSpreadsheet } from "lucide-react";
+import * as XLSX from 'xlsx';
+import { useToast } from "@/components/ui/use-toast";
 import {
   Table,
   TableBody,
@@ -37,6 +41,7 @@ const TableauCroise = () => {
   const { enfants, fetchEnfants } = useEnfantStore();
   const { paiements, fetchPaiements } = usePaiementStore();
   const [selectedAnneeScolaire, setSelectedAnneeScolaire] = useState("2024-2025");
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchEnfants();
@@ -66,6 +71,48 @@ const TableauCroise = () => {
       .reduce((sum, p) => sum + p.montant, 0);
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportExcel = () => {
+    try {
+      const data = enfants
+        .filter(e => e.anneeScolaire === selectedAnneeScolaire)
+        .map(enfant => {
+          const row: any = {
+            "Nom": `${enfant.prenom} ${enfant.nom}`,
+            "Date d'inscription": enfant.dateInscription ? new Date(enfant.dateInscription).toLocaleDateString() : "-",
+            "Frais d'inscription payés": `${getMontantInscriptionPaye(enfant.id)} DH`,
+          };
+
+          moisScolaires.forEach(mois => {
+            const paiement = getPaiementMensuel(enfant.id, mois);
+            row[mois] = paiement ? `${paiement.montant} DH` : "-";
+          });
+
+          return row;
+        });
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Tableau Croisé");
+      XLSX.writeFile(wb, `tableau_croise_${selectedAnneeScolaire}.xlsx`);
+
+      toast({
+        title: "Export réussi",
+        description: "Le tableau a été exporté avec succès en Excel",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur lors de l'export",
+        description: "Une erreur s'est produite pendant l'export",
+        variant: "destructive",
+      });
+      console.error("Erreur d'export:", error);
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full animate-fadeIn">
@@ -76,21 +123,41 @@ const TableauCroise = () => {
               <h1 className="text-3xl font-semibold tracking-tight">
                 Tableau Croisé Dynamique Enfant
               </h1>
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Année scolaire:</span>
-                <Select 
-                  value={selectedAnneeScolaire} 
-                  onValueChange={setSelectedAnneeScolaire}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Sélectionner une année" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2023-2024">2023-2024</SelectItem>
-                    <SelectItem value="2024-2025">2024-2025</SelectItem>
-                    <SelectItem value="2025-2026">2025-2026</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Année scolaire:</span>
+                  <Select 
+                    value={selectedAnneeScolaire} 
+                    onValueChange={setSelectedAnneeScolaire}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Sélectionner une année" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2023-2024">2023-2024</SelectItem>
+                      <SelectItem value="2024-2025">2024-2025</SelectItem>
+                      <SelectItem value="2025-2026">2025-2026</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2 print:hidden">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrint}
+                  >
+                    <Printer className="mr-2 h-4 w-4" />
+                    Imprimer
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleExportExcel}
+                  >
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                    Exporter Excel
+                  </Button>
+                </div>
               </div>
             </div>
 
