@@ -10,36 +10,11 @@ import {
   LogOut,
   BarChart,
   Clock,
-  Power,
   TableProperties
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEnfantStore } from "@/data/enfants";
-import { usePaiementStore } from "@/data/paiements";
-import { toast } from "sonner";
 
 export const AppSidebar = () => {
-  const { saveEnfants } = useEnfantStore();
-  const { savePaiements } = usePaiementStore();
-
-  const handleQuit = async () => {
-    try {
-      await Promise.all([
-        saveEnfants(),
-        savePaiements()
-      ]);
-      
-      toast.success("Données sauvegardées avec succès");
-      
-      setTimeout(() => {
-        window.close();
-      }, 1000);
-    } catch (error) {
-      toast.error("Erreur lors de la sauvegarde des données");
-      console.error("Erreur de sauvegarde:", error);
-    }
-  };
-
   const navLinks = [
     { to: "/", icon: <Home size={16} />, label: "Tableau de bord" },
     { to: "/enfants", icon: <Users size={16} />, label: "Enfants" },
@@ -71,19 +46,7 @@ export const AppSidebar = () => {
           ))}
         </div>
       </SidebarContent>
-      
-      <SidebarFooter className="border-t">
-        <button
-          onClick={handleQuit}
-          className={cn(
-            buttonVariants({ variant: "ghost" }),
-            "w-full justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-          )}
-        >
-          <Power size={16} />
-          Quitter l'application
-        </button>
-      </SidebarFooter>
+      <SidebarFooter className="border-t" />
     </Sidebar>
   );
 };
