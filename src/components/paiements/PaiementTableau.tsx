@@ -1,9 +1,13 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Printer, CreditCard, Receipt, BadgeCheck, Pencil, Trash2 } from "lucide-react";
+import { Printer, CreditCard, Receipt, BadgeCheck, Pencil, Trash2, Calendar } from "lucide-react";
 import type { Paiement } from "@/data/paiements";
 import type { Enfant } from "@/data/enfants";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 interface PaiementTableauProps {
   paiements: Paiement[];
@@ -13,15 +17,25 @@ interface PaiementTableauProps {
 }
 
 export const PaiementTableau = ({ paiements, enfants, onEdit, confirmDeletePaiement }: PaiementTableauProps) => {
-  const handlePrintEnfant = (enfantId: number) => {
-    // Créer une nouvelle fenêtre pour l'impression
+  const [dateDialogOpen, setDateDialogOpen] = useState(false);
+  const [selectedEnfantId, setSelectedEnfantId] = useState<number | null>(null);
+  const [dateDebut, setDateDebut] = useState("");
+  const [dateFin, setDateFin] = useState("");
+
+  const handlePrintEnfant = (enfantId: number, dateDebut: string, dateFin: string) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
     const enfant = enfants.find(e => e.id === enfantId);
     if (!enfant) return;
 
-    const paiementsEnfant = paiements.filter(p => p.enfantId === enfantId);
+    const paiementsEnfant = paiements
+      .filter(p => p.enfantId === enfantId)
+      .filter(p => {
+        const paiementDate = new Date(p.datePaiement);
+        return paiementDate >= new Date(dateDebut) && paiementDate <= new Date(dateFin);
+      });
+
     const paiementsMensuels = paiementsEnfant.filter(p => !p.anneeScolaire);
     const paiementsInscription = paiementsEnfant.filter(p => p.anneeScolaire);
 
@@ -74,9 +88,9 @@ export const PaiementTableau = ({ paiements, enfants, onEdit, confirmDeletePaiem
           </div>
 
           <div class="date-block">
-            <div class="date-item"><strong>Période des paiements:</strong></div>
-            <div class="date-item"><strong>Premier paiement:</strong> ${dateDebut ? dateDebut.toLocaleDateString('fr-FR') : 'Aucun paiement'}</div>
-            <div class="date-item"><strong>Dernier paiement:</strong> ${dateFin ? dateFin.toLocaleDateString('fr-FR') : 'Aucun paiement'}</div>
+            <div class="date-item"><strong>Période sélectionnée:</strong></div>
+            <div class="date-item"><strong>Du:</strong> ${new Date(dateDebut).toLocaleDateString('fr-FR')}</div>
+            <div class="date-item"><strong>Au:</strong> ${new Date(dateFin).toLocaleDateString('fr-FR')}</div>
           </div>
 
           <div class="paiements-section">
@@ -143,90 +157,146 @@ export const PaiementTableau = ({ paiements, enfants, onEdit, confirmDeletePaiem
     printWindow.document.close();
   };
 
+  const handlePrintClick = (enfantId: number) => {
+    setSelectedEnfantId(enfantId);
+    setDateDebut("");
+    setDateFin("");
+    setDateDialogOpen(true);
+  };
+
+  const handleConfirmDates = () => {
+    if (selectedEnfantId && dateDebut && dateFin) {
+      handlePrintEnfant(selectedEnfantId, dateDebut, dateFin);
+      setDateDialogOpen(false);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Enfant</TableHead>
-            <TableHead>Montant</TableHead>
-            <TableHead>Date de paiement</TableHead>
-            <TableHead>Mois concerné</TableHead>
-            <TableHead>Méthode</TableHead>
-            <TableHead>Statut</TableHead>
-            <TableHead className="text-right print:hidden">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paiements.map((paiement) => {
-            const enfant = enfants.find(e => e.id === paiement.enfantId);
-            return (
-              <TableRow key={paiement.id}>
-                <TableCell>{enfant ? `${enfant.prenom} ${enfant.nom}` : "Inconnu"}</TableCell>
-                <TableCell>{paiement.montant} DH</TableCell>
-                <TableCell>{new Date(paiement.datePaiement).toLocaleDateString("fr-FR")}</TableCell>
-                <TableCell>
-                  {new Date(paiement.moisConcerne).toLocaleDateString("fr-FR", {
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </TableCell>
-                <TableCell>
-                  <span className="inline-flex items-center">
-                    {paiement.methodePaiement === "carte" && <CreditCard className="w-4 h-4 mr-1" />}
-                    {paiement.methodePaiement === "especes" && <Receipt className="w-4 h-4 mr-1" />}
-                    {paiement.methodePaiement === "cheque" && <Receipt className="w-4 h-4 mr-1" />}
-                    {paiement.methodePaiement.charAt(0).toUpperCase() + paiement.methodePaiement.slice(1)}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      paiement.statut === "complete"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {paiement.statut === "complete" ? (
-                      <>
-                        <BadgeCheck className="w-4 h-4 mr-1" />
-                        Complété
-                      </>
-                    ) : (
-                      "En attente"
-                    )}
-                  </span>
-                </TableCell>
-                <TableCell className="text-right space-x-2 print:hidden">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePrintEnfant(paiement.enfantId)}
-                  >
-                    <Printer className="w-4 h-4 mr-1" />
-                    Historique détaillé
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEdit(paiement)}
-                  >
-                    <Pencil className="w-4 h-4 mr-1" />
-                    Modifier
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => confirmDeletePaiement(paiement)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+    <>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Enfant</TableHead>
+              <TableHead>Montant</TableHead>
+              <TableHead>Date de paiement</TableHead>
+              <TableHead>Mois concerné</TableHead>
+              <TableHead>Méthode</TableHead>
+              <TableHead>Statut</TableHead>
+              <TableHead className="text-right print:hidden">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paiements.map((paiement) => {
+              const enfant = enfants.find(e => e.id === paiement.enfantId);
+              return (
+                <TableRow key={paiement.id}>
+                  <TableCell>{enfant ? `${enfant.prenom} ${enfant.nom}` : "Inconnu"}</TableCell>
+                  <TableCell>{paiement.montant} DH</TableCell>
+                  <TableCell>{new Date(paiement.datePaiement).toLocaleDateString("fr-FR")}</TableCell>
+                  <TableCell>
+                    {new Date(paiement.moisConcerne).toLocaleDateString("fr-FR", {
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center">
+                      {paiement.methodePaiement === "carte" && <CreditCard className="w-4 h-4 mr-1" />}
+                      {paiement.methodePaiement === "especes" && <Receipt className="w-4 h-4 mr-1" />}
+                      {paiement.methodePaiement === "cheque" && <Receipt className="w-4 h-4 mr-1" />}
+                      {paiement.methodePaiement.charAt(0).toUpperCase() + paiement.methodePaiement.slice(1)}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        paiement.statut === "complete"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {paiement.statut === "complete" ? (
+                        <>
+                          <BadgeCheck className="w-4 h-4 mr-1" />
+                          Complété
+                        </>
+                      ) : (
+                        "En attente"
+                      )}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right space-x-2 print:hidden">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePrintClick(paiement.enfantId)}
+                    >
+                      <Printer className="w-4 h-4 mr-1" />
+                      Historique détaillé
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEdit(paiement)}
+                    >
+                      <Pencil className="w-4 h-4 mr-1" />
+                      Modifier
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => confirmDeletePaiement(paiement)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Dialog open={dateDialogOpen} onOpenChange={setDateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sélectionner la période</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="dateDebut">Date de début</Label>
+              <Input
+                id="dateDebut"
+                type="date"
+                value={dateDebut}
+                onChange={(e) => setDateDebut(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dateFin">Date de fin</Label>
+              <Input
+                id="dateFin"
+                type="date"
+                value={dateFin}
+                onChange={(e) => setDateFin(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDateDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button 
+              onClick={handleConfirmDates}
+              disabled={!dateDebut || !dateFin}
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Générer l'historique
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
