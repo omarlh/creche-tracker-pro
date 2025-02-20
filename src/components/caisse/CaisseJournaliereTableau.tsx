@@ -72,37 +72,33 @@ export const CaisseJournaliereTableau = ({
       if (errorMensuels) console.error('Erreur mensualités:', errorMensuels);
       if (errorInscription) console.error('Erreur inscriptions:', errorInscription);
 
-      // Formatter les données
-      const encaissementsFormats: Encaissement[] = [
-        ...(paiementsMensuels || []).map(p => ({
-          id: p.id,
-          enfantId: p.enfant_id,
-          nomComplet: `${p.enfants?.prenom} ${p.enfants?.nom}`,
-          typePaiement: "mensualite",
-          montant: p.montant,
-          methodePaiement: p.methode_paiement || '',
-          datePaiement: p.date_paiement,
-          moisConcerne: p.mois_concerne
-        })),
-        ...(fraisInscription || []).map(f => ({
-          id: f.id,
-          enfantId: f.enfant_id,
-          nomComplet: `${f.enfants?.prenom} ${f.enfants?.nom}`,
-          typePaiement: "inscription",
-          montant: f.montant,
-          methodePaiement: f.methode_paiement || '',
-          datePaiement: f.date_paiement
-        }))
-      ];
+      // Formatter les données avec un typage explicite
+      const mensualitesFormatees: Encaissement[] = (paiementsMensuels || []).map(p => ({
+        id: p.id,
+        enfantId: p.enfant_id,
+        nomComplet: `${p.enfants?.prenom} ${p.enfants?.nom}`,
+        typePaiement: "mensualite",
+        montant: p.montant,
+        methodePaiement: p.methode_paiement || '',
+        datePaiement: p.date_paiement,
+        moisConcerne: p.mois_concerne
+      }));
+
+      const inscriptionsFormatees: Encaissement[] = (fraisInscription || []).map(f => ({
+        id: f.id,
+        enfantId: f.enfant_id,
+        nomComplet: `${f.enfants?.prenom} ${f.enfants?.nom}`,
+        typePaiement: "inscription",
+        montant: f.montant,
+        methodePaiement: f.methode_paiement || '',
+        datePaiement: f.date_paiement
+      }));
+
+      const encaissementsFormats = [...mensualitesFormatees, ...inscriptionsFormatees];
 
       // Calculer les totaux
-      const totalM = encaissementsFormats
-        .filter(e => e.typePaiement === "mensualite")
-        .reduce((sum, e) => sum + e.montant, 0);
-
-      const totalI = encaissementsFormats
-        .filter(e => e.typePaiement === "inscription")
-        .reduce((sum, e) => sum + e.montant, 0);
+      const totalM = mensualitesFormatees.reduce((sum, e) => sum + e.montant, 0);
+      const totalI = inscriptionsFormatees.reduce((sum, e) => sum + e.montant, 0);
 
       setEncaissements(encaissementsFormats);
       setTotalMensualites(totalM);
