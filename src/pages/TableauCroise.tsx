@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -64,14 +63,8 @@ const TableauCroise = () => {
   const getMontantInscription = (enfantId: number) => {
     const enfant = enfants.find(e => e.id === enfantId);
     return {
-      montantTotal: enfant?.fraisInscription?.montantTotal || 0,
-      montantPaye: paiements
-        .filter(p => 
-          p.enfantId === enfantId && 
-          p.typePaiement === "inscription" &&
-          p.anneeScolaire === selectedAnneeScolaire
-        )
-        .reduce((sum, p) => sum + p.montant, 0)
+      montantTotal: enfant?.fraisInscription?.montantTotal || 800,
+      montantPaye: enfant?.fraisInscription?.paiements?.reduce((sum, p) => sum + p.montant, 0) || 0
     };
   };
 
