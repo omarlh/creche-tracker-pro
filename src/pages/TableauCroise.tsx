@@ -47,6 +47,17 @@ const TableauCroise = () => {
   const [selectedClasse, setSelectedClasse] = useState<string>("all");
   const { toast } = useToast();
 
+  const genererAnnesScolaires = () => {
+    const anneesDisponibles = [];
+    const currentYear = new Date().getFullYear();
+    for (let i = -5; i <= 5; i++) {
+      const anneeDebut = currentYear + i;
+      const anneeFin = anneeDebut + 1;
+      anneesDisponibles.push(`${anneeDebut}-${anneeFin}`);
+    }
+    return anneesDisponibles;
+  };
+
   useEffect(() => {
     fetchEnfants();
     fetchPaiements();
@@ -145,9 +156,11 @@ const TableauCroise = () => {
                       <SelectValue placeholder="Sélectionner une année" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="2023-2024">2023-2024</SelectItem>
-                      <SelectItem value="2024-2025">2024-2025</SelectItem>
-                      <SelectItem value="2025-2026">2025-2026</SelectItem>
+                      {genererAnnesScolaires().map((annee) => (
+                        <SelectItem key={annee} value={annee}>
+                          {annee}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
