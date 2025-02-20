@@ -1,16 +1,40 @@
 
 import { Button } from "@/components/ui/button";
-import { BadgeCheck, AlertCircle, Printer } from "lucide-react";
+import { BadgeCheck, AlertCircle, Printer, Calendar } from "lucide-react";
 import { type RapportMensuel } from "@/pages/Rapports";
 import { type Enfant } from "@/data/enfants";
+import { type Paiement } from "@/data/paiements";
 
 interface RapportDetailsProps {
   rapport: RapportMensuel;
   onPrint: () => void;
   getEnfantById: (id: number) => Enfant | undefined;
+  paiements: Paiement[];  // Ajout des paiements comme prop
 }
 
-export function RapportDetails({ rapport, onPrint, getEnfantById }: RapportDetailsProps) {
+export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: RapportDetailsProps) {
+  // Formater la date en français
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Formater le type de paiement en français
+  const formatTypePaiement = (type: string) => {
+    switch (type) {
+      case "mensualite":
+        return "Mensualité";
+      case "inscription":
+        return "Frais d'inscription";
+      default:
+        return type;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Button 
@@ -55,19 +79,52 @@ export function RapportDetails({ rapport, onPrint, getEnfantById }: RapportDetai
           <BadgeCheck className="w-4 h-4 mr-2 text-success" />
           Enfants ayant payé
         </h4>
-        <div className="space-y-2">
+        <div className="space-y-4">
           {rapport.enfantsPaye.map((enfantId) => {
             const enfant = getEnfantById(enfantId);
-            return enfant ? (
-              <div key={enfant.id} className="p-2 bg-success/5 rounded-md">
-                <p className="text-sm font-medium">
-                  {enfant.prenom} {enfant.nom}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Classe: {enfant.classe}
-                </p>
+            if (!enfant) return null;
+
+            // Filtrer les paiements de cet enfant
+            const paiementsEnfant = paiements.filter(p => p.enfantId === enfantId);
+
+            return (
+              <div key={enfant.id} className="bg-success/5 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <p className="text-base font-medium">
+                      {enfant.prenom} {enfant.nom}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Classe: {enfant.classe}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Liste des paiements */}
+                <div className="space-y-2">
+                  <h5 className="text-sm font-medium text-gray-600 mb-2 flex items-center">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Historique des paiements
+                  </h5>
+                  {paiementsEnfant.map((paiement) => (
+                    <div 
+                      key={paiement.id} 
+                      className="bg-white p-2 rounded border border-gray-100 flex justify-between items-center"
+                    >
+                      <div>
+                        <p className="text-sm font-medium">
+                          {formatTypePaiement(paiement.typePaiement)}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatDate(paiement.datePaiement)}
+                        </p>
+                      </div>
+                      <p className="text-sm font-semibold">{paiement.montant} DH</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ) : null;
+            );
           })}
         </div>
       </div>
