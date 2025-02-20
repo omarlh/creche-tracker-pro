@@ -48,6 +48,18 @@ export const PaiementFormulaire = ({
     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin"
   ];
 
+  // Générer les années scolaires (5 ans passés et 5 ans futurs)
+  const genererAnnesScolaires = () => {
+    const anneesDisponibles = [];
+    const currentYear = new Date().getFullYear();
+    for (let i = -5; i <= 5; i++) {
+      const anneeDebut = currentYear + i;
+      const anneeFin = anneeDebut + 1;
+      anneesDisponibles.push(`${anneeDebut}-${anneeFin}`);
+    }
+    return anneesDisponibles;
+  };
+
   const getMoisIndex = (selectedMois: string): number => {
     const moisIndex = mois.findIndex(m => m.toLowerCase() === selectedMois.toLowerCase());
     return moisIndex < 4 ? moisIndex + 9 : moisIndex - 3;
@@ -71,7 +83,7 @@ export const PaiementFormulaire = ({
             value={formData.enfantId}
             onValueChange={(value) => setFormData({ ...formData, enfantId: value })}
           >
-            <SelectTrigger id="enfant">
+            <SelectTrigger id="enfant" className="bg-gray-100">
               <SelectValue placeholder="Sélectionner un enfant" />
             </SelectTrigger>
             <SelectContent>
@@ -86,12 +98,21 @@ export const PaiementFormulaire = ({
 
         <div>
           <Label htmlFor="anneeScolaire">Année scolaire</Label>
-          <Input
-            id="anneeScolaire"
+          <Select
             value={formData.anneeScolaire}
-            readOnly
-            className="bg-gray-100"
-          />
+            onValueChange={(value) => setFormData({ ...formData, anneeScolaire: value })}
+          >
+            <SelectTrigger id="anneeScolaire">
+              <SelectValue placeholder="Sélectionner une année scolaire" />
+            </SelectTrigger>
+            <SelectContent>
+              {genererAnnesScolaires().map((annee) => (
+                <SelectItem key={annee} value={annee}>
+                  {annee}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div>
@@ -123,7 +144,7 @@ export const PaiementFormulaire = ({
             value={formData.moisConcerne.split('-')[1]}
             onValueChange={handleMoisChange}
           >
-            <SelectTrigger id="moisConcerne">
+            <SelectTrigger id="moisConcerne" className="bg-gray-100">
               <SelectValue placeholder="Sélectionner le mois" />
             </SelectTrigger>
             <SelectContent>
