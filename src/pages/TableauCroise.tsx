@@ -20,6 +20,19 @@ const moisScolaires = [
   "Janvier", "Février", "Mars", "Avril", "Mai", "Juin"
 ];
 
+const moisMapping = {
+  "Septembre": "09",
+  "Octobre": "10",
+  "Novembre": "11",
+  "Décembre": "12",
+  "Janvier": "01",
+  "Février": "02",
+  "Mars": "03",
+  "Avril": "04",
+  "Mai": "05",
+  "Juin": "06"
+};
+
 const TableauCroise = () => {
   const { enfants, fetchEnfants } = useEnfantStore();
   const { paiements, fetchPaiements } = usePaiementStore();
@@ -31,9 +44,10 @@ const TableauCroise = () => {
   }, [fetchEnfants, fetchPaiements]);
 
   const getPaiementMensuel = (enfantId: number, mois: string) => {
-    const moisIndex = moisScolaires.indexOf(mois);
-    const annee = selectedAnneeScolaire.split("-")[moisIndex < 4 ? 1 : 0];
-    const dateMois = `${annee}-${String(moisIndex + 1).padStart(2, "0")}-01`;
+    const moisNum = moisMapping[mois as keyof typeof moisMapping];
+    const [anneeDebut, anneeFin] = selectedAnneeScolaire.split("-");
+    const annee = parseInt(moisNum) > 8 ? anneeDebut : anneeFin;
+    const dateMois = `${annee}-${moisNum}-01`;
 
     return paiements.find(p => 
       p.enfantId === enfantId && 
