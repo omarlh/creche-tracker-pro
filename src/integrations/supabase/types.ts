@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           annee_scolaire: string | null
           classe: string | null
+          date_fin_inscription: string | null
           date_inscription: string | null
           date_naissance: string | null
           dernier_paiement: string | null
@@ -29,6 +30,7 @@ export type Database = {
         Insert: {
           annee_scolaire?: string | null
           classe?: string | null
+          date_fin_inscription?: string | null
           date_inscription?: string | null
           date_naissance?: string | null
           dernier_paiement?: string | null
@@ -45,6 +47,7 @@ export type Database = {
         Update: {
           annee_scolaire?: string | null
           classe?: string | null
+          date_fin_inscription?: string | null
           date_inscription?: string | null
           date_naissance?: string | null
           dernier_paiement?: string | null

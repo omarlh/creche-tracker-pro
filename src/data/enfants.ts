@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -86,6 +85,7 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
         prenom: enfant.prenom,
         dateNaissance: enfant.date_naissance || undefined,
         dateInscription: enfant.date_inscription || undefined,
+        dateFinInscription: enfant.date_fin_inscription || undefined,
         classe: enfant.classe as Classe,
         gsmMaman: enfant.gsm_maman || undefined,
         gsmPapa: enfant.gsm_papa || undefined,
