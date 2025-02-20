@@ -1,5 +1,5 @@
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, useNavigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -11,6 +11,21 @@ import Depart from "@/pages/Depart";
 import Rapports from "@/pages/Rapports";
 import Retards from "@/pages/Retards";
 import TableauCroise from "@/pages/TableauCroise";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
+
+// Wrapper component to use hooks
+const AppWrapper = () => {
+  useActivityLogger(); // Initialize activity logging
+
+  return (
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <SidebarProvider>
+        <RouterProvider router={router} />
+        <Toaster />
+      </SidebarProvider>
+    </ThemeProvider>
+  );
+};
 
 const router = createBrowserRouter([
   {
@@ -48,14 +63,7 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <SidebarProvider>
-        <RouterProvider router={router} />
-        <Toaster />
-      </SidebarProvider>
-    </ThemeProvider>
-  );
+  return <AppWrapper />;
 }
 
 export default App;
