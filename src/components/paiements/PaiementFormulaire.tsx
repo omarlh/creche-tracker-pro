@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,7 +39,13 @@ export const PaiementFormulaire = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    const data = {
+      ...formData,
+      moisConcerne: getFormattedMoisConcerne(formData.anneeScolaire, formData.moisConcerne)
+    };
+    
+    onSubmit(data);
   };
 
   const mois = [
@@ -48,7 +53,6 @@ export const PaiementFormulaire = ({
     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin"
   ];
 
-  // Générer les années scolaires (5 ans passés et 5 ans futurs)
   const genererAnnesScolaires = () => {
     const anneesDisponibles = [];
     const currentYear = new Date().getFullYear();
@@ -60,19 +64,24 @@ export const PaiementFormulaire = ({
     return anneesDisponibles;
   };
 
-  const getMoisIndex = (selectedMois: string): number => {
-    const moisIndex = mois.findIndex(m => m.toLowerCase() === selectedMois.toLowerCase());
+  const getMoisIndex = (moisNom: string): number => {
+    const moisIndex = mois.findIndex(m => m.toLowerCase() === moisNom.toLowerCase());
     return moisIndex < 4 ? moisIndex + 9 : moisIndex - 3;
   };
 
+  const getFormattedMoisConcerne = (anneeScolaire: string, moisNom: string) => {
+    const moisIndex = getMoisIndex(moisNom);
+    const [anneeDebut, anneeFin] = anneeScolaire.split('-');
+    const annee = moisIndex >= 9 ? anneeDebut : anneeFin;
+    return `${annee}-${String(moisIndex + 1).padStart(2, '0')}`;
+  };
+
   const handleMoisChange = (selectedMois: string) => {
-    const moisIndex = getMoisIndex(selectedMois);
-    const annee = moisIndex >= 9 ? 
-      parseInt(formData.anneeScolaire.split('-')[0]) : 
-      parseInt(formData.anneeScolaire.split('-')[1]);
-    const moisConcerne = `${annee}-${String(moisIndex + 1).padStart(2, '0')}`;
+    const moisConcerne = getFormattedMoisConcerne(formData.anneeScolaire, selectedMois);
     setFormData({ ...formData, moisConcerne });
   };
+
+  const selectTriggerStyle = "bg-[#8E9196] text-white hover:bg-[#8E9196]/90";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -83,7 +92,7 @@ export const PaiementFormulaire = ({
             value={formData.enfantId}
             onValueChange={(value) => setFormData({ ...formData, enfantId: value })}
           >
-            <SelectTrigger id="enfant" className="bg-gray-100">
+            <SelectTrigger id="enfant" className={selectTriggerStyle}>
               <SelectValue placeholder="Sélectionner un enfant" />
             </SelectTrigger>
             <SelectContent>
@@ -144,7 +153,7 @@ export const PaiementFormulaire = ({
             value={formData.moisConcerne.split('-')[1]}
             onValueChange={handleMoisChange}
           >
-            <SelectTrigger id="moisConcerne" className="bg-gray-100">
+            <SelectTrigger id="moisConcerne" className={selectTriggerStyle}>
               <SelectValue placeholder="Sélectionner le mois" />
             </SelectTrigger>
             <SelectContent>
