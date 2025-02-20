@@ -55,22 +55,29 @@ export const useRapportGeneration = (
                    paiement.anneeScolaire === anneeScolaireFormatted;
           });
 
+          // Calcul des frais d'inscription pour le mois spécifique
           let totalFraisInscription = 0;
           try {
             const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
             const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-            
+
             const { data: fraisInscriptionMois, error } = await supabase
               .from('paiements_inscription')
               .select('montant')
               .gte('date_paiement', startOfMonth.toISOString().split('T')[0])
-              .lte('date_paiement', endOfMonth.toISOString().split('T')[0]);
+              .lte('date_paiement', endOfMonth.toISOString().split('T')[0])
+              .order('date_paiement', { ascending: true });
 
             if (error) {
               console.error("Erreur lors de la récupération des frais d'inscription:", error);
             } else {
-              totalFraisInscription = fraisInscriptionMois?.reduce((sum, p) => sum + Number(p.montant), 0) || 0;
-              console.log(`Total frais d'inscription pour ${moisCourant}:`, totalFraisInscription);
+              if (fraisInscriptionMois) {
+                totalFraisInscription = fraisInscriptionMois.reduce((sum, p) => {
+                  const montant = typeof p.montant === 'number' ? p.montant : parseFloat(p.montant);
+                  return !isNaN(montant) ? sum + montant : sum;
+                }, 0);
+                console.log(`Total frais d'inscription pour ${moisCourant}:`, totalFraisInscription);
+              }
             }
           } catch (error) {
             console.error("Erreur lors du calcul des frais d'inscription:", error);
