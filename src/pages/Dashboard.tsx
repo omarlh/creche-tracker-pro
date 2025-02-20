@@ -7,16 +7,50 @@ import { usePaiementStore } from "@/data/paiements"
 import { useEffect, useState } from "react"
 import { AnneeScolaireSelect } from "@/components/paiements/forms/AnneeScolaireSelect"
 import { getCurrentSchoolYear } from "@/lib/dateUtils"
+import { supabase } from "@/integrations/supabase/client"
 
 const Dashboard = () => {
   const { enfants, fetchEnfants } = useEnfantStore()
   const { paiements, fetchPaiements } = usePaiementStore()
   const [anneeScolaire, setAnneeScolaire] = useState(getCurrentSchoolYear())
+  const [totalFraisInscription, setTotalFraisInscription] = useState(0)
 
   useEffect(() => {
     fetchEnfants()
     fetchPaiements()
   }, [fetchEnfants, fetchPaiements])
+
+  // Récupérer les frais d'inscription
+  useEffect(() => {
+    const getFraisInscription = async () => {
+      // Récupérer les IDs des enfants pour l'année scolaire sélectionnée
+      const enfantIds = enfants
+        .filter(e => e.anneeScolaire === anneeScolaire)
+        .map(e => e.id)
+
+      if (enfantIds.length === 0) {
+        setTotalFraisInscription(0)
+        return
+      }
+
+      // Récupérer tous les paiements d'inscription pour ces enfants
+      const { data, error } = await supabase
+        .from('paiements_inscription')
+        .select('montant')
+        .in('enfant_id', enfantIds)
+
+      if (error) {
+        console.error('Erreur lors de la récupération des frais d\'inscription:', error)
+        return
+      }
+
+      // Calculer le total des frais d'inscription
+      const total = data.reduce((sum, p) => sum + (p.montant || 0), 0)
+      setTotalFraisInscription(total)
+    }
+
+    getFraisInscription()
+  }, [anneeScolaire, enfants])
 
   // Filtrer les enfants par année scolaire
   const enfantsFiltres = enfants.filter(e => e.anneeScolaire === anneeScolaire)
@@ -27,12 +61,6 @@ const Dashboard = () => {
   
   // Calculer le total des mensualités
   const totalMensualites = paiementsFiltres.reduce((sum, p) => sum + p.montant, 0)
-
-  // Calculer le total des frais d'inscription pour l'année scolaire
-  const totalFraisInscription = enfantsFiltres.reduce((sum, enfant) => {
-    const montantPaye = enfant.fraisInscription?.montantPaye || 0
-    return sum + montantPaye
-  }, 0)
 
   // Calculer le total global (mensualités + frais d'inscription)
   const totalPaiements = totalMensualites + totalFraisInscription
