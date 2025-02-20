@@ -50,18 +50,30 @@ export const PaiementFormulaire = ({
     
     const getMoisNumero = (moisNom: string): string => {
       const index = mois.indexOf(moisNom.toLowerCase());
-      return String(index < 4 ? index + 9 : index - 3 + 1).padStart(2, '0');
+      const moisNum = index < 4 ? index + 9 : index - 3 + 1;
+      return String(moisNum).padStart(2, '0');
     };
 
     const moisNumero = formData.moisConcerne ? getMoisNumero(formData.moisConcerne) : "";
-    const moisConcerneFinal = moisNumero && formData.anneeConcerne ? 
-      `${formData.anneeConcerne}-${moisNumero}` : "";
+    const annee = formData.anneeConcerne;
+    const moisConcerneFinal = annee && moisNumero ? `${annee}-${moisNumero}-01` : "";
+
+    if (!moisConcerneFinal) {
+      console.error("Données incomplètes:", { 
+        mois: formData.moisConcerne,
+        annee: formData.anneeConcerne,
+        moisNumero,
+        moisConcerneFinal 
+      });
+      return;
+    }
 
     const data = {
       ...formData,
       moisConcerne: moisConcerneFinal
     };
     
+    console.log("Données soumises:", data);
     onSubmit(data);
   };
 
