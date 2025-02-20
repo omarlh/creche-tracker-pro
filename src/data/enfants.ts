@@ -17,6 +17,7 @@ export type Enfant = {
   prenom: string;
   dateNaissance?: string;
   dateInscription?: string;
+  dateFinInscription?: string; // Ajout du nouveau champ
   classe?: Classe;
   gsmMaman?: string;
   gsmPapa?: string;
@@ -46,6 +47,7 @@ type EnfantRow = {
   prenom: string;
   date_naissance: string | null;
   date_inscription: string | null;
+  date_fin_inscription: string | null; // Ajout du nouveau champ
   classe: string | null;
   gsm_maman: string | null;
   gsm_papa: string | null;
@@ -122,13 +124,14 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
           prenom: enfant.prenom,
           date_naissance: enfant.dateNaissance,
           date_inscription: enfant.dateInscription || currentDate,
+          date_fin_inscription: enfant.dateFinInscription,
           classe: enfant.classe,
           gsm_maman: enfant.gsmMaman,
           gsm_papa: enfant.gsmPapa,
           annee_scolaire: enfant.anneeScolaire || "2024-2025",
           montant_total: enfant.fraisInscription?.montantTotal || 800,
           montant_paye: enfant.fraisInscription?.montantPaye || 0,
-          frais_scolarite_mensuel: enfant.fraisScolariteMensuel || 800, // Modification ici
+          frais_scolarite_mensuel: enfant.fraisScolariteMensuel || 800,
           statut: enfant.statut || "actif",
           dernier_paiement: enfant.dernierPaiement,
         }])
@@ -174,6 +177,7 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
           prenom: enfant.prenom,
           date_naissance: enfant.dateNaissance,
           date_inscription: enfant.dateInscription,
+          date_fin_inscription: enfant.dateFinInscription,
           classe: enfant.classe,
           gsm_maman: enfant.gsmMaman,
           gsm_papa: enfant.gsmPapa,
