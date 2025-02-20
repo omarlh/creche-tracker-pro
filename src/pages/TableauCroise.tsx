@@ -58,7 +58,11 @@ const TableauCroise = () => {
 
   const getMontantInscriptionPaye = (enfantId: number) => {
     return paiements
-      .filter(p => p.enfantId === enfantId && p.typePaiement === "inscription")
+      .filter(p => 
+        p.enfantId === enfantId && 
+        p.typePaiement === "inscription" &&
+        p.anneeScolaire === selectedAnneeScolaire
+      )
       .reduce((sum, p) => sum + p.montant, 0);
   };
 
