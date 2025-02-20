@@ -54,6 +54,17 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
   },
 
   ajouterPaiement: async (paiement) => {
+    // Déterminer l'année scolaire en fonction du mois concerné
+    const dateMoisConcerne = new Date(paiement.moisConcerne);
+    const mois = dateMoisConcerne.getMonth(); // 0-11
+    const annee = dateMoisConcerne.getFullYear();
+    
+    // Si le mois est entre septembre et décembre (8-11), l'année scolaire commence cette année
+    // Si le mois est entre janvier et juillet (0-6), l'année scolaire a commencé l'année précédente
+    const anneeScolaire = mois >= 8 
+      ? `${annee}-${annee + 1}`
+      : `${annee - 1}-${annee}`;
+
     const { data, error } = await supabase
       .from('paiements')
       .insert([{
@@ -64,7 +75,8 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
         methode_paiement: paiement.methodePaiement,
         statut: paiement.statut,
         type_paiement: paiement.typePaiement,
-        commentaire: paiement.commentaire
+        commentaire: paiement.commentaire,
+        annee_scolaire: anneeScolaire
       }])
       .select()
       .single();
@@ -83,7 +95,8 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
       methodePaiement: data.methode_paiement as "carte" | "especes" | "cheque",
       statut: data.statut as "complete" | "en_attente",
       typePaiement: data.type_paiement as "mensualite" | "inscription",
-      commentaire: data.commentaire
+      commentaire: data.commentaire,
+      anneeScolaire: data.annee_scolaire
     };
 
     set(state => ({
@@ -92,6 +105,15 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
   },
 
   modifierPaiement: async (paiement) => {
+    // Mise à jour de l'année scolaire lors de la modification
+    const dateMoisConcerne = new Date(paiement.moisConcerne);
+    const mois = dateMoisConcerne.getMonth();
+    const annee = dateMoisConcerne.getFullYear();
+    
+    const anneeScolaire = mois >= 8 
+      ? `${annee}-${annee + 1}`
+      : `${annee - 1}-${annee}`;
+
     const { error } = await supabase
       .from('paiements')
       .update({
@@ -102,7 +124,8 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
         methode_paiement: paiement.methodePaiement,
         statut: paiement.statut,
         type_paiement: paiement.typePaiement,
-        commentaire: paiement.commentaire
+        commentaire: paiement.commentaire,
+        annee_scolaire: anneeScolaire
       })
       .eq('id', paiement.id);
 
@@ -112,7 +135,7 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
     }
 
     set(state => ({
-      paiements: state.paiements.map(p => p.id === paiement.id ? paiement : p)
+      paiements: state.paiements.map(p => p.id === paiement.id ? {...paiement, anneeScolaire} : p)
     }));
   },
 
