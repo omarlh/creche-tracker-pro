@@ -2,7 +2,7 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, Printer, FileSpreadsheet } from "lucide-react";
 import { type RapportMensuel } from "@/pages/Rapports";
 
 interface RapportsTableProps {
@@ -11,6 +11,15 @@ interface RapportsTableProps {
 }
 
 export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTableProps) {
+  const handlePrint = (rapport: RapportMensuel) => {
+    window.print();
+  };
+
+  const handleExportExcel = (rapport: RapportMensuel) => {
+    // La logique d'export Excel sera gérée au niveau supérieur
+    onDetailsClick(rapport);
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -40,13 +49,32 @@ export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTabl
               <TableCell className="text-right text-success">{rapport.paiementsComplets}</TableCell>
               <TableCell className="text-right text-warning">{rapport.paiementsAttente}</TableCell>
               <TableCell className="text-right">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => onDetailsClick(rapport)}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onDetailsClick(rapport)}
+                    title="Voir les détails"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handlePrint(rapport)}
+                    title="Imprimer"
+                  >
+                    <Printer className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleExportExcel(rapport)}
+                    title="Exporter en Excel"
+                  >
+                    <FileSpreadsheet className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
