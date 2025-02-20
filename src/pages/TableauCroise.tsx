@@ -61,14 +61,18 @@ const TableauCroise = () => {
     );
   };
 
-  const getMontantInscriptionPaye = (enfantId: number) => {
-    return paiements
-      .filter(p => 
-        p.enfantId === enfantId && 
-        p.typePaiement === "inscription" &&
-        p.anneeScolaire === selectedAnneeScolaire
-      )
-      .reduce((sum, p) => sum + p.montant, 0);
+  const getMontantInscription = (enfantId: number) => {
+    const enfant = enfants.find(e => e.id === enfantId);
+    return {
+      montantTotal: enfant?.montantTotal || 0,
+      montantPaye: paiements
+        .filter(p => 
+          p.enfantId === enfantId && 
+          p.typePaiement === "inscription" &&
+          p.anneeScolaire === selectedAnneeScolaire
+        )
+        .reduce((sum, p) => sum + p.montant, 0)
+    };
   };
 
   const handlePrint = () => {
@@ -80,10 +84,11 @@ const TableauCroise = () => {
       const data = enfants
         .filter(e => e.anneeScolaire === selectedAnneeScolaire)
         .map(enfant => {
+          const inscription = getMontantInscription(enfant.id);
           const row: any = {
             "Nom": `${enfant.prenom} ${enfant.nom}`,
             "Date d'inscription": enfant.dateInscription ? new Date(enfant.dateInscription).toLocaleDateString() : "-",
-            "Frais d'inscription payés": `${getMontantInscriptionPaye(enfant.id)} DH`,
+            "Frais d'inscription payés": `${inscription.montantPaye}/${inscription.montantTotal} DH`,
           };
 
           moisScolaires.forEach(mois => {
@@ -174,7 +179,7 @@ const TableauCroise = () => {
                       <TableHead rowSpan={2} className="bg-muted">Nom</TableHead>
                       <TableHead rowSpan={2} className="bg-muted">Date d'inscription</TableHead>
                       <TableHead rowSpan={2} className="bg-muted text-right">
-                        Frais d'inscription payés
+                        Frais d'inscription & Assurance & Fournitures payés
                       </TableHead>
                       <TableHead colSpan={10} className="text-center bg-muted">
                         Paiements mensuels
@@ -191,30 +196,37 @@ const TableauCroise = () => {
                   <TableBody>
                     {enfants
                       .filter(e => e.anneeScolaire === selectedAnneeScolaire)
-                      .map((enfant) => (
-                        <TableRow key={enfant.id}>
-                          <TableCell className="font-medium">
-                            {enfant.prenom} {enfant.nom}
-                          </TableCell>
-                          <TableCell>
-                            {enfant.dateInscription ? new Date(enfant.dateInscription).toLocaleDateString() : "-"}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {getMontantInscriptionPaye(enfant.id)} DH
-                          </TableCell>
-                          {moisScolaires.map((mois) => {
-                            const paiement = getPaiementMensuel(enfant.id, mois);
-                            return (
-                              <TableCell 
-                                key={`${enfant.id}-${mois}`} 
-                                className={`text-right ${paiement ? "bg-green-50" : "bg-red-50"}`}
-                              >
-                                {paiement ? `${paiement.montant} DH` : "-"}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-                    ))}
+                      .map((enfant) => {
+                        const inscription = getMontantInscription(enfant.id);
+                        return (
+                          <TableRow key={enfant.id}>
+                            <TableCell className="font-medium">
+                              {enfant.prenom} {enfant.nom}
+                            </TableCell>
+                            <TableCell>
+                              {enfant.dateInscription ? new Date(enfant.dateInscription).toLocaleDateString() : "-"}
+                            </TableCell>
+                            <TableCell className={`text-right ${
+                              inscription.montantPaye >= inscription.montantTotal 
+                                ? "bg-green-50" 
+                                : "bg-red-50"
+                            }`}>
+                              {inscription.montantPaye}/{inscription.montantTotal} DH
+                            </TableCell>
+                            {moisScolaires.map((mois) => {
+                              const paiement = getPaiementMensuel(enfant.id, mois);
+                              return (
+                                <TableCell 
+                                  key={`${enfant.id}-${mois}`} 
+                                  className={`text-right ${paiement ? "bg-green-50" : "bg-red-50"}`}
+                                >
+                                  {paiement ? `${paiement.montant} DH` : "-"}
+                                </TableCell>
+                              );
+                            })}
+                          </TableRow>
+                        );
+                      })}
                   </TableBody>
                 </Table>
               </CardContent>
