@@ -34,7 +34,7 @@ export function RapportsHeader({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label className="mb-2 block">Date de début</Label>
+            <Label className="mb-2 block">Date début inscription</Label>
             <Input
               type="date"
               value={dateDebut}
@@ -44,7 +44,7 @@ export function RapportsHeader({
           </div>
 
           <div>
-            <Label className="mb-2 block">Date de fin</Label>
+            <Label className="mb-2 block">Date fin inscription</Label>
             <Input
               type="date"
               value={dateFin}
