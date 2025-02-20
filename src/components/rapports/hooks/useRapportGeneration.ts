@@ -23,35 +23,30 @@ export const useRapportGeneration = (
       
       const moisAGenerer = [];
       
-      // Si un mois spécifique est sélectionné
       if (moisSelectionne !== "Tous les mois") {
         const moisIndex = Object.keys(moisDisponibles).indexOf(moisSelectionne);
         const annee = moisIndex >= 8 ? parseInt(anneeDebut) : parseInt(anneeFin);
         moisAGenerer.push(new Date(annee, moisIndex));
       } else {
-        // Générer les mois de septembre à décembre de l'année de début
         for (let mois = 8; mois < 12; mois++) {
           moisAGenerer.push(new Date(parseInt(anneeDebut), mois));
         }
         
-        // Générer les mois de janvier à juin de l'année de fin
         for (let mois = 0; mois <= 6; mois++) {
           moisAGenerer.push(new Date(parseInt(anneeFin), mois));
         }
       }
 
       for (const date of moisAGenerer) {
-        if (date.getMonth() !== 7) { // Exclure août
+        if (date.getMonth() !== 7) {
           const moisCourant = date.toISOString().slice(0, 7);
           const anneeScolaireFormatted = anneeScolaireSelectionnee.replace("/", "-");
 
-          // Filtrer les enfants actifs pour cette année scolaire
           const enfantsActifs = enfants.filter(enfant => 
             enfant.anneeScolaire === anneeScolaireFormatted &&
             enfant.statut === "actif"
           );
 
-          // Filtrer les paiements mensuels pour ce mois et cette année scolaire
           const paiementsMensuels = paiements.filter(paiement => {
             const moisConcerne = new Date(paiement.moisConcerne);
             return moisConcerne.getMonth() === date.getMonth() && 
@@ -60,7 +55,6 @@ export const useRapportGeneration = (
                    paiement.anneeScolaire === anneeScolaireFormatted;
           });
 
-          // Récupérer les montants totaux d'inscription pour les enfants actifs de cette année scolaire
           let totalFraisInscription = 0;
           try {
             const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -82,14 +76,12 @@ export const useRapportGeneration = (
             console.error("Erreur lors du calcul des frais d'inscription:", error);
           }
 
-          // Trouver les enfants avec paiement pour ce mois
           const enfantsAvecPaiement = new Set(paiementsMensuels.map(p => p.enfantId));
           const enfantsPaye = Array.from(enfantsAvecPaiement);
           const enfantsNonPaye = enfantsActifs
             .filter(enfant => !enfantsAvecPaiement.has(enfant.id))
             .map(enfant => enfant.id);
 
-          // Calculer le total des paiements mensuels
           const totalPaiementsMensuels = paiementsMensuels.reduce((sum, paiement) => 
             sum + paiement.montant, 0
           );

@@ -22,6 +22,7 @@ import {
 export type RapportMensuel = {
   mois: string;
   totalPaiements: number;
+  totalFraisInscription: number;
   nombreEnfants: number;
   paiementsComplets: number;
   paiementsAttente: number;

@@ -25,7 +25,8 @@ export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTabl
             year: "numeric"
           }),
           "Total mensualités": rapport.totalPaiements,
-          "Total général": rapport.totalPaiements,
+          "Total Frais inscription": rapport.totalFraisInscription,
+          "Total général": rapport.totalPaiements + rapport.totalFraisInscription,
           "Paiements complétés": rapport.paiementsComplets,
           "Paiements en attente": rapport.paiementsAttente
         }
@@ -47,6 +48,7 @@ export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTabl
           <TableRow>
             <TableHead>Mois</TableHead>
             <TableHead className="text-right">Total mensualités</TableHead>
+            <TableHead className="text-right">Total Frais inscription</TableHead>
             <TableHead className="text-right">Total général</TableHead>
             <TableHead className="text-right">Paiements complétés</TableHead>
             <TableHead className="text-right">Paiements en attente</TableHead>
@@ -63,7 +65,8 @@ export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTabl
                 })}
               </TableCell>
               <TableCell className="text-right">{rapport.totalPaiements} DH</TableCell>
-              <TableCell className="text-right">{rapport.totalPaiements} DH</TableCell>
+              <TableCell className="text-right">{rapport.totalFraisInscription} DH</TableCell>
+              <TableCell className="text-right">{rapport.totalPaiements + rapport.totalFraisInscription} DH</TableCell>
               <TableCell className="text-right text-success">{rapport.paiementsComplets}</TableCell>
               <TableCell className="text-right text-warning">{rapport.paiementsAttente}</TableCell>
               <TableCell className="text-right">
