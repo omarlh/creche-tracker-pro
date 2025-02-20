@@ -1,8 +1,7 @@
 
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { AlertTriangle, Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -26,31 +25,9 @@ export interface RetardPaiement {
 
 interface RetardsTableProps {
   retards: RetardPaiement[];
-  onEnvoyerRappel: (retardId: number, gsmMaman?: string, gsmPapa?: string) => void;
 }
 
-export const RetardsTable = ({ retards, onEnvoyerRappel }: RetardsTableProps) => {
-  const formatMessage = (retard: RetardPaiement) => {
-    const typeRetard = retard.type === 'inscription' ? "frais d'inscription" : "mensualité";
-    const periode = retard.type === 'inscription' 
-      ? "l'inscription" 
-      : format(new Date(retard.moisConcerne), 'MMMM yyyy', { locale: fr });
-    
-    const message = `Bonjour, nous vous rappelons que le paiement de ${typeRetard} pour ${retard.enfantPrenom} ${retard.enfantNom} ` +
-      `pour ${periode} d'un montant de ${retard.montantDu} DH est en retard de ${retard.joursRetard} jours. ` +
-      `Merci de régulariser la situation dès que possible.`;
-    
-    return encodeURIComponent(message);
-  };
-
-  const handleWhatsAppClick = (retard: RetardPaiement) => {
-    onEnvoyerRappel(retard.id);
-    const message = formatMessage(retard);
-    // Utilisez une chaîne de caractères simple plutôt que l'API URL
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${message}`;
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-  };
-
+export const RetardsTable = ({ retards }: RetardsTableProps) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100">
       <Table>
@@ -62,7 +39,6 @@ export const RetardsTable = ({ retards, onEnvoyerRappel }: RetardsTableProps) =>
             <TableHead>Montant dû</TableHead>
             <TableHead>Jours de retard</TableHead>
             <TableHead>Dernier rappel</TableHead>
-            <TableHead className="text-right print:hidden">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -102,18 +78,6 @@ export const RetardsTable = ({ retards, onEnvoyerRappel }: RetardsTableProps) =>
                 ) : (
                   <span className="text-muted-foreground">Aucun rappel</span>
                 )}
-              </TableCell>
-              <TableCell className="text-right print:hidden">
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleWhatsAppClick(retard)}
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    Envoyer rappel
-                  </Button>
-                </div>
               </TableCell>
             </TableRow>
           ))}

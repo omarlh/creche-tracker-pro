@@ -1,7 +1,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { RetardsHeader } from "@/components/retards/RetardsHeader";
@@ -125,14 +124,6 @@ export default function Retards() {
     };
   }, [retardsPaiement]);
 
-  const handleEnvoyerRappel = useCallback((retardId: number) => {
-    const maintenant = new Date().toISOString();
-    toast({
-      title: "Rappel envoyé",
-      description: "Le rappel de paiement WhatsApp a été ouvert.",
-    });
-  }, [toast]);
-
   const handlePrint = () => {
     window.print();
   };
@@ -211,7 +202,6 @@ export default function Retards() {
 
             <RetardsTable
               retards={retardsPaiement}
-              onEnvoyerRappel={handleEnvoyerRappel}
             />
           </div>
         </div>
