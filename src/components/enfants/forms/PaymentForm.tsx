@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { type Enfant } from "@/data/enfants";
@@ -35,7 +34,7 @@ export const PaymentForm = ({
           type="number"
           min="0"
           step="0.01"
-          defaultValue={selectedEnfant?.fraisInscription?.montantTotal || 300}
+          defaultValue={selectedEnfant?.fraisInscription?.montantTotal || 800}
           required
         />
       </div>
