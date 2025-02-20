@@ -38,15 +38,15 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
       return;
     }
 
-    const formattedData = data.map(p => ({
+    const formattedData: Paiement[] = data.map(p => ({
       id: p.id,
       enfantId: p.enfant_id,
       montant: p.montant,
       datePaiement: p.date_paiement,
       moisConcerne: p.mois_concerne,
-      methodePaiement: p.methode_paiement,
-      statut: p.statut,
-      typePaiement: p.type_paiement,
+      methodePaiement: p.methode_paiement as "carte" | "especes" | "cheque",
+      statut: p.statut as "complete" | "en_attente",
+      typePaiement: p.type_paiement as "mensualite" | "inscription",
       commentaire: p.commentaire
     }));
 
@@ -74,18 +74,20 @@ export const usePaiementStore = create<PaiementStore>((set) => ({
       return;
     }
 
+    const nouveauPaiement: Paiement = {
+      id: data.id,
+      enfantId: data.enfant_id,
+      montant: data.montant,
+      datePaiement: data.date_paiement,
+      moisConcerne: data.mois_concerne,
+      methodePaiement: data.methode_paiement,
+      statut: data.statut,
+      typePaiement: data.type_paiement,
+      commentaire: data.commentaire
+    };
+
     set(state => ({
-      paiements: [...state.paiements, {
-        id: data.id,
-        enfantId: data.enfant_id,
-        montant: data.montant,
-        datePaiement: data.date_paiement,
-        moisConcerne: data.mois_concerne,
-        methodePaiement: data.methode_paiement,
-        statut: data.statut,
-        typePaiement: data.type_paiement,
-        commentaire: data.commentaire
-      }]
+      paiements: [...state.paiements, nouveauPaiement]
     }));
   },
 

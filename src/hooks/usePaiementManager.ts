@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePaiementStore, type Paiement } from "@/data/paiements";
@@ -45,22 +46,21 @@ export const usePaiementManager = () => {
   };
 
   const handleSubmit = (data: any) => {
-    const { enfantId, anneeScolaire, mois, montant, datePaiement, methodePaiement, commentaire, moisConcerne, statut } = data;
+    const { enfantId, montant, datePaiement, methodePaiement, commentaire, moisConcerne, statut, typePaiement } = data;
 
-    const nouveauPaiement = {
+    const nouveauPaiement: Omit<Paiement, "id"> = {
       enfantId: parseInt(enfantId),
-      anneeScolaire,
-      mois,
       montant: parseFloat(montant),
       datePaiement,
       methodePaiement,
       commentaire,
       moisConcerne,
-      statut
+      statut,
+      typePaiement
     };
 
     if (selectedPaiement) {
-      const paiementModifie = {
+      const paiementModifie: Paiement = {
         ...nouveauPaiement,
         id: selectedPaiement.id,
       };
@@ -87,13 +87,12 @@ export const usePaiementManager = () => {
     moisDisponibles.forEach(mois => {
       const nouveauPaiement: Omit<Paiement, "id"> = {
         enfantId,
-        anneeScolaire,
-        mois: mois.toLowerCase(),
         montant: defaultMontant,
         datePaiement: new Date().toISOString().split('T')[0],
         moisConcerne: mois.toLowerCase(),
-        methodePaiement: "especes" as const,
-        statut: "en_attente" as const,
+        methodePaiement: "especes",
+        statut: "en_attente",
+        typePaiement: "mensualite",
         commentaire: `Paiement mensuel pour ${mois}`
       };
       ajouterPaiement(nouveauPaiement);
