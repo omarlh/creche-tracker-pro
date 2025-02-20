@@ -46,10 +46,9 @@ export const RetardsTable = ({ retards, onEnvoyerRappel }: RetardsTableProps) =>
   const handleWhatsAppClick = (retard: RetardPaiement) => {
     onEnvoyerRappel(retard.id);
     const message = formatMessage(retard);
-    const baseUrl = "https://api.whatsapp.com/send";
-    const url = new URL(baseUrl);
-    url.searchParams.append("text", decodeURIComponent(message));
-    window.open(url.toString(), '_blank');
+    // Utilisez une chaîne de caractères simple plutôt que l'API URL
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${message}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
