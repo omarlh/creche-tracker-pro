@@ -172,7 +172,7 @@ const TableauCroise = () => {
                       <TableHead rowSpan={2} className="bg-muted">Nom</TableHead>
                       <TableHead rowSpan={2} className="bg-muted">Date d'inscription</TableHead>
                       <TableHead rowSpan={2} className="bg-muted text-right">
-                        Frais d'inscription & Assurance & Fournitures payés
+                        Frais d'inscription
                       </TableHead>
                       <TableHead colSpan={10} className="text-center bg-muted">
                         Paiements mensuels
