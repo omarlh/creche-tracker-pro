@@ -14,6 +14,7 @@ export type Database = {
           annee_scolaire: string | null
           assurance_declaree: boolean | null
           classe: string | null
+          date_assurance: string | null
           date_fin_inscription: string | null
           date_inscription: string | null
           date_naissance: string | null
@@ -32,6 +33,7 @@ export type Database = {
           annee_scolaire?: string | null
           assurance_declaree?: boolean | null
           classe?: string | null
+          date_assurance?: string | null
           date_fin_inscription?: string | null
           date_inscription?: string | null
           date_naissance?: string | null
@@ -50,6 +52,7 @@ export type Database = {
           annee_scolaire?: string | null
           assurance_declaree?: boolean | null
           classe?: string | null
+          date_assurance?: string | null
           date_fin_inscription?: string | null
           date_inscription?: string | null
           date_naissance?: string | null
