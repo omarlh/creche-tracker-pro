@@ -1,55 +1,53 @@
 
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { CaisseJournaliereHeader } from "@/components/caisse/CaisseJournaliereHeader";
 import { CaisseJournaliereTableau } from "@/components/caisse/CaisseJournaliereTableau";
-import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 
 const CaisseJournaliere = () => {
-  const [dateSelectionnee, setDateSelectionnee] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
-  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleEdit = (id: number) => {
-    // Handle edit action
-    toast({
-      title: "Modification",
-      description: `Modification du paiement ${id}`,
-    });
-  };
+  const handlePrint = () => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .print-content, .print-content * {
+          visibility: visible;
+        }
+        .print-content {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
 
-  const handleDelete = (id: number) => {
-    // Handle delete action
-    toast({
-      title: "Suppression",
-      description: `Suppression du paiement ${id}`,
-    });
+    window.print();
+
+    document.head.removeChild(style);
   };
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full animate-fadeIn">
+      <div className="min-h-screen flex">
         <AppSidebar />
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8 animate-fadeIn">
           <div className="max-w-6xl mx-auto">
-            <div className="mb-6">
-              <h1 className="text-3xl font-semibold tracking-tight">
-                Caisse Journalière
-              </h1>
-            </div>
-
-            <CaisseJournaliereHeader 
-              dateSelectionnee={dateSelectionnee}
-              onDateChange={setDateSelectionnee}
+            <CaisseJournaliereHeader
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              onPrint={handlePrint}
             />
-
-            <CaisseJournaliereTableau 
-              dateSelectionnee={dateSelectionnee}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <CaisseJournaliereTableau searchTerm={searchTerm} />
           </div>
         </main>
       </div>
@@ -58,4 +56,3 @@ const CaisseJournaliere = () => {
 };
 
 export default CaisseJournaliere;
-
