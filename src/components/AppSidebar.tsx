@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 export const AppSidebar = () => {
   const navLinks = [
     { to: "/", icon: <Home size={16} />, label: "Tableau de bord" },
-    { to: "/enfants", icon: <Users size={16} />, label: "Enfants" },
+    { to: "/enfants", icon: <Users size={16} />, label: "Enfants - Inscription" },
     { to: "/paiements", icon: <CreditCard size={16} />, label: "Paiements des frais de Scolarité" },
     { to: "/liste-annuelle", icon: <CalendarDays size={16} />, label: "Liste Annuelle" },
     { to: "/retards", icon: <Clock size={16} />, label: "Retards de Paiement" },
@@ -50,4 +50,3 @@ export const AppSidebar = () => {
     </Sidebar>
   );
 };
-
