@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useState } from "react";
 import { useEnfantStore, type Enfant } from "@/data/enfants";
@@ -79,7 +78,31 @@ const Rapports: React.FC = () => {
   };
 
   const handlePrintRapport = () => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .print-content, .print-content * {
+          visibility: visible;
+        }
+        .print-content {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
     window.print();
+
+    document.head.removeChild(style);
   };
 
   const handleDetailsClick = (rapport: RapportMensuel) => {
@@ -148,4 +171,3 @@ const Rapports: React.FC = () => {
 };
 
 export default Rapports;
-

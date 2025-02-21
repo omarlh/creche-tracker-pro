@@ -22,15 +22,46 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
     });
   };
 
+  const handlePrint = () => {
+    // Add print-specific styles
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .print-content, .print-content * {
+          visibility: visible;
+        }
+        .print-content {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Call the print function
+    window.print();
+
+    // Remove the style after printing
+    document.head.removeChild(style);
+  };
+
   return (
-    <div className="space-y-6 p-4 bg-background rounded-lg border">
+    <div className="space-y-6 p-4 bg-background rounded-lg border print-content">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Rapport Mensuel</h2>
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={onPrint}
-          className="print:hidden hover:bg-secondary/80"
+          onClick={handlePrint}
+          className="no-print hover:bg-secondary/80"
         >
           <Printer className="h-4 w-4 mr-2" />
           Imprimer le rapport
