@@ -9,13 +9,10 @@ import * as XLSX from 'xlsx';
 interface RapportsTableProps {
   rapportsMensuels: RapportMensuel[];
   onDetailsClick: (rapport: RapportMensuel) => void;
+  onPrint: () => void;
 }
 
-export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTableProps) {
-  const handlePrint = (rapport: RapportMensuel) => {
-    window.print();
-  };
-
+export function RapportsTable({ rapportsMensuels, onDetailsClick, onPrint }: RapportsTableProps) {
   const handleExportExcel = (rapport: RapportMensuel) => {
     try {
       const data = [
@@ -78,7 +75,7 @@ export function RapportsTable({ rapportsMensuels, onDetailsClick }: RapportsTabl
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => handlePrint(rapport)}
+                    onClick={onPrint}
                     title="Imprimer"
                   >
                     <Printer className="h-4 w-4" />
