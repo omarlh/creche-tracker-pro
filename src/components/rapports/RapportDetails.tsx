@@ -13,7 +13,6 @@ interface RapportDetailsProps {
 }
 
 export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: RapportDetailsProps) {
-  // Formater la date en français
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('fr-FR', {
@@ -24,47 +23,48 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 bg-background rounded-lg border">
       <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Rapport Mensuel</h2>
         <Button 
           variant="outline" 
           size="sm" 
           onClick={onPrint}
-          className="print:hidden"
+          className="print:hidden hover:bg-secondary/80"
         >
           <Printer className="h-4 w-4 mr-2" />
-          Imprimer
+          Imprimer le rapport
         </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
+        <div className="p-4 bg-secondary/10 rounded-lg">
           <h4 className="text-sm font-medium text-gray-500">Total des paiements</h4>
           <p className="text-lg font-semibold mt-1">{rapport.totalPaiements} DH</p>
         </div>
-        <div>
+        <div className="p-4 bg-secondary/10 rounded-lg">
           <h4 className="text-sm font-medium text-gray-500">Total des frais d'inscription</h4>
           <p className="text-lg font-semibold mt-1">{rapport.totalFraisInscription} DH</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
+        <div className="p-4 bg-success/10 rounded-lg">
           <h4 className="text-sm font-medium text-gray-500">Paiements complétés</h4>
           <p className="text-lg font-semibold text-success mt-1">{rapport.paiementsComplets}</p>
         </div>
-        <div>
+        <div className="p-4 bg-warning/10 rounded-lg">
           <h4 className="text-sm font-medium text-gray-500">Paiements en attente</h4>
           <p className="text-lg font-semibold text-warning mt-1">{rapport.paiementsAttente}</p>
         </div>
       </div>
 
-      <div>
+      <div className="p-4 bg-primary/5 rounded-lg">
         <h4 className="text-sm font-medium text-gray-500">Taux de recouvrement</h4>
         <p className="text-lg font-semibold mt-1">{rapport.tauxRecouvrement}%</p>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-8">
         <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
           <BadgeCheck className="w-4 h-4 mr-2 text-success" />
           Enfants ayant payé
@@ -74,7 +74,6 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
             const enfant = getEnfantById(enfantId);
             if (!enfant) return null;
 
-            // Filtrer les paiements de cet enfant
             const paiementsEnfant = paiements.filter(p => p.enfantId === enfantId);
 
             return (
@@ -118,7 +117,7 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-8">
         <h4 className="text-sm font-medium text-gray-500 mb-3 flex items-center">
           <AlertCircle className="w-4 h-4 mr-2 text-warning" />
           Enfants en attente de paiement
@@ -127,7 +126,7 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
           {rapport.enfantsNonPaye.map((enfantId) => {
             const enfant = getEnfantById(enfantId);
             return enfant ? (
-              <div key={enfant.id} className="p-2 bg-warning/5 rounded-md">
+              <div key={enfant.id} className="p-4 bg-warning/5 rounded-lg">
                 <p className="text-sm font-medium">
                   {enfant.prenom} {enfant.nom}
                 </p>
@@ -142,4 +141,3 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
     </div>
   );
 }
-
