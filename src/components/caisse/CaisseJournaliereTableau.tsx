@@ -16,11 +16,32 @@ interface CaisseJournaliereTableauProps {
 export function CaisseJournaliereTableau({
   searchTerm
 }: CaisseJournaliereTableauProps) {
-  const { paiements } = usePaiementStore();
+  const { paiements, supprimerPaiement } = usePaiementStore();
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
   const totalPaiements = paiements.reduce((sum, p) => sum + p.montant, 0);
+
+  const handleEdit = (id: number) => {
+    // For now, we'll just log the edit action
+    console.log('Edit paiement:', id);
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await supprimerPaiement(id);
+      toast({
+        title: "Paiement supprimé",
+        description: "Le paiement a été supprimé avec succès",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handlePrint = () => {
     const style = document.createElement('style');
@@ -112,6 +133,8 @@ export function CaisseJournaliereTableau({
                   key={paiement.id}
                   paiement={paiement}
                   enfant={enfants.find((e) => e.id === paiement.enfantId)}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
                 />
               ))}
             </TableBody>
