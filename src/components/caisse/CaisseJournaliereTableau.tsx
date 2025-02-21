@@ -10,25 +10,17 @@ import { TableauHeader } from "./TableauHeader";
 import { TableauLigne } from "./TableauLigne";
 
 interface CaisseJournaliereTableauProps {
-  dateSelectionnee: string;
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
+  searchTerm: string;
 }
 
 export function CaisseJournaliereTableau({
-  dateSelectionnee,
-  onEdit,
-  onDelete,
+  searchTerm
 }: CaisseJournaliereTableauProps) {
   const { paiements } = usePaiementStore();
   const { enfants } = useEnfantStore();
   const { toast } = useToast();
 
-  const paiementsDuJour = paiements.filter(
-    (paiement) => paiement.datePaiement === dateSelectionnee
-  );
-
-  const totalPaiements = paiementsDuJour.reduce((sum, p) => sum + p.montant, 0);
+  const totalPaiements = paiements.reduce((sum, p) => sum + p.montant, 0);
 
   const handlePrint = () => {
     const style = document.createElement('style');
@@ -60,7 +52,7 @@ export function CaisseJournaliereTableau({
 
   const handleExportExcel = () => {
     try {
-      const data = paiementsDuJour.map((paiement) => {
+      const data = paiements.map((paiement) => {
         const enfant = enfants.find((e) => e.id === paiement.enfantId);
         return {
           Enfant: enfant ? `${enfant.prenom} ${enfant.nom}` : "Inconnu",
@@ -75,7 +67,7 @@ export function CaisseJournaliereTableau({
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Paiements");
-      XLSX.writeFile(wb, `paiements_${dateSelectionnee}.xlsx`);
+      XLSX.writeFile(wb, `paiements_${new Date().toISOString().split('T')[0]}.xlsx`);
 
       toast({
         title: "Export réussi",
@@ -91,6 +83,17 @@ export function CaisseJournaliereTableau({
     }
   };
 
+  const filteredPaiements = paiements.filter(paiement => {
+    const enfant = enfants.find(e => e.id === paiement.enfantId);
+    const searchTermLower = searchTerm.toLowerCase();
+    return (
+      enfant?.nom.toLowerCase().includes(searchTermLower) ||
+      enfant?.prenom.toLowerCase().includes(searchTermLower) ||
+      paiement.montant.toString().includes(searchTerm) ||
+      paiement.methodePaiement.toLowerCase().includes(searchTermLower)
+    );
+  });
+
   return (
     <Card>
       <div className="p-6">
@@ -104,13 +107,11 @@ export function CaisseJournaliereTableau({
           <Table>
             <TableauHeader />
             <TableBody>
-              {paiementsDuJour.map((paiement) => (
+              {filteredPaiements.map((paiement) => (
                 <TableauLigne
                   key={paiement.id}
                   paiement={paiement}
                   enfant={enfants.find((e) => e.id === paiement.enfantId)}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
                 />
               ))}
             </TableBody>
@@ -120,3 +121,4 @@ export function CaisseJournaliereTableau({
     </Card>
   );
 }
+
