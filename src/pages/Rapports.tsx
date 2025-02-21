@@ -105,12 +105,14 @@ const Rapports: React.FC = () => {
                   onDateDebutChange={setDateDebut}
                   onDateFinChange={setDateFin}
                   onExport={handleExportRapport}
+                  titre="Caisse Journalière"
                 />
 
                 <StatisticsCards rapportsMensuels={rapportsMensuels} />
                 <RapportsTable 
                   rapportsMensuels={rapportsMensuels}
                   onDetailsClick={handleDetailsClick}
+                  onPrint={handlePrintRapport}
                 />
               </div>
             </div>
@@ -146,3 +148,4 @@ const Rapports: React.FC = () => {
 };
 
 export default Rapports;
+

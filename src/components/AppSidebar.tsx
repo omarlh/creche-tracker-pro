@@ -18,11 +18,11 @@ export const AppSidebar = () => {
   const navLinks = [
     { to: "/", icon: <Home size={16} />, label: "Tableau de bord" },
     { to: "/enfants", icon: <Users size={16} />, label: "Enfants" },
-    { to: "/paiements", icon: <CreditCard size={16} />, label: "Paiements" },
+    { to: "/paiements", icon: <CreditCard size={16} />, label: "Paiements des frais de Scolarité" },
     { to: "/liste-annuelle", icon: <CalendarDays size={16} />, label: "Liste Annuelle" },
     { to: "/retards", icon: <Clock size={16} />, label: "Retards de Paiement" },
     { to: "/depart", icon: <LogOut size={16} />, label: "Départs" },
-    { to: "/rapports", icon: <BarChart size={16} />, label: "Rapports" },
+    { to: "/rapports", icon: <BarChart size={16} />, label: "Caisse Journalière" },
     { to: "/tableau-croise", icon: <TableProperties size={16} />, label: "Tableau Croisé" }
   ];
 
@@ -50,3 +50,4 @@ export const AppSidebar = () => {
     </Sidebar>
   );
 };
+

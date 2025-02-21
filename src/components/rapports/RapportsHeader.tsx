@@ -11,6 +11,7 @@ interface RapportsHeaderProps {
   onDateDebutChange: (date: string) => void;
   onDateFinChange: (date: string) => void;
   onExport: () => void;
+  titre: string;
 }
 
 export function RapportsHeader({ 
@@ -18,14 +19,15 @@ export function RapportsHeader({
   dateFin, 
   onDateDebutChange, 
   onDateFinChange,
-  onExport 
+  onExport,
+  titre
 }: RapportsHeaderProps) {
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6">Rapports des encaissements par Date</h2>
+      <h2 className="text-2xl font-semibold mb-6">{titre}</h2>
       <div className="flex flex-col space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-semibold">Rapports des encaissements</h1>
+          <h1 className="text-3xl font-semibold">{titre}</h1>
           <Button onClick={onExport}>
             <Download className="w-4 h-4 mr-2" />
             Exporter
@@ -57,3 +59,4 @@ export function RapportsHeader({
     </div>
   );
 }
+

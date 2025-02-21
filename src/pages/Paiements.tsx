@@ -1,4 +1,3 @@
-
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -57,7 +56,7 @@ const Paiements = () => {
           <div className="max-w-6xl mx-auto">
             <div className="mb-6">
               <h1 className="text-3xl font-semibold tracking-tight">
-                Gestion des Paiements de Scolarité
+                Paiements des frais de Scolarité
               </h1>
             </div>
 
