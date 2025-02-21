@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Printer, FileSpreadsheet } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { useToast } from "@/components/ui/use-toast";
+import { EnfantSearchBar } from "@/components/enfants/search/EnfantSearchBar";
 import {
   Table,
   TableBody,
@@ -45,6 +46,7 @@ const TableauCroise = () => {
   const { paiements, fetchPaiements } = usePaiementStore();
   const [selectedAnneeScolaire, setSelectedAnneeScolaire] = useState("2024-2025");
   const [selectedClasse, setSelectedClasse] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
   const genererAnnesScolaires = () => {
@@ -98,6 +100,10 @@ const TableauCroise = () => {
       const data = enfants
         .filter(e => e.anneeScolaire === selectedAnneeScolaire)
         .filter(e => selectedClasse === "all" || e.classe === selectedClasse)
+        .filter(e => {
+          const fullName = `${e.prenom} ${e.nom}`.toLowerCase();
+          return fullName.includes(searchTerm.toLowerCase());
+        })
         .map(enfant => {
           const inscription = getMontantInscription(enfant.id);
           const row: any = {
@@ -203,6 +209,13 @@ const TableauCroise = () => {
               </div>
             </div>
 
+            <div className="mb-4">
+              <EnfantSearchBar
+                searchTerm={searchTerm}
+                onSearch={setSearchTerm}
+              />
+            </div>
+
             <Card>
               <CardHeader>
                 <CardTitle>
@@ -235,6 +248,10 @@ const TableauCroise = () => {
                     {enfants
                       .filter(e => e.anneeScolaire === selectedAnneeScolaire)
                       .filter(e => selectedClasse === "all" || e.classe === selectedClasse)
+                      .filter(e => {
+                        const fullName = `${e.prenom} ${e.nom}`.toLowerCase();
+                        return fullName.includes(searchTerm.toLowerCase());
+                      })
                       .map((enfant) => {
                         const inscription = getMontantInscription(enfant.id);
                         return (
@@ -281,3 +298,4 @@ const TableauCroise = () => {
 };
 
 export default TableauCroise;
+
