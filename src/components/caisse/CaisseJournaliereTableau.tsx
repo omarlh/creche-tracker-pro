@@ -1,115 +1,127 @@
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-
-interface Encaissement {
-  id: number;
-  enfantId: number;
-  nomComplet: string;
-  montant: number;
-  methodePaiement: string;
-  datePaiement: string;
-  moisConcerne?: string;
-}
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
 
 interface CaisseJournaliereTableauProps {
-  dateSelectionnee: string;
+  paiements: {
+    id: number;
+    montant: number;
+    datePaiement: string;
+    methodePaiement: string;
+    statut: string;
+    enfantId: number;
+  }[];
+  enfants: {
+    id: number;
+    nom: string;
+    prenom: string;
+  }[];
 }
 
-export const CaisseJournaliereTableau = ({
-  dateSelectionnee,
-}: CaisseJournaliereTableauProps) => {
-  const [encaissements, setEncaissements] = useState<Encaissement[]>([]);
-  const [totalJour, setTotalJour] = useState(0);
+export const CaisseJournaliereTableau = ({ paiements, enfants }: CaisseJournaliereTableauProps) => {
+  const handlePrint = () => {
+    const printContent = `
+      <html>
+        <head>
+          <title>Caisse Journalière</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #333; margin-bottom: 20px; text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+            th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            th { background-color: #f5f5f5; }
+            .total { font-weight: bold; margin-top: 20px; }
+            @media print {
+              button { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Caisse Journalière - ${new Date().toLocaleDateString('fr-FR')}</h1>
+          <table>
+            <thead>
+              <tr>
+                <th>Enfant</th>
+                <th>Montant</th>
+                <th>Date de paiement</th>
+                <th>Méthode</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${paiements.map(paiement => {
+                const enfant = enfants.find(e => e.id === paiement.enfantId);
+                return `
+                  <tr>
+                    <td>${enfant ? `${enfant.prenom} ${enfant.nom}` : 'Inconnu'}</td>
+                    <td>${paiement.montant} DH</td>
+                    <td>${new Date(paiement.datePaiement).toLocaleDateString('fr-FR')}</td>
+                    <td>${paiement.methodePaiement}</td>
+                    <td>${paiement.statut}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+          <div class="total">
+            Total: ${paiements.reduce((sum, p) => sum + p.montant, 0)} DH
+          </div>
+          <button onclick="window.print()" style="margin-top: 20px; padding: 10px 20px;">
+            Imprimer
+          </button>
+        </body>
+      </html>
+    `;
 
-  useEffect(() => {
-    const fetchEncaissements = async () => {
-      const { data: paiements, error: errorPaiements } = await supabase
-        .from('paiements')
-        .select(`
-          id,
-          enfant_id,
-          montant,
-          date_paiement,
-          methode_paiement,
-          mois_concerne,
-          enfants (
-            nom,
-            prenom
-          )
-        `)
-        .eq('date_paiement', dateSelectionnee);
-
-      if (errorPaiements) {
-        console.error('Erreur paiements:', errorPaiements);
-        return;
-      }
-
-      // Formatter les données
-      const encaissementsFormats: Encaissement[] = (paiements || []).map(p => ({
-        id: p.id,
-        enfantId: p.enfant_id,
-        nomComplet: `${p.enfants?.prenom} ${p.enfants?.nom}`,
-        montant: p.montant,
-        methodePaiement: p.methode_paiement || '',
-        datePaiement: p.date_paiement,
-        moisConcerne: p.mois_concerne
-      }));
-
-      setEncaissements(encaissementsFormats);
-      setTotalJour(encaissementsFormats.reduce((sum, e) => sum + e.montant, 0));
-    };
-
-    fetchEncaissements();
-  }, [dateSelectionnee]);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long'
-    });
+    const printWindow = window.open('', '', 'height=600,width=800');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-purple-100 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Total du Jour</h3>
-          <p className="text-2xl font-bold">{totalJour} DH</p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex justify-end mb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handlePrint}
+          className="print:hidden"
+        >
+          <Printer className="w-4 h-4 mr-2" />
+          Imprimer
+        </Button>
       </div>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Enfant</TableHead>
-            <TableHead>Montant</TableHead>
-            <TableHead>Méthode</TableHead>
-            <TableHead>Mois concerné</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {encaissements.map((encaissement) => (
-            <TableRow key={encaissement.id}>
-              <TableCell>{encaissement.nomComplet}</TableCell>
-              <TableCell>{encaissement.montant} DH</TableCell>
-              <TableCell>{encaissement.methodePaiement}</TableCell>
-              <TableCell>
-                {encaissement.moisConcerne ? formatDate(encaissement.moisConcerne) : "-"}
-              </TableCell>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Enfant</TableHead>
+              <TableHead>Montant</TableHead>
+              <TableHead>Date de paiement</TableHead>
+              <TableHead>Méthode</TableHead>
+              <TableHead>Statut</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {paiements.map((paiement) => {
+              const enfant = enfants.find(e => e.id === paiement.enfantId);
+              return (
+                <TableRow key={paiement.id}>
+                  <TableCell>{enfant ? `${enfant.prenom} ${enfant.nom}` : "Inconnu"}</TableCell>
+                  <TableCell>{paiement.montant} DH</TableCell>
+                  <TableCell>{new Date(paiement.datePaiement).toLocaleDateString("fr-FR")}</TableCell>
+                  <TableCell>{paiement.methodePaiement}</TableCell>
+                  <TableCell>{paiement.statut}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };
