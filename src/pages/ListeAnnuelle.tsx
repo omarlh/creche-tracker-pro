@@ -14,6 +14,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 import type { Classe } from "@/data/enfants";
 
 const anneesDisponibles = [
@@ -35,6 +38,7 @@ const ListeAnnuelle = () => {
   const { enfants, fetchEnfants } = useEnfantStore();
   const [selectedAnneeScolaire, setSelectedAnneeScolaire] = useState("all");
   const [selectedClasse, setSelectedClasse] = useState<string>("all");
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchEnfants();
@@ -50,6 +54,32 @@ const ListeAnnuelle = () => {
     if (statut === "actif") return "text-green-600 bg-green-50";
     if (statut === "inactif") return "text-gray-600 bg-gray-50";
     return "text-yellow-600 bg-yellow-50";
+  };
+
+  const handleAssuranceChange = async (enfantId: number, checked: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('enfants')
+        .update({ assurance_declaree: checked })
+        .eq('id', enfantId);
+
+      if (error) throw error;
+
+      await fetchEnfants();
+      
+      toast({
+        title: "Mise à jour réussie",
+        description: "Le statut d'assurance a été mis à jour avec succès.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du statut d\'assurance:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour du statut d'assurance.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -119,6 +149,7 @@ const ListeAnnuelle = () => {
                       <TableHead>Année Scolaire</TableHead>
                       <TableHead>Statut</TableHead>
                       <TableHead className="text-right">Frais Mensuel Négocié</TableHead>
+                      <TableHead className="text-center">Assurance</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -136,6 +167,15 @@ const ListeAnnuelle = () => {
                         <TableCell className="text-right">
                           {enfant.fraisScolariteMensuel} DH
                         </TableCell>
+                        <TableCell className="text-center">
+                          <Checkbox
+                            checked={enfant.assurance_declaree}
+                            onCheckedChange={(checked) => {
+                              handleAssuranceChange(enfant.id, checked as boolean);
+                            }}
+                            aria-label="Assurance déclarée"
+                          />
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -150,3 +190,4 @@ const ListeAnnuelle = () => {
 };
 
 export default ListeAnnuelle;
+

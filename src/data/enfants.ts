@@ -16,7 +16,7 @@ export type Enfant = {
   prenom: string;
   dateNaissance?: string;
   dateInscription?: string;
-  dateFinInscription?: string; // Ajout du nouveau champ
+  dateFinInscription?: string;
   classe?: Classe;
   gsmMaman?: string;
   gsmPapa?: string;
@@ -29,6 +29,7 @@ export type Enfant = {
   fraisScolariteMensuel?: number;
   statut?: "actif" | "inactif";
   dernierPaiement?: string;
+  assurance_declaree?: boolean;
 };
 
 type EnfantStore = {
@@ -46,7 +47,7 @@ type EnfantRow = {
   prenom: string;
   date_naissance: string | null;
   date_inscription: string | null;
-  date_fin_inscription: string | null; // Ajout du nouveau champ
+  date_fin_inscription: string | null;
   classe: string | null;
   gsm_maman: string | null;
   gsm_papa: string | null;
@@ -103,6 +104,7 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
         },
         statut: enfant.statut as "actif" | "inactif",
         dernierPaiement: enfant.dernier_paiement || undefined,
+        assurance_declaree: enfant.assurance_declaree || false,
       })) || [];
 
       console.log("Fetched enfants:", formattedEnfants);
@@ -134,6 +136,7 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
           frais_scolarite_mensuel: enfant.fraisScolariteMensuel || 800,
           statut: enfant.statut || "actif",
           dernier_paiement: enfant.dernierPaiement,
+          assurance_declaree: enfant.assurance_declaree || false,
         }])
         .select()
         .single();
@@ -187,6 +190,7 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
           frais_scolarite_mensuel: enfant.fraisScolariteMensuel,
           statut: enfant.statut,
           dernier_paiement: enfant.dernierPaiement,
+          assurance_declaree: enfant.assurance_declaree,
         })
         .eq('id', enfant.id);
 
@@ -262,6 +266,7 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
             frais_scolarite_mensuel: enfant.fraisScolariteMensuel,
             statut: enfant.statut,
             dernier_paiement: enfant.dernierPaiement,
+            assurance_declaree: enfant.assurance_declaree,
           }))
         );
 

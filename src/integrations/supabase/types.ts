@@ -12,6 +12,7 @@ export type Database = {
       enfants: {
         Row: {
           annee_scolaire: string | null
+          assurance_declaree: boolean | null
           classe: string | null
           date_fin_inscription: string | null
           date_inscription: string | null
@@ -29,6 +30,7 @@ export type Database = {
         }
         Insert: {
           annee_scolaire?: string | null
+          assurance_declaree?: boolean | null
           classe?: string | null
           date_fin_inscription?: string | null
           date_inscription?: string | null
@@ -46,6 +48,7 @@ export type Database = {
         }
         Update: {
           annee_scolaire?: string | null
+          assurance_declaree?: boolean | null
           classe?: string | null
           date_fin_inscription?: string | null
           date_inscription?: string | null
