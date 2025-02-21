@@ -5,6 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AnneeScolaireFilter } from "@/components/enfants/AnneeScolaireFilter";
 import { useEnfantStore } from "@/data/enfants";
+import * as XLSX from 'xlsx';
 import {
   Table,
   TableBody,
@@ -15,6 +16,8 @@ import {
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Printer, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import type { Classe } from "@/data/enfants";
@@ -82,6 +85,43 @@ const ListeAnnuelle = () => {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportExcel = () => {
+    try {
+      const data = filteredEnfants.map(enfant => ({
+        "Nom": enfant.nom,
+        "Prénom": enfant.prenom,
+        "Classe": enfant.classe || "",
+        "Année Scolaire": enfant.anneeScolaire || "",
+        "Statut": enfant.statut || "",
+        "Frais Mensuel": enfant.fraisScolariteMensuel || 0,
+        "Assurance Déclarée": enfant.assurance_declaree ? "Oui" : "Non"
+      }));
+
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Liste des Enfants");
+      
+      const fileName = `liste_enfants_${selectedAnneeScolaire === "all" ? "complete" : selectedAnneeScolaire}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+
+      toast({
+        title: "Export réussi",
+        description: "Le fichier Excel a été généré avec succès.",
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'export Excel:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'export Excel.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full animate-fadeIn">
@@ -92,9 +132,27 @@ const ListeAnnuelle = () => {
               <h1 className="text-3xl font-semibold tracking-tight">
                 Liste des Enfants par Année Scolaire
               </h1>
+              <div className="space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={handlePrint}
+                  className="print:hidden"
+                >
+                  <Printer className="h-4 w-4 mr-2" />
+                  Imprimer
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleExportExcel}
+                  className="print:hidden"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Export Excel
+                </Button>
+              </div>
             </div>
 
-            <div className="mb-6 flex gap-4">
+            <div className="mb-6 flex gap-4 print:hidden">
               <div className="flex-1">
                 <AnneeScolaireFilter
                   selectedAnneeScolaire={selectedAnneeScolaire}
@@ -190,4 +248,3 @@ const ListeAnnuelle = () => {
 };
 
 export default ListeAnnuelle;
-
