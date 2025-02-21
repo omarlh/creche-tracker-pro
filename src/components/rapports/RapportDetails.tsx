@@ -25,15 +25,17 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
 
   return (
     <div className="space-y-6">
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onClick={onPrint}
-        className="print:hidden"
-      >
-        <Printer className="w-4 h-4 mr-2" />
-        Imprimer
-      </Button>
+      <div className="flex justify-between items-center">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={onPrint}
+          className="print:hidden"
+        >
+          <Printer className="h-4 w-4 mr-2" />
+          Imprimer
+        </Button>
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -140,3 +142,4 @@ export function RapportDetails({ rapport, onPrint, getEnfantById, paiements }: R
     </div>
   );
 }
+
