@@ -78,19 +78,23 @@ export const CaisseJournaliereTableau = ({ dateSelectionnee }: CaisseJournaliere
       printWindow.document.write(printContent);
       printWindow.document.close();
       printWindow.focus();
+      printWindow.print();
     }
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-lg font-semibold">
+          Total: {paiementsDuJour.reduce((sum, p) => sum + p.montant, 0)} DH
+        </div>
         <Button
           variant="outline"
           size="sm"
           onClick={handlePrint}
           className="print:hidden"
         >
-          <Printer className="w-4 h-4 mr-2" />
+          <Printer className="h-4 w-4 mr-2" />
           Imprimer
         </Button>
       </div>
