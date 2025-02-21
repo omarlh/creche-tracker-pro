@@ -2,24 +2,28 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
+import { usePaiementStore } from "@/data/paiements";
+import { useEnfantStore } from "@/data/enfants";
+import { useEffect } from "react";
 
 interface CaisseJournaliereTableauProps {
-  paiements: {
-    id: number;
-    montant: number;
-    datePaiement: string;
-    methodePaiement: string;
-    statut: string;
-    enfantId: number;
-  }[];
-  enfants: {
-    id: number;
-    nom: string;
-    prenom: string;
-  }[];
+  dateSelectionnee: string;
 }
 
-export const CaisseJournaliereTableau = ({ paiements, enfants }: CaisseJournaliereTableauProps) => {
+export const CaisseJournaliereTableau = ({ dateSelectionnee }: CaisseJournaliereTableauProps) => {
+  const { paiements, fetchPaiements } = usePaiementStore();
+  const { enfants, fetchEnfants } = useEnfantStore();
+
+  useEffect(() => {
+    fetchPaiements();
+    fetchEnfants();
+  }, [fetchPaiements, fetchEnfants]);
+
+  // Filter paiements for selected date
+  const paiementsDuJour = paiements.filter(
+    (paiement) => paiement.datePaiement === dateSelectionnee
+  );
+
   const handlePrint = () => {
     const printContent = `
       <html>
@@ -38,25 +42,23 @@ export const CaisseJournaliereTableau = ({ paiements, enfants }: CaisseJournalie
           </style>
         </head>
         <body>
-          <h1>Caisse Journalière - ${new Date().toLocaleDateString('fr-FR')}</h1>
+          <h1>Caisse Journalière - ${new Date(dateSelectionnee).toLocaleDateString('fr-FR')}</h1>
           <table>
             <thead>
               <tr>
                 <th>Enfant</th>
                 <th>Montant</th>
-                <th>Date de paiement</th>
                 <th>Méthode</th>
                 <th>Statut</th>
               </tr>
             </thead>
             <tbody>
-              ${paiements.map(paiement => {
+              ${paiementsDuJour.map(paiement => {
                 const enfant = enfants.find(e => e.id === paiement.enfantId);
                 return `
                   <tr>
                     <td>${enfant ? `${enfant.prenom} ${enfant.nom}` : 'Inconnu'}</td>
                     <td>${paiement.montant} DH</td>
-                    <td>${new Date(paiement.datePaiement).toLocaleDateString('fr-FR')}</td>
                     <td>${paiement.methodePaiement}</td>
                     <td>${paiement.statut}</td>
                   </tr>
@@ -65,11 +67,8 @@ export const CaisseJournaliereTableau = ({ paiements, enfants }: CaisseJournalie
             </tbody>
           </table>
           <div class="total">
-            Total: ${paiements.reduce((sum, p) => sum + p.montant, 0)} DH
+            Total: ${paiementsDuJour.reduce((sum, p) => sum + p.montant, 0)} DH
           </div>
-          <button onclick="window.print()" style="margin-top: 20px; padding: 10px 20px;">
-            Imprimer
-          </button>
         </body>
       </html>
     `;
@@ -101,19 +100,17 @@ export const CaisseJournaliereTableau = ({ paiements, enfants }: CaisseJournalie
             <TableRow>
               <TableHead>Enfant</TableHead>
               <TableHead>Montant</TableHead>
-              <TableHead>Date de paiement</TableHead>
               <TableHead>Méthode</TableHead>
               <TableHead>Statut</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paiements.map((paiement) => {
+            {paiementsDuJour.map((paiement) => {
               const enfant = enfants.find(e => e.id === paiement.enfantId);
               return (
                 <TableRow key={paiement.id}>
                   <TableCell>{enfant ? `${enfant.prenom} ${enfant.nom}` : "Inconnu"}</TableCell>
                   <TableCell>{paiement.montant} DH</TableCell>
-                  <TableCell>{new Date(paiement.datePaiement).toLocaleDateString("fr-FR")}</TableCell>
                   <TableCell>{paiement.methodePaiement}</TableCell>
                   <TableCell>{paiement.statut}</TableCell>
                 </TableRow>
