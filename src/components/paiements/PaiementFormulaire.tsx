@@ -67,7 +67,6 @@ export const PaiementFormulaire = ({
     const moisNum = getMoisNumero(formData.moisConcerne);
     const moisFormate = moisNum < 10 ? `0${moisNum}` : `${moisNum}`;
     
-    // Ajuster l'année en fonction du mois scolaire
     const anneeFinale = moisNum >= 9 ? annee : String(parseInt(annee) + 1);
     const moisConcerneFinal = `${anneeFinale}-${moisFormate}-01`;
 
