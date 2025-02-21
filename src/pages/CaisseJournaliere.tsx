@@ -4,11 +4,29 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { CaisseJournaliereHeader } from "@/components/caisse/CaisseJournaliereHeader";
 import { CaisseJournaliereTableau } from "@/components/caisse/CaisseJournaliereTableau";
 import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const CaisseJournaliere = () => {
   const [dateSelectionnee, setDateSelectionnee] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
+  const { toast } = useToast();
+
+  const handleEdit = (id: number) => {
+    // Handle edit action
+    toast({
+      title: "Modification",
+      description: `Modification du paiement ${id}`,
+    });
+  };
+
+  const handleDelete = (id: number) => {
+    // Handle delete action
+    toast({
+      title: "Suppression",
+      description: `Suppression du paiement ${id}`,
+    });
+  };
 
   return (
     <SidebarProvider>
@@ -29,6 +47,8 @@ const CaisseJournaliere = () => {
 
             <CaisseJournaliereTableau 
               dateSelectionnee={dateSelectionnee}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
             />
           </div>
         </main>
@@ -38,3 +58,4 @@ const CaisseJournaliere = () => {
 };
 
 export default CaisseJournaliere;
+
