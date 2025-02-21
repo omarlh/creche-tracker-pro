@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { AnneeScolaireFilter } from "@/components/enfants/AnneeScolaireFilter";
 import { useEnfantStore } from "@/data/enfants";
 import * as XLSX from 'xlsx';
+import { EnfantSearchBar } from "@/components/enfants/search/EnfantSearchBar";
 import {
   Table,
   TableBody,
@@ -41,6 +42,7 @@ const ListeAnnuelle = () => {
   const { enfants, fetchEnfants } = useEnfantStore();
   const [selectedAnneeScolaire, setSelectedAnneeScolaire] = useState("all");
   const [selectedClasse, setSelectedClasse] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -50,7 +52,10 @@ const ListeAnnuelle = () => {
   const filteredEnfants = enfants.filter(enfant => {
     const matchesAnnee = selectedAnneeScolaire === "all" || enfant.anneeScolaire === selectedAnneeScolaire;
     const matchesClasse = selectedClasse === "all" || enfant.classe === selectedClasse;
-    return matchesAnnee && matchesClasse;
+    const matchesSearch = searchTerm === "" || 
+      enfant.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enfant.prenom.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesAnnee && matchesClasse && matchesSearch;
   });
 
   const getStatutColor = (statut: "actif" | "inactif" | undefined) => {
@@ -189,6 +194,15 @@ const ListeAnnuelle = () => {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="flex-1">
+                <label className="flex items-center gap-2 mb-2 text-sm font-medium">
+                  Rechercher
+                </label>
+                <EnfantSearchBar 
+                  searchTerm={searchTerm}
+                  onSearch={setSearchTerm}
+                />
               </div>
             </div>
 
