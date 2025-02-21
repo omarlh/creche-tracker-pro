@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -57,6 +58,7 @@ type EnfantRow = {
   frais_scolarite_mensuel: number | null;
   statut: string | null;
   dernier_paiement: string | null;
+  assurance_declaree: boolean | null;
   paiements_inscription: Array<{
     id: number;
     montant: number;
@@ -277,3 +279,4 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
     }
   }
 }));
+
