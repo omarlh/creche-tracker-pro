@@ -142,7 +142,7 @@ const TableauCroise = () => {
           <div className="w-full">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-semibold tracking-tight">
-                Tableau Croisé Dynamique Enfant
+                Suivi des Paiements Annuels par Enfant
               </h1>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">

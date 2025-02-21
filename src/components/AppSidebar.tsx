@@ -23,7 +23,7 @@ export const AppSidebar = () => {
     { to: "/retards", icon: <Clock size={16} />, label: "Retards de Paiement" },
     { to: "/depart", icon: <LogOut size={16} />, label: "Départs" },
     { to: "/rapports", icon: <BarChart size={16} />, label: "Caisse Journalière" },
-    { to: "/tableau-croise", icon: <TableProperties size={16} />, label: "Tableau Croisé" }
+    { to: "/tableau-croise", icon: <TableProperties size={16} />, label: "Suivi des Paiements Annuels par Enfant" }
   ];
 
   return (
