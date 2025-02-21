@@ -28,6 +28,7 @@ export type Enfant = {
   statut?: "actif" | "inactif";
   dernierPaiement?: string;
   assurance_declaree?: boolean;
+  date_assurance?: string;
 };
 
 export type EnfantRow = {
@@ -47,6 +48,7 @@ export type EnfantRow = {
   statut: string | null;
   dernier_paiement: string | null;
   assurance_declaree: boolean | null;
+  date_assurance: string | null;
   paiements_inscription: Array<{
     id: number;
     montant: number;
@@ -54,3 +56,4 @@ export type EnfantRow = {
     methode_paiement: string | null;
   }> | null;
 };
+

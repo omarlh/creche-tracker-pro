@@ -63,7 +63,10 @@ const ListeAnnuelle = () => {
     try {
       const { error } = await supabase
         .from('enfants')
-        .update({ assurance_declaree: checked })
+        .update({ 
+          assurance_declaree: checked,
+          date_assurance: checked ? new Date().toISOString().split('T')[0] : null 
+        })
         .eq('id', enfantId);
 
       if (error) throw error;
@@ -85,6 +88,11 @@ const ListeAnnuelle = () => {
     }
   };
 
+  const formatDate = (date: string | undefined) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleDateString('fr-FR');
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -98,7 +106,8 @@ const ListeAnnuelle = () => {
         "Année Scolaire": enfant.anneeScolaire || "",
         "Statut": enfant.statut || "",
         "Frais Mensuel": enfant.fraisScolariteMensuel || 0,
-        "Assurance Déclarée": enfant.assurance_declaree ? "Oui" : "Non"
+        "Assurance Déclarée": enfant.assurance_declaree ? "Oui" : "Non",
+        "Date Déclaration Assurance": enfant.date_assurance ? formatDate(enfant.date_assurance) : "-"
       }));
 
       const workbook = XLSX.utils.book_new();
@@ -208,6 +217,7 @@ const ListeAnnuelle = () => {
                       <TableHead>Statut</TableHead>
                       <TableHead className="text-right">Frais Mensuel Négocié</TableHead>
                       <TableHead className="text-center">Assurance</TableHead>
+                      <TableHead className="text-center">Date Assurance</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -234,6 +244,9 @@ const ListeAnnuelle = () => {
                             aria-label="Assurance déclarée"
                           />
                         </TableCell>
+                        <TableCell className="text-center">
+                          {formatDate(enfant.date_assurance)}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -248,3 +261,4 @@ const ListeAnnuelle = () => {
 };
 
 export default ListeAnnuelle;
+

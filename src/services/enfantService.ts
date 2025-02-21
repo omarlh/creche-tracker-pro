@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { Enfant, EnfantRow } from "@/types/enfant.types";
 
@@ -27,6 +26,7 @@ export const formatEnfantFromRow = (enfant: EnfantRow): Enfant => ({
   statut: enfant.statut as "actif" | "inactif",
   dernierPaiement: enfant.dernier_paiement || undefined,
   assurance_declaree: enfant.assurance_declaree || false,
+  date_assurance: enfant.date_assurance || undefined,
 });
 
 export const fetchEnfantsFromDB = async () => {
@@ -80,7 +80,7 @@ export const addEnfantToDB = async (enfant: Omit<Enfant, "id">) => {
           enfant_id: newEnfant.id,
           montant: p.montant,
           date_paiement: p.datePaiement,
-          methode_paiement: p.methodePaiement,
+          methode_paiement: p.methode_paiement,
         }))
       );
 
@@ -112,6 +112,7 @@ export const updateEnfantInDB = async (enfant: Enfant) => {
       statut: enfant.statut,
       dernier_paiement: enfant.dernierPaiement,
       assurance_declaree: enfant.assurance_declaree,
+      date_assurance: enfant.date_assurance,
     })
     .eq('id', enfant.id);
 
@@ -129,7 +130,7 @@ export const updateEnfantInDB = async (enfant: Enfant) => {
           enfant_id: enfant.id,
           montant: p.montant,
           date_paiement: p.datePaiement,
-          methode_paiement: p.methodePaiement,
+          methode_paiement: p.methode_paiement,
         }))
       );
 
