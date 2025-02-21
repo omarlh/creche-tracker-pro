@@ -19,7 +19,7 @@ export function TableauActions({ onPrint, onExportExcel, totalPaiements }: Table
           variant="outline"
           size="sm"
           onClick={onPrint}
-          className="print:hidden"
+          className="no-print"
         >
           <Printer className="h-4 w-4 mr-2" />
           Imprimer
@@ -28,7 +28,7 @@ export function TableauActions({ onPrint, onExportExcel, totalPaiements }: Table
           variant="outline"
           size="sm"
           onClick={onExportExcel}
-          className="print:hidden"
+          className="no-print"
         >
           <FileSpreadsheet className="h-4 w-4 mr-2" />
           Exporter Excel

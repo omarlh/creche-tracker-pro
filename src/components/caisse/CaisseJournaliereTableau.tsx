@@ -31,7 +31,31 @@ export function CaisseJournaliereTableau({
   const totalPaiements = paiementsDuJour.reduce((sum, p) => sum + p.montant, 0);
 
   const handlePrint = () => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .print-content, .print-content * {
+          visibility: visible;
+        }
+        .print-content {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
     window.print();
+
+    document.head.removeChild(style);
   };
 
   const handleExportExcel = () => {
@@ -76,7 +100,7 @@ export function CaisseJournaliereTableau({
           onExportExcel={handleExportExcel}
         />
         
-        <div className="rounded-md border">
+        <div className="rounded-md border print-content">
           <Table>
             <TableauHeader />
             <TableBody>
