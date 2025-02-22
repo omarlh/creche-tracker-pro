@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useToast } from "@/components/ui/use-toast";
@@ -44,11 +43,13 @@ export default function Retards() {
       .filter((enfant) => filtreClasse === "toutes" || enfant.classe === filtreClasse)
       .filter((enfant) => enfant.anneeScolaire === filtreAnnee);
 
-    const retardsMensuels = enfantsFiltres.map((enfant) => {
+    const retardsParEnfant = new Map<number, RetardPaiement>();
+
+    enfantsFiltres.forEach((enfant) => {
       const joursRetard = calculerRetard(enfant.dernierPaiement);
       const montantDu = (enfant.fraisScolariteMensuel || 0) * Math.ceil(joursRetard / 30);
       
-      return {
+      const retardMensuel: RetardPaiement = {
         id: enfant.id * 1000,
         enfantId: enfant.id,
         enfantNom: enfant.nom,
@@ -59,32 +60,40 @@ export default function Retards() {
         dernierRappel: null,
         type: 'mensuel' as const
       };
+
+      retardsParEnfant.set(enfant.id, retardMensuel);
     });
 
-    const retardsInscription = enfantsFiltres
+    enfantsFiltres
       .filter((enfant) => {
         const montantPaye = enfant.fraisInscription?.montantPaye || 0;
         const montantTotal = enfant.fraisInscription?.montantTotal || 0;
         return montantPaye < montantTotal;
       })
-      .map((enfant) => {
+      .forEach((enfant) => {
         const montantPaye = enfant.fraisInscription?.montantPaye || 0;
         const montantTotal = enfant.fraisInscription?.montantTotal || 0;
-        
-        return {
-          id: enfant.id,
-          enfantId: enfant.id,
-          enfantNom: enfant.nom,
-          enfantPrenom: enfant.prenom,
-          moisConcerne: enfant.dateInscription || currentMonth,
-          montantDu: montantTotal - montantPaye,
-          joursRetard: calculerRetard(enfant.dateInscription || null),
-          dernierRappel: null,
-          type: 'inscription' as const
-        };
+        const joursRetardInscription = calculerRetard(enfant.dateInscription || null);
+        const montantDuInscription = montantTotal - montantPaye;
+
+        const retardExistant = retardsParEnfant.get(enfant.id);
+        if (!retardExistant || joursRetardInscription > retardExistant.joursRetard) {
+          const retardInscription: RetardPaiement = {
+            id: enfant.id,
+            enfantId: enfant.id,
+            enfantNom: enfant.nom,
+            enfantPrenom: enfant.prenom,
+            moisConcerne: enfant.dateInscription || currentMonth,
+            montantDu: montantDuInscription,
+            joursRetard: joursRetardInscription,
+            dernierRappel: null,
+            type: 'inscription' as const
+          };
+          retardsParEnfant.set(enfant.id, retardInscription);
+        }
       });
 
-    const tousLesRetards = [...retardsMensuels, ...retardsInscription]
+    const tousLesRetards = Array.from(retardsParEnfant.values())
       .filter((retard) => {
         if (filtreStatus === "tous") return true;
         const status = retard.joursRetard <= 0 ? "à jour" : retard.joursRetard <= 30 ? "en retard" : "critique";
