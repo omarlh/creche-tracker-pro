@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { RetardsWhatsApp } from "./RetardsWhatsApp";
 
 export interface RetardPaiement {
   id: number;
@@ -21,6 +22,7 @@ export interface RetardPaiement {
   joursRetard: number;
   dernierRappel: string | null;
   type: 'inscription' | 'mensuel';
+  telephone?: string;
 }
 
 interface RetardsTableProps {
@@ -39,6 +41,7 @@ export const RetardsTable = ({ retards }: RetardsTableProps) => {
             <TableHead>Montant dû</TableHead>
             <TableHead>Jours de retard</TableHead>
             <TableHead>Dernier rappel</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -79,6 +82,9 @@ export const RetardsTable = ({ retards }: RetardsTableProps) => {
                   <span className="text-muted-foreground">Aucun rappel</span>
                 )}
               </TableCell>
+              <TableCell>
+                <RetardsWhatsApp retard={retard} />
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -86,3 +92,4 @@ export const RetardsTable = ({ retards }: RetardsTableProps) => {
     </div>
   );
 }
+
