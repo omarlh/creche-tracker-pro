@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,6 +11,7 @@ export type Paiement = {
   statut: "complete" | "en_attente";
   anneeScolaire: string;
   commentaire?: string;
+  dernierRappel?: string | null;
 };
 
 interface PaiementStore {
@@ -46,6 +46,7 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
       methodePaiement: p.methode_paiement as "carte" | "especes" | "cheque",
       statut: p.statut as "complete" | "en_attente",
       commentaire: p.commentaire,
+      dernierRappel: p.dernier_rappel,
       anneeScolaire: p.annee_scolaire || ''
     }));
 
@@ -71,6 +72,7 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
         methode_paiement: paiement.methodePaiement,
         statut: paiement.statut,
         commentaire: paiement.commentaire,
+        dernier_rappel: paiement.dernierRappel,
         annee_scolaire: anneeScolaire
       }])
       .select()
@@ -90,6 +92,7 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
       methodePaiement: data.methode_paiement as "carte" | "especes" | "cheque",
       statut: data.statut as "complete" | "en_attente",
       commentaire: data.commentaire,
+      dernierRappel: data.dernier_rappel,
       anneeScolaire: data.annee_scolaire || ''
     };
 
@@ -117,6 +120,7 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
         methode_paiement: paiement.methodePaiement,
         statut: paiement.statut,
         commentaire: paiement.commentaire,
+        dernier_rappel: paiement.dernierRappel,
         annee_scolaire: anneeScolaire
       })
       .eq('id', paiement.id);
@@ -162,6 +166,7 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
             methode_paiement: p.methodePaiement,
             statut: p.statut,
             commentaire: p.commentaire,
+            dernier_rappel: p.dernierRappel,
             annee_scolaire: p.anneeScolaire
           }))
         );

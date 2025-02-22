@@ -1,4 +1,3 @@
-
 export type Classe = "TPS" | "PS" | "MS" | "GS";
 
 export type PaiementFraisInscription = {
@@ -29,6 +28,7 @@ export type Enfant = {
   dernierPaiement?: string;
   assurance_declaree?: boolean;
   date_assurance?: string;
+  telephone?: string;
 };
 
 export type EnfantRow = {
@@ -56,4 +56,3 @@ export type EnfantRow = {
     methode_paiement: string | null;
   }> | null;
 };
-

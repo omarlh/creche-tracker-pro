@@ -49,7 +49,7 @@ export const useRetardsCalculation = (
             joursRetard,
             dernierRappel: paiement.dernierRappel,
             type: 'mensuel',
-            telephone: enfant.telephone
+            telephone: enfant.telephone || enfant.gsmPapa || enfant.gsmMaman
           });
         }
       }
@@ -61,19 +61,20 @@ export const useRetardsCalculation = (
   const statistiques = useMemo(() => {
     const total = retardsPaiement.length;
     const totalMontant = retardsPaiement.reduce((sum, retard) => sum + retard.montantDu, 0);
-    const retardsParDelai = {
-      court: retardsPaiement.filter(r => r.joursRetard <= 10).length,
-      moyen: retardsPaiement.filter(r => r.joursRetard > 10 && r.joursRetard <= 20).length,
-      long: retardsPaiement.filter(r => r.joursRetard > 20).length
-    };
+    
+    // Calculate different categories based on days of delay
+    const critique = retardsPaiement.filter(r => r.joursRetard > 20).length;
+    const enRetard = retardsPaiement.filter(r => r.joursRetard > 10 && r.joursRetard <= 20).length;
+    const aJour = total - critique - enRetard;
 
     return {
       total,
-      totalMontant,
-      retardsParDelai
+      enRetard,
+      critique,
+      aJour,
+      montantTotal: totalMontant
     };
   }, [retardsPaiement]);
 
   return { retardsPaiement, statistiques };
 };
-
