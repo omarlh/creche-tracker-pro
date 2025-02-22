@@ -75,6 +75,7 @@ export type Database = {
           commentaire: string | null
           created_at: string | null
           date_paiement: string | null
+          dernier_rappel: string | null
           enfant_id: number | null
           id: number
           methode_paiement: string | null
@@ -87,6 +88,7 @@ export type Database = {
           commentaire?: string | null
           created_at?: string | null
           date_paiement?: string | null
+          dernier_rappel?: string | null
           enfant_id?: number | null
           id?: number
           methode_paiement?: string | null
@@ -99,6 +101,7 @@ export type Database = {
           commentaire?: string | null
           created_at?: string | null
           date_paiement?: string | null
+          dernier_rappel?: string | null
           enfant_id?: number | null
           id?: number
           methode_paiement?: string | null

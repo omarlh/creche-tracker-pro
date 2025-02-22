@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -37,6 +38,7 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
       return;
     }
 
+    // Add type assertion to properly type the Supabase response
     const formattedData: Paiement[] = data.map(p => ({
       id: p.id,
       enfantId: p.enfant_id,
