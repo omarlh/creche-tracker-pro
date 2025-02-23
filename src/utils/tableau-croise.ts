@@ -1,4 +1,3 @@
-
 import type { Enfant } from "@/types/enfant.types";
 import type { Paiement } from "@/data/paiements";
 import * as XLSX from 'xlsx';
@@ -20,6 +19,14 @@ export const moisMapping = {
   "Mai": "05",
   "Juin": "06"
 } as const;
+
+export const calculerTotalParMethode = (paiements: Paiement[]) => {
+  return paiements.reduce((acc, paiement) => {
+    const methode = paiement.methodePaiement;
+    acc[methode] = (acc[methode] || 0) + paiement.montant;
+    return acc;
+  }, {} as Record<string, number>);
+};
 
 export const exportToExcel = (
   enfants: Enfant[],

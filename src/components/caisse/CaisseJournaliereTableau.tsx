@@ -22,6 +22,7 @@ export function CaisseJournaliereTableau() {
   
   const [totalMensualites, setTotalMensualites] = useState(0);
   const [totalInscriptions, setTotalInscriptions] = useState(0);
+  const [totalPaiements, setTotalPaiements] = useState(0);
 
   useEffect(() => {
     // Filtrer les paiements pour la période sélectionnée
@@ -43,13 +44,16 @@ export function CaisseJournaliereTableau() {
 
     setTotalMensualites(mensualites);
     setTotalInscriptions(inscriptions);
+    setTotalPaiements(mensualites + inscriptions);
   }, [paiements, startDate, endDate]);
 
-  const dateRange = {
-    startDate,
-    endDate,
-    onStartDateChange: setStartDate,
-    onEndDateChange: setEndDate,
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportExcel = () => {
+    // Implémenter l'export Excel ici
+    console.log("Export Excel");
   };
 
   const totauxParMethode = calculerTotalParMethode(paiements);
@@ -57,13 +61,22 @@ export function CaisseJournaliereTableau() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center pb-4">
-        <TableauHeader {...dateRange} />
+        <TableauHeader
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+        />
         <div className="flex gap-2">
           <CaisseWhatsAppButton 
             mensualites={totalMensualites} 
             inscriptions={totalInscriptions} 
           />
-          <TableauActions {...dateRange} />
+          <TableauActions
+            onPrint={handlePrint}
+            onExportExcel={handleExportExcel}
+            totalPaiements={totalPaiements}
+          />
         </div>
       </div>
 

@@ -1,58 +1,19 @@
 
-import { useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { CaisseJournaliereHeader } from "@/components/caisse/CaisseJournaliereHeader";
 import { CaisseJournaliereTableau } from "@/components/caisse/CaisseJournaliereTableau";
 
-const CaisseJournaliere = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handlePrint = () => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-      @media print {
-        body * {
-          visibility: hidden;
-        }
-        .print-content, .print-content * {
-          visibility: visible;
-        }
-        .print-content {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
-        }
-        .no-print {
-          display: none !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    window.print();
-
-    document.head.removeChild(style);
-  };
-
+export default function CaisseJournaliere() {
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex">
-        <AppSidebar />
-        <main className="flex-1 p-8 animate-fadeIn">
+    <div className="grid lg:grid-cols-5 min-h-screen w-full">
+      <AppSidebar />
+      <div className="col-span-4 bg-background overflow-y-auto">
+        <div className="p-6">
           <div className="max-w-6xl mx-auto">
-            <CaisseJournaliereHeader
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              onPrint={handlePrint}
-            />
-            <CaisseJournaliereTableau searchTerm={searchTerm} />
+            <h1 className="text-3xl font-bold mb-6">Caisse Journalière</h1>
+            <CaisseJournaliereTableau />
           </div>
-        </main>
+        </div>
       </div>
-    </SidebarProvider>
+    </div>
   );
-};
-
-export default CaisseJournaliere;
+}
