@@ -5,6 +5,8 @@ import { EnfantSelect } from "./forms/EnfantSelect";
 import { MoisConcerneSelect } from "./forms/MoisConcerneSelect";
 import { PaiementDetails } from "./forms/PaiementDetails";
 import { AnneeScolaireSelect } from "./forms/AnneeScolaireSelect";
+import type { Paiement } from "@/data/paiements";
+import type { Enfant } from "@/types/enfant.types";
 
 interface PaiementFormulaireProps {
   open: boolean;
@@ -24,6 +26,12 @@ interface PaiementFormulaireProps {
   onCommentaireChange: (commentaire: string) => void;
   anneeScolaire: string;
   onAnneeScolaireChange: (annee: string) => void;
+  // Add new props to match what's being passed from Paiements.tsx
+  selectedPaiement: Paiement | null;
+  moisDisponibles: string[];
+  defaultMontant: number;
+  enfants: Enfant[];
+  onCancel: () => void;
 }
 
 export function PaiementFormulaire({
@@ -44,12 +52,17 @@ export function PaiementFormulaire({
   onCommentaireChange,
   anneeScolaire,
   onAnneeScolaireChange,
+  selectedPaiement,
+  moisDisponibles,
+  defaultMontant,
+  enfants,
+  onCancel,
 }: PaiementFormulaireProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nouveau paiement</DialogTitle>
+          <DialogTitle>{selectedPaiement ? "Modifier un paiement" : "Nouveau paiement"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={(e) => {
           e.preventDefault();
@@ -86,7 +99,7 @@ export function PaiementFormulaire({
             onCommentaireChange={onCommentaireChange}
           />
           <div className="pt-4 space-x-2 flex justify-end">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={onCancel}>
               Annuler
             </Button>
             <Button type="submit">Enregistrer</Button>
