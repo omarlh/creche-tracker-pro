@@ -1,29 +1,22 @@
 
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface CaisseWhatsAppButtonProps {
-  mensualites: number;
-  inscriptions: number;
+  totalJour: number;
 }
 
-export function CaisseWhatsAppButton({ mensualites, inscriptions }: CaisseWhatsAppButtonProps) {
+export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
   const { toast } = useToast();
-  const total = mensualites + inscriptions;
 
   const handleSendWhatsApp = async () => {
     try {
-      const message = `Caisse de ce jour:\n` + 
-        `Mensualités: ${mensualites} DH\n` +
-        `Frais d'inscription: ${inscriptions} DH\n` +
-        `Total: ${total} DH`;
-
       const { data, error } = await supabase.functions.invoke('send-whatsapp', {
         body: {
-          to: "0664091486",
-          message
+          to: "212664091486",
+          message: `Total recette de la journée: ${totalJour} DH`,
         }
       });
 
@@ -31,8 +24,9 @@ export function CaisseWhatsAppButton({ mensualites, inscriptions }: CaisseWhatsA
 
       toast({
         title: "Message envoyé",
-        description: "Le récapitulatif de caisse a été envoyé par WhatsApp",
+        description: "Le résumé de la caisse a été envoyé par WhatsApp",
       });
+
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message WhatsApp:', error);
       toast({

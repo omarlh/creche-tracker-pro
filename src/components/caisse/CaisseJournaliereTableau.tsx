@@ -1,98 +1,65 @@
 
-import { useState, useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { calculerTotalParMethode } from "@/utils/tableau-croise";
-import { usePaiementStore } from "@/data/paiements";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { TableauHeader } from "./TableauHeader";
 import { TableauLigne } from "./TableauLigne";
 import { TableauActions } from "./TableauActions";
 import { CaisseWhatsAppButton } from "./CaisseWhatsAppButton";
 
 export function CaisseJournaliereTableau() {
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const { paiements } = usePaiementStore();
-  
-  const [totalMensualites, setTotalMensualites] = useState(0);
-  const [totalInscriptions, setTotalInscriptions] = useState(0);
-  const [totalPaiements, setTotalPaiements] = useState(0);
+  const [paiements, setPaiements] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalJour, setTotalJour] = useState(0);
 
   useEffect(() => {
-    // Filtrer les paiements pour la période sélectionnée
-    const paiementsFiltres = paiements.filter(p => {
-      const datePaiement = new Date(p.datePaiement);
-      return datePaiement >= startDate && datePaiement <= endDate;
-    });
+    fetchPaiements();
+  }, []);
 
-    // Calculer les totaux
-    const mensualites = paiementsFiltres.reduce((sum, p) => {
-      if (!p.moisConcerne) return sum;
-      return sum + p.montant;
-    }, 0);
+  const fetchPaiements = async () => {
+    try {
+      setLoading(true);
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { data, error } = await supabase
+        .from('paiements')
+        .select('*')
+        .eq('date_paiement', today);
 
-    const inscriptions = paiementsFiltres.reduce((sum, p) => {
-      if (p.moisConcerne) return sum;
-      return sum + p.montant;
-    }, 0);
+      if (error) throw error;
 
-    setTotalMensualites(mensualites);
-    setTotalInscriptions(inscriptions);
-    setTotalPaiements(mensualites + inscriptions);
-  }, [paiements, startDate, endDate]);
-
-  const handlePrint = () => {
-    window.print();
+      setPaiements(data || []);
+      const total = (data || []).reduce((sum: number, paiement: any) => sum + (paiement.montant || 0), 0);
+      setTotalJour(total);
+    } catch (err) {
+      setError('Erreur lors du chargement des paiements');
+      console.error('Erreur:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleExportExcel = () => {
-    // Implémenter l'export Excel ici
-    console.log("Export Excel");
-  };
-
-  const totauxParMethode = calculerTotalParMethode(paiements);
+  if (loading) return <div>Chargement...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center pb-4">
-        <TableauHeader
-          startDate={startDate}
-          endDate={endDate}
-          onStartDateChange={setStartDate}
-          onEndDateChange={setEndDate}
-        />
-        <div className="flex gap-2">
-          <CaisseWhatsAppButton 
-            mensualites={totalMensualites} 
-            inscriptions={totalInscriptions} 
-          />
-          <TableauActions
-            onPrint={handlePrint}
-            onExportExcel={handleExportExcel}
-            totalPaiements={totalPaiements}
-          />
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div className="flex items-center space-x-4">
+          <h2 className="text-3xl font-bold tracking-tight">Caisse Journalière</h2>
+          <CaisseWhatsAppButton totalJour={totalJour} />
         </div>
-      </div>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Méthode de paiement</TableHead>
-            <TableHead className="text-right">Montant</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Object.entries(totauxParMethode).map(([methode, total]) => (
-            <TableauLigne key={methode} methode={methode} total={total} />
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <TableauHeader />
+          {paiements.map((paiement) => (
+            <TableauLigne key={paiement.id} paiement={paiement} />
           ))}
-        </TableBody>
-      </Table>
-    </div>
+          <TableauActions total={totalJour} />
+        </div>
+      </CardContent>
+    </Card>
   );
 }
