@@ -9,7 +9,7 @@ import { AnneeScolaireSelect } from "./forms/AnneeScolaireSelect";
 interface PaiementFormulaireProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: () => void;
+  onSubmit: (data: any) => void;
   selectedEnfantId: number | null;
   onEnfantChange: (enfantId: number | null) => void;
   montant: number;
@@ -53,11 +53,19 @@ export function PaiementFormulaire({
         </DialogHeader>
         <form onSubmit={(e) => {
           e.preventDefault();
-          onSubmit();
+          onSubmit({
+            enfantId: selectedEnfantId,
+            montant,
+            datePaiement,
+            methodePaiement,
+            commentaire,
+            moisConcerne,
+            anneeScolaire
+          });
         }} className="space-y-4">
           <AnneeScolaireSelect
-            anneeScolaire={anneeScolaire}
-            onAnneeScolaireChange={onAnneeScolaireChange}
+            value={anneeScolaire}
+            onChange={onAnneeScolaireChange}
           />
           <EnfantSelect
             selectedEnfantId={selectedEnfantId}

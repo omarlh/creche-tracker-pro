@@ -3,31 +3,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 
 interface MoisConcerneSelectProps {
-  moisValue: string;
-  onMoisChange: (value: string) => void;
-  selectStyle: string;
+  moisConcerne: string;
+  onMoisConcerneChange: (mois: string) => void;
 }
 
-export const MoisConcerneSelect = ({ 
-  moisValue, 
-  onMoisChange,
-  selectStyle 
-}: MoisConcerneSelectProps) => {
+export const MoisConcerneSelect = ({ moisConcerne, onMoisConcerneChange }: MoisConcerneSelectProps) => {
   const mois = [
     "Septembre", "Octobre", "Novembre", "Décembre",
     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin"
   ];
 
   return (
-    <div>
+    <div className="space-y-2">
       <Label htmlFor="moisConcerne">Mois concerné</Label>
-      <Select value={moisValue} onValueChange={onMoisChange}>
-        <SelectTrigger id="moisConcerne" className="bg-gray-200 text-black">
+      <Select value={moisConcerne} onValueChange={onMoisConcerneChange}>
+        <SelectTrigger id="moisConcerne">
           <SelectValue placeholder="Sélectionner le mois" />
         </SelectTrigger>
-        <SelectContent className="bg-white">
+        <SelectContent>
           {mois.map((mois) => (
-            <SelectItem key={mois} value={mois.toLowerCase()}>
+            <SelectItem key={mois.toLowerCase()} value={mois.toLowerCase()}>
               {mois}
             </SelectItem>
           ))}

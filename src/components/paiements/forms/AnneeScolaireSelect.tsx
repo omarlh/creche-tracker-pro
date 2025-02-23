@@ -11,15 +11,15 @@ const anneesDisponibles = [
 ];
 
 interface AnneeScolaireSelectProps {
-  anneeScolaire: string;
-  onAnneeScolaireChange: (annee: string) => void;
+  value: string;
+  onChange: (value: string) => void;
 }
 
-export function AnneeScolaireSelect({ anneeScolaire, onAnneeScolaireChange }: AnneeScolaireSelectProps) {
+export function AnneeScolaireSelect({ value, onChange }: AnneeScolaireSelectProps) {
   return (
     <div className="space-y-2">
       <Label htmlFor="anneeScolaire">Année scolaire</Label>
-      <Select value={anneeScolaire} onValueChange={onAnneeScolaireChange}>
+      <Select value={value} onValueChange={onChange}>
         <SelectTrigger id="anneeScolaire">
           <SelectValue placeholder="Sélectionner une année scolaire" />
         </SelectTrigger>
