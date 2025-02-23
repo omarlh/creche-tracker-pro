@@ -9,7 +9,7 @@ import { PaiementSearchBar } from "@/components/paiements/PaiementSearchBar";
 import { PaiementFilters } from "@/components/paiements/PaiementFilters";
 import { DeletePaiementDialog } from "@/components/paiements/DeletePaiementDialog";
 import { usePaiementManager } from "@/hooks/usePaiementManager";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Paiements = () => {
   const {
@@ -47,6 +47,26 @@ const Paiements = () => {
     fetchPaiements();
     fetchEnfants();
   }, [fetchPaiements, fetchEnfants]);
+
+  // Add state for form values
+  const [selectedEnfantId, setSelectedEnfantId] = useState<number | null>(
+    selectedPaiement?.enfantId || null
+  );
+  const [montant, setMontant] = useState<number>(
+    selectedPaiement?.montant || defaultMontant
+  );
+  const [datePaiement, setDatePaiement] = useState<string>(
+    selectedPaiement?.datePaiement || new Date().toISOString().split('T')[0]
+  );
+  const [moisConcerne, setMoisConcerne] = useState<string>(
+    selectedPaiement?.moisConcerne || new Date().toISOString().split('T')[0]
+  );
+  const [methodePaiement, setMethodePaiement] = useState<"carte" | "especes" | "cheque">(
+    selectedPaiement?.methodePaiement || "especes"
+  );
+  const [commentaire, setCommentaire] = useState<string>(
+    selectedPaiement?.commentaire || ""
+  );
 
   return (
     <SidebarProvider>
@@ -99,13 +119,28 @@ const Paiements = () => {
               </SheetTitle>
             </SheetHeader>
             <PaiementFormulaire
-              selectedPaiement={selectedPaiement}
-              onSubmit={handleSubmit}
-              onCancel={() => setIsSheetOpen(false)}
+              open={isSheetOpen}
+              onOpenChange={setIsSheetOpen}
+              selectedEnfantId={selectedEnfantId}
+              onEnfantChange={setSelectedEnfantId}
+              montant={montant}
+              onMontantChange={setMontant}
+              datePaiement={datePaiement}
+              onDatePaiementChange={setDatePaiement}
+              moisConcerne={moisConcerne}
+              onMoisConcerneChange={setMoisConcerne}
+              methodePaiement={methodePaiement}
+              onMethodePaiementChange={setMethodePaiement}
+              commentaire={commentaire}
+              onCommentaireChange={setCommentaire}
               anneeScolaire={anneeScolaire}
+              onAnneeScolaireChange={(annee: string) => {/* Add your handler here */}}
+              selectedPaiement={selectedPaiement}
               moisDisponibles={moisDisponibles}
               defaultMontant={defaultMontant}
               enfants={enfants}
+              onSubmit={handleSubmit}
+              onCancel={() => setIsSheetOpen(false)}
             />
           </SheetContent>
         </Sheet>
