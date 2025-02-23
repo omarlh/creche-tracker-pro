@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { FileSpreadsheet, Printer } from "lucide-react";
 
-interface TableauActionsProps {
+export interface TableauActionsProps {
   onPrint: () => void;
   onExportExcel: () => void;
   totalPaiements: number;
@@ -12,7 +12,7 @@ export function TableauActions({ onPrint, onExportExcel, totalPaiements }: Table
   return (
     <div className="flex justify-between items-center mb-4">
       <div className="text-lg font-semibold">
-        Total: {totalPaiements} DH
+        Total: {totalPaiements.toFixed(2)} DH
       </div>
       <div className="space-x-2">
         <Button

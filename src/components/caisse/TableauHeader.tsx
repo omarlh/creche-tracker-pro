@@ -1,11 +1,9 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 
 export interface TableauHeaderProps {
   startDate: Date;
-  endDate: Date;
+  endDate: Date; 
   onStartDateChange: (date: Date) => void;
   onEndDateChange: (date: Date) => void;
 }

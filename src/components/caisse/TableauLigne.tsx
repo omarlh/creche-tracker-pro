@@ -3,10 +3,10 @@ import { TableCell, TableRow } from "@/components/ui/table";
 
 export interface TableauLigneProps {
   methode: string;
-  total: number;
+  montant: number;
 }
 
-export function TableauLigne({ methode, total }: TableauLigneProps) {
+export function TableauLigne({ methode, montant }: TableauLigneProps) {
   const formatMethode = (methode: string) => {
     switch (methode) {
       case "carte":
@@ -23,7 +23,7 @@ export function TableauLigne({ methode, total }: TableauLigneProps) {
   return (
     <TableRow>
       <TableCell>{formatMethode(methode)}</TableCell>
-      <TableCell className="text-right">{total.toFixed(2)} DH</TableCell>
+      <TableCell className="text-right">{montant.toFixed(2)} DH</TableCell>
     </TableRow>
   );
 }

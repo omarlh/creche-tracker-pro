@@ -12,10 +12,12 @@ export function CaisseJournaliereTableau() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalJour, setTotalJour] = useState(0);
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
 
   useEffect(() => {
     fetchPaiements();
-  }, []);
+  }, [startDate, endDate]);
 
   const fetchPaiements = async () => {
     try {
@@ -40,6 +42,15 @@ export function CaisseJournaliereTableau() {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportExcel = () => {
+    // Implement Excel export functionality
+    console.log("Export to Excel");
+  };
+
   if (loading) return <div>Chargement...</div>;
   if (error) return <div>{error}</div>;
 
@@ -53,11 +64,24 @@ export function CaisseJournaliereTableau() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <TableauHeader />
+          <TableauHeader
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={setStartDate}
+            onEndDateChange={setEndDate}
+          />
           {paiements.map((paiement) => (
-            <TableauLigne key={paiement.id} paiement={paiement} />
+            <TableauLigne
+              key={paiement.id}
+              methode={paiement.methode_paiement}
+              montant={paiement.montant}
+            />
           ))}
-          <TableauActions total={totalJour} />
+          <TableauActions
+            totalPaiements={totalJour}
+            onPrint={handlePrint}
+            onExportExcel={handleExportExcel}
+          />
         </div>
       </CardContent>
     </Card>
