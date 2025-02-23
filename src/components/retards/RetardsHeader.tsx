@@ -19,6 +19,16 @@ export interface RetardsHeaderProps {
   setFiltreAnnee: (value: string) => void;
 }
 
+const anneesDisponibles = [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026",
+  "2026-2027",
+  "2027-2028",
+  "2028-2029",
+  "2029-2030",
+];
+
 export function RetardsHeader({
   filtreStatus,
   setFiltreStatus,
@@ -42,12 +52,16 @@ export function RetardsHeader({
           value={filtreAnnee}
           onValueChange={setFiltreAnnee}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] bg-gray-100/50 backdrop-blur-sm">
             <SelectValue placeholder="Année scolaire" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="2024-2025">2024-2025</SelectItem>
-            <SelectItem value="2023-2024">2023-2024</SelectItem>
+            <SelectItem value="tous">Toutes les années</SelectItem>
+            {anneesDisponibles.map((annee) => (
+              <SelectItem key={annee} value={annee}>
+                {annee}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
