@@ -22,7 +22,7 @@ serve(async (req) => {
     // Format phone number to ensure it starts with country code
     const formattedPhone = to.startsWith('+212') ? to : `+212${to.replace(/^0/, '')}`
 
-    const response = await fetch('https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages', {
+    const response = await fetch('https://graph.facebook.com/v17.0/171689289460681/messages', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${Deno.env.get('WHATSAPP_API_KEY')}`,
@@ -61,4 +61,3 @@ serve(async (req) => {
     )
   }
 })
-
