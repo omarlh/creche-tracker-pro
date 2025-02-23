@@ -1,33 +1,30 @@
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const anneesDisponibles = [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026",
+  "2026-2027",
+  "2027-2028",
+];
 
 interface AnneeScolaireSelectProps {
-  value: string;
-  onChange: (value: string) => void;
+  anneeScolaire: string;
+  onAnneeScolaireChange: (annee: string) => void;
 }
 
-export const AnneeScolaireSelect = ({ value, onChange }: AnneeScolaireSelectProps) => {
-  const genererAnnesScolaires = () => {
-    const anneesDisponibles = [];
-    const currentYear = new Date().getFullYear();
-    for (let i = -5; i <= 5; i++) {
-      const anneeDebut = currentYear + i;
-      const anneeFin = anneeDebut + 1;
-      anneesDisponibles.push(`${anneeDebut}-${anneeFin}`);
-    }
-    return anneesDisponibles;
-  };
-
+export function AnneeScolaireSelect({ anneeScolaire, onAnneeScolaireChange }: AnneeScolaireSelectProps) {
   return (
-    <div>
+    <div className="space-y-2">
       <Label htmlFor="anneeScolaire">Année scolaire</Label>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger id="anneeScolaire" className="bg-gray-200 text-black">
+      <Select value={anneeScolaire} onValueChange={onAnneeScolaireChange}>
+        <SelectTrigger id="anneeScolaire">
           <SelectValue placeholder="Sélectionner une année scolaire" />
         </SelectTrigger>
-        <SelectContent className="bg-white">
-          {genererAnnesScolaires().map((annee) => (
+        <SelectContent>
+          {anneesDisponibles.map((annee) => (
             <SelectItem key={annee} value={annee}>
               {annee}
             </SelectItem>
@@ -36,4 +33,4 @@ export const AnneeScolaireSelect = ({ value, onChange }: AnneeScolaireSelectProp
       </Select>
     </div>
   );
-};
+}
