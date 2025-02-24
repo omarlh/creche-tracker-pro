@@ -1,39 +1,21 @@
 
-import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Printer } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { DownloadIcon } from "lucide-react"
+import { CaisseWhatsAppButton } from "./CaisseWhatsAppButton"
 
-export interface TableauActionsProps {
-  onPrint: () => void;
-  onExportExcel: () => void;
-  totalPaiements: number;
+interface TableauActionsProps {
+  totalJour: number;
+  onExport: () => void;
 }
 
-export function TableauActions({ onPrint, onExportExcel, totalPaiements }: TableauActionsProps) {
+export function TableauActions({ totalJour, onExport }: TableauActionsProps) {
   return (
-    <div className="flex justify-between items-center mb-4">
-      <div className="text-lg font-semibold">
-        Total: {totalPaiements.toFixed(2)} DH
-      </div>
-      <div className="space-x-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onPrint}
-          className="no-print"
-        >
-          <Printer className="h-4 w-4 mr-2" />
-          Imprimer
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onExportExcel}
-          className="no-print"
-        >
-          <FileSpreadsheet className="h-4 w-4 mr-2" />
-          Exporter Excel
-        </Button>
-      </div>
+    <div className="flex items-center gap-2">
+      <CaisseWhatsAppButton totalJour={totalJour} />
+      <Button variant="outline" size="sm" onClick={onExport}>
+        <DownloadIcon className="h-4 w-4 mr-2" />
+        Export
+      </Button>
     </div>
-  );
+  )
 }
