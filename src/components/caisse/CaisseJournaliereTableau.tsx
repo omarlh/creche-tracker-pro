@@ -47,7 +47,7 @@ export function CaisseJournaliereTableau() {
   };
 
   const handleExportExcel = () => {
-    // Implement Excel export functionality
+    // Implementation de l'export Excel
     console.log("Export to Excel");
   };
 
