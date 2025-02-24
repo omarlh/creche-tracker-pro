@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { TableauHeader } from "./TableauHeader";
 import { TableauLigne } from "./TableauLigne";
 import { TableauActions } from "./TableauActions";
+import { CaisseWhatsAppButton } from "./CaisseWhatsAppButton";
 
 export function CaisseJournaliereTableau() {
   const [paiements, setPaiements] = useState<any[]>([]);
@@ -54,6 +55,7 @@ export function CaisseJournaliereTableau() {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center space-x-4">
           <h2 className="text-3xl font-bold tracking-tight">Caisse Journalière</h2>
+          <CaisseWhatsAppButton totalJour={totalJour} />
         </div>
       </CardHeader>
       <CardContent>
