@@ -1,3 +1,4 @@
+
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -10,6 +11,12 @@ import { PaiementFilters } from "@/components/paiements/PaiementFilters";
 import { DeletePaiementDialog } from "@/components/paiements/DeletePaiementDialog";
 import { usePaiementManager } from "@/hooks/usePaiementManager";
 import { useEffect, useState } from "react";
+
+const anneesDisponibles = [
+  "2023-2024",
+  "2024-2025",
+  "2025-2026",
+];
 
 const Paiements = () => {
   const {
@@ -48,7 +55,9 @@ const Paiements = () => {
     fetchEnfants();
   }, [fetchPaiements, fetchEnfants]);
 
-  // Add state for form values
+  const [selectedAnnee, setSelectedAnnee] = useState("all");
+
+  // State pour les valeurs du formulaire
   const [selectedEnfantId, setSelectedEnfantId] = useState<number | null>(
     selectedPaiement?.enfantId || null
   );
@@ -67,6 +76,10 @@ const Paiements = () => {
   const [commentaire, setCommentaire] = useState<string>(
     selectedPaiement?.commentaire || ""
   );
+
+  const handleAnneeChange = (annee: string) => {
+    setSelectedAnnee(annee);
+  };
 
   return (
     <SidebarProvider>
@@ -96,14 +109,19 @@ const Paiements = () => {
             <PaiementFilters
               selectedEnfant={selectedEnfant}
               selectedMois={selectedMois}
+              selectedAnnee={selectedAnnee}
               onEnfantChange={handleEnfantFilter}
               onMoisChange={handleMoisFilter}
+              onAnneeChange={handleAnneeChange}
               enfants={enfants}
               moisDisponibles={moisDisponibles}
+              anneesDisponibles={anneesDisponibles}
             />
 
             <PaiementTableau
-              paiements={filteredPaiements}
+              paiements={filteredPaiements.filter(paiement => 
+                selectedAnnee === "all" || paiement.anneeScolaire === selectedAnnee
+              )}
               enfants={enfants}
               onEdit={handleEditClick}
               confirmDeletePaiement={confirmDeletePaiement}
