@@ -1,31 +1,57 @@
 
-import { Filter, Calendar, User } from "lucide-react";
+import { Calendar, User } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { type Enfant } from "@/data/enfants";
 
 interface PaiementFiltersProps {
   selectedEnfant: string;
-  selectedMois: string;
-  selectedAnnee: string;
   onEnfantChange: (value: string) => void;
-  onMoisChange: (value: string) => void;
-  onAnneeChange: (value: string) => void;
+  selectedStartMonth: string;
+  selectedStartYear: string;
+  selectedEndMonth: string;
+  selectedEndYear: string;
+  onStartMonthChange: (value: string) => void;
+  onStartYearChange: (value: string) => void;
+  onEndMonthChange: (value: string) => void;
+  onEndYearChange: (value: string) => void;
   enfants: Enfant[];
-  moisDisponibles: string[];
-  anneesDisponibles: string[];
 }
+
+const months = [
+  "01", "02", "03", "04", "05", "06",
+  "07", "08", "09", "10", "11", "12"
+];
+
+const years = Array.from({ length: 10 }, (_, i) => (new Date().getFullYear() - 5 + i).toString());
+
+const monthNames: { [key: string]: string } = {
+  "01": "Janvier",
+  "02": "Février",
+  "03": "Mars",
+  "04": "Avril",
+  "05": "Mai",
+  "06": "Juin",
+  "07": "Juillet",
+  "08": "Août",
+  "09": "Septembre",
+  "10": "Octobre",
+  "11": "Novembre",
+  "12": "Décembre"
+};
 
 export const PaiementFilters = ({
   selectedEnfant,
-  selectedMois,
-  selectedAnnee,
+  selectedStartMonth,
+  selectedStartYear,
+  selectedEndMonth,
+  selectedEndYear,
   onEnfantChange,
-  onMoisChange,
-  onAnneeChange,
+  onStartMonthChange,
+  onStartYearChange,
+  onEndMonthChange,
+  onEndYearChange,
   enfants,
-  moisDisponibles,
-  anneesDisponibles,
 }: PaiementFiltersProps) => {
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-gray-50 rounded-lg border">
@@ -52,43 +78,68 @@ export const PaiementFilters = ({
       <div className="flex-1">
         <Label className="flex items-center gap-2 mb-2">
           <Calendar className="h-4 w-4" />
-          Filtrer par année
+          Date de début
         </Label>
-        <Select value={selectedAnnee} onValueChange={onAnneeChange} defaultOpen>
-          <SelectTrigger>
-            <SelectValue placeholder="Toutes les années" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Toutes les années</SelectItem>
-            {anneesDisponibles.map((annee) => (
-              <SelectItem key={annee} value={annee}>
-                {annee}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={selectedStartMonth} onValueChange={onStartMonthChange}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Mois" />
+            </SelectTrigger>
+            <SelectContent>
+              {months.map((month) => (
+                <SelectItem key={month} value={month}>
+                  {monthNames[month]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedStartYear} onValueChange={onStartYearChange}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Année" />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="flex-1">
         <Label className="flex items-center gap-2 mb-2">
           <Calendar className="h-4 w-4" />
-          Filtrer par mois
+          Date de fin
         </Label>
-        <Select value={selectedMois} onValueChange={onMoisChange} defaultOpen>
-          <SelectTrigger>
-            <SelectValue placeholder="Tous les mois" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les mois</SelectItem>
-            {moisDisponibles.map((mois) => (
-              <SelectItem key={mois} value={mois.toLowerCase()}>
-                {mois}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={selectedEndMonth} onValueChange={onEndMonthChange}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Mois" />
+            </SelectTrigger>
+            <SelectContent>
+              {months.map((month) => (
+                <SelectItem key={month} value={month}>
+                  {monthNames[month]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedEndYear} onValueChange={onEndYearChange}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Année" />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   );
 };
-

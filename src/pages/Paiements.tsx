@@ -12,11 +12,8 @@ import { DeletePaiementDialog } from "@/components/paiements/DeletePaiementDialo
 import { usePaiementManager } from "@/hooks/usePaiementManager";
 import { useEffect, useState } from "react";
 
-const anneesDisponibles = [
-  "2023-2024",
-  "2024-2025",
-  "2025-2026",
-];
+const currentYear = new Date().getFullYear().toString();
+const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
 
 const Paiements = () => {
   const {
@@ -30,18 +27,15 @@ const Paiements = () => {
     deletePassword,
     isPasswordError,
     paiementToDelete,
-    moisDisponibles,
     defaultMontant,
     enfants,
     filteredPaiements,
     selectedEnfant,
-    selectedMois,
     handleAddClick,
     handleEditClick,
     handleSearch,
     handleSubmit,
     handleEnfantFilter,
-    handleMoisFilter,
     confirmDeletePaiement,
     cancelDeletePaiement,
     handleDeletePaiement,
@@ -55,7 +49,10 @@ const Paiements = () => {
     fetchEnfants();
   }, [fetchPaiements, fetchEnfants]);
 
-  const [selectedAnnee, setSelectedAnnee] = useState("all");
+  const [selectedStartMonth, setSelectedStartMonth] = useState(currentMonth);
+  const [selectedStartYear, setSelectedStartYear] = useState(currentYear);
+  const [selectedEndMonth, setSelectedEndMonth] = useState(currentMonth);
+  const [selectedEndYear, setSelectedEndYear] = useState(currentYear);
 
   // State pour les valeurs du formulaire
   const [selectedEnfantId, setSelectedEnfantId] = useState<number | null>(
@@ -77,9 +74,13 @@ const Paiements = () => {
     selectedPaiement?.commentaire || ""
   );
 
-  const handleAnneeChange = (annee: string) => {
-    setSelectedAnnee(annee);
-  };
+  const filteredByDatePaiements = filteredPaiements.filter(paiement => {
+    const paiementDate = new Date(paiement.datePaiement);
+    const startDate = new Date(`${selectedStartYear}-${selectedStartMonth}-01`);
+    const endDate = new Date(`${selectedEndYear}-${selectedEndMonth}-31`);
+    
+    return paiementDate >= startDate && paiementDate <= endDate;
+  });
 
   return (
     <SidebarProvider>
@@ -108,20 +109,20 @@ const Paiements = () => {
 
             <PaiementFilters
               selectedEnfant={selectedEnfant}
-              selectedMois={selectedMois}
-              selectedAnnee={selectedAnnee}
+              selectedStartMonth={selectedStartMonth}
+              selectedStartYear={selectedStartYear}
+              selectedEndMonth={selectedEndMonth}
+              selectedEndYear={selectedEndYear}
               onEnfantChange={handleEnfantFilter}
-              onMoisChange={handleMoisFilter}
-              onAnneeChange={handleAnneeChange}
+              onStartMonthChange={setSelectedStartMonth}
+              onStartYearChange={setSelectedStartYear}
+              onEndMonthChange={setSelectedEndMonth}
+              onEndYearChange={setSelectedEndYear}
               enfants={enfants}
-              moisDisponibles={moisDisponibles}
-              anneesDisponibles={anneesDisponibles}
             />
 
             <PaiementTableau
-              paiements={filteredPaiements.filter(paiement => 
-                selectedAnnee === "all" || paiement.anneeScolaire === selectedAnnee
-              )}
+              paiements={filteredByDatePaiements}
               enfants={enfants}
               onEdit={handleEditClick}
               confirmDeletePaiement={confirmDeletePaiement}
@@ -154,7 +155,6 @@ const Paiements = () => {
               anneeScolaire={anneeScolaire}
               onAnneeScolaireChange={(annee: string) => {/* Add your handler here */}}
               selectedPaiement={selectedPaiement}
-              moisDisponibles={moisDisponibles}
               defaultMontant={defaultMontant}
               enfants={enfants}
               onSubmit={handleSubmit}
