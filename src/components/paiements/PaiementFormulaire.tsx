@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { EnfantSelect } from "./forms/EnfantSelect";
@@ -26,9 +25,7 @@ interface PaiementFormulaireProps {
   onCommentaireChange: (commentaire: string) => void;
   anneeScolaire: string;
   onAnneeScolaireChange: (annee: string) => void;
-  // Add new props to match what's being passed from Paiements.tsx
   selectedPaiement: Paiement | null;
-  moisDisponibles: string[];
   defaultMontant: number;
   enfants: Enfant[];
   onCancel: () => void;
@@ -53,7 +50,6 @@ export function PaiementFormulaire({
   anneeScolaire,
   onAnneeScolaireChange,
   selectedPaiement,
-  moisDisponibles,
   defaultMontant,
   enfants,
   onCancel,

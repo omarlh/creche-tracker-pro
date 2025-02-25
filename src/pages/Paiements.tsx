@@ -1,4 +1,3 @@
-
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -54,7 +53,6 @@ const Paiements = () => {
   const [selectedEndMonth, setSelectedEndMonth] = useState(currentMonth);
   const [selectedEndYear, setSelectedEndYear] = useState(currentYear);
 
-  // State pour les valeurs du formulaire
   const [selectedEnfantId, setSelectedEnfantId] = useState<number | null>(
     selectedPaiement?.enfantId || null
   );
