@@ -54,7 +54,7 @@ export const PaiementFilters = ({
           <Calendar className="h-4 w-4" />
           Filtrer par année
         </Label>
-        <Select value={selectedAnnee} onValueChange={onAnneeChange}>
+        <Select value={selectedAnnee} onValueChange={onAnneeChange} defaultOpen>
           <SelectTrigger>
             <SelectValue placeholder="Toutes les années" />
           </SelectTrigger>
@@ -74,7 +74,7 @@ export const PaiementFilters = ({
           <Calendar className="h-4 w-4" />
           Filtrer par mois
         </Label>
-        <Select value={selectedMois} onValueChange={onMoisChange}>
+        <Select value={selectedMois} onValueChange={onMoisChange} defaultOpen>
           <SelectTrigger>
             <SelectValue placeholder="Tous les mois" />
           </SelectTrigger>
@@ -91,3 +91,4 @@ export const PaiementFilters = ({
     </div>
   );
 };
+
