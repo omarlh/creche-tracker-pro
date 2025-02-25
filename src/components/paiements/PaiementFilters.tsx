@@ -7,50 +7,20 @@ import { type Enfant } from "@/data/enfants";
 interface PaiementFiltersProps {
   selectedEnfant: string;
   onEnfantChange: (value: string) => void;
-  selectedStartMonth: string;
-  selectedStartYear: string;
-  selectedEndMonth: string;
-  selectedEndYear: string;
-  onStartMonthChange: (value: string) => void;
-  onStartYearChange: (value: string) => void;
-  onEndMonthChange: (value: string) => void;
-  onEndYearChange: (value: string) => void;
+  selectedStartDate: string;
+  selectedEndDate: string;
+  onStartDateChange: (value: string) => void;
+  onEndDateChange: (value: string) => void;
   enfants: Enfant[];
 }
 
-const months = [
-  "01", "02", "03", "04", "05", "06",
-  "07", "08", "09", "10", "11", "12"
-];
-
-const years = Array.from({ length: 10 }, (_, i) => (new Date().getFullYear() - 5 + i).toString());
-
-const monthNames: { [key: string]: string } = {
-  "01": "Janvier",
-  "02": "Février",
-  "03": "Mars",
-  "04": "Avril",
-  "05": "Mai",
-  "06": "Juin",
-  "07": "Juillet",
-  "08": "Août",
-  "09": "Septembre",
-  "10": "Octobre",
-  "11": "Novembre",
-  "12": "Décembre"
-};
-
 export const PaiementFilters = ({
   selectedEnfant,
-  selectedStartMonth,
-  selectedStartYear,
-  selectedEndMonth,
-  selectedEndYear,
+  selectedStartDate,
+  selectedEndDate,
   onEnfantChange,
-  onStartMonthChange,
-  onStartYearChange,
-  onEndMonthChange,
-  onEndYearChange,
+  onStartDateChange,
+  onEndDateChange,
   enfants,
 }: PaiementFiltersProps) => {
   return (
@@ -80,32 +50,12 @@ export const PaiementFilters = ({
           <Calendar className="h-4 w-4" />
           Date de début
         </Label>
-        <div className="flex gap-2">
-          <Select value={selectedStartMonth} onValueChange={onStartMonthChange}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Mois" />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {monthNames[month]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={selectedStartYear} onValueChange={onStartYearChange}>
-            <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="Année" />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map((year) => (
-                <SelectItem key={year} value={year}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <input
+          type="date"
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          value={selectedStartDate}
+          onChange={(e) => onStartDateChange(e.target.value)}
+        />
       </div>
 
       <div className="flex-1">
@@ -113,32 +63,12 @@ export const PaiementFilters = ({
           <Calendar className="h-4 w-4" />
           Date de fin
         </Label>
-        <div className="flex gap-2">
-          <Select value={selectedEndMonth} onValueChange={onEndMonthChange}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Mois" />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {monthNames[month]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={selectedEndYear} onValueChange={onEndYearChange}>
-            <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="Année" />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map((year) => (
-                <SelectItem key={year} value={year}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <input
+          type="date"
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          value={selectedEndDate}
+          onChange={(e) => onEndDateChange(e.target.value)}
+        />
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -10,9 +11,6 @@ import { PaiementFilters } from "@/components/paiements/PaiementFilters";
 import { DeletePaiementDialog } from "@/components/paiements/DeletePaiementDialog";
 import { usePaiementManager } from "@/hooks/usePaiementManager";
 import { useEffect, useState } from "react";
-
-const currentYear = new Date().getFullYear().toString();
-const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
 
 const Paiements = () => {
   const {
@@ -48,10 +46,10 @@ const Paiements = () => {
     fetchEnfants();
   }, [fetchPaiements, fetchEnfants]);
 
-  const [selectedStartMonth, setSelectedStartMonth] = useState(currentMonth);
-  const [selectedStartYear, setSelectedStartYear] = useState(currentYear);
-  const [selectedEndMonth, setSelectedEndMonth] = useState(currentMonth);
-  const [selectedEndYear, setSelectedEndYear] = useState(currentYear);
+  // Initialiser avec la date d'aujourd'hui
+  const today = new Date().toISOString().split('T')[0];
+  const [selectedStartDate, setSelectedStartDate] = useState(today);
+  const [selectedEndDate, setSelectedEndDate] = useState(today);
 
   const [selectedEnfantId, setSelectedEnfantId] = useState<number | null>(
     selectedPaiement?.enfantId || null
@@ -60,10 +58,10 @@ const Paiements = () => {
     selectedPaiement?.montant || defaultMontant
   );
   const [datePaiement, setDatePaiement] = useState<string>(
-    selectedPaiement?.datePaiement || new Date().toISOString().split('T')[0]
+    selectedPaiement?.datePaiement || today
   );
   const [moisConcerne, setMoisConcerne] = useState<string>(
-    selectedPaiement?.moisConcerne || new Date().toISOString().split('T')[0]
+    selectedPaiement?.moisConcerne || today
   );
   const [methodePaiement, setMethodePaiement] = useState<"carte" | "especes" | "cheque">(
     selectedPaiement?.methodePaiement || "especes"
@@ -74,8 +72,8 @@ const Paiements = () => {
 
   const filteredByDatePaiements = filteredPaiements.filter(paiement => {
     const paiementDate = new Date(paiement.datePaiement);
-    const startDate = new Date(`${selectedStartYear}-${selectedStartMonth}-01`);
-    const endDate = new Date(`${selectedEndYear}-${selectedEndMonth}-31`);
+    const startDate = new Date(selectedStartDate);
+    const endDate = new Date(selectedEndDate);
     
     return paiementDate >= startDate && paiementDate <= endDate;
   });
@@ -107,15 +105,11 @@ const Paiements = () => {
 
             <PaiementFilters
               selectedEnfant={selectedEnfant}
-              selectedStartMonth={selectedStartMonth}
-              selectedStartYear={selectedStartYear}
-              selectedEndMonth={selectedEndMonth}
-              selectedEndYear={selectedEndYear}
+              selectedStartDate={selectedStartDate}
+              selectedEndDate={selectedEndDate}
               onEnfantChange={handleEnfantFilter}
-              onStartMonthChange={setSelectedStartMonth}
-              onStartYearChange={setSelectedStartYear}
-              onEndMonthChange={setSelectedEndMonth}
-              onEndYearChange={setSelectedEndYear}
+              onStartDateChange={setSelectedStartDate}
+              onEndDateChange={setSelectedEndDate}
               enfants={enfants}
             />
 
