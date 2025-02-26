@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { EnfantSelect } from "./forms/EnfantSelect";
@@ -69,7 +70,8 @@ export function PaiementFormulaire({
             methodePaiement,
             commentaire,
             moisConcerne,
-            anneeScolaire
+            anneeScolaire,
+            statut: "complete"
           });
         }} className="space-y-4">
           <AnneeScolaireSelect
@@ -79,6 +81,7 @@ export function PaiementFormulaire({
           <EnfantSelect
             selectedEnfantId={selectedEnfantId}
             onEnfantChange={onEnfantChange}
+            enfants={enfants}
           />
           <MoisConcerneSelect
             moisConcerne={moisConcerne}
@@ -105,3 +108,4 @@ export function PaiementFormulaire({
     </Dialog>
   );
 }
+
