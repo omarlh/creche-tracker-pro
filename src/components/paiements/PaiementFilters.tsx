@@ -32,7 +32,8 @@ const months = [
 const generateYearOptions = () => {
   const currentYear = new Date().getFullYear();
   const years = [];
-  for (let i = currentYear - 2; i <= currentYear + 2; i++) {
+  // Inclure les 2 années précédentes et 10 années futures
+  for (let i = currentYear - 2; i <= currentYear + 10; i++) {
     years.push(i.toString());
   }
   return years;
@@ -88,7 +89,7 @@ export const PaiementFilters = ({
         </Label>
         <Select value={selectedEnfant} onValueChange={onEnfantChange}>
           <SelectTrigger>
-            <SelectValue placeholder="Tous les enfants" />
+            <SelectValue placeholder="Sélectionner un enfant" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tous les enfants</SelectItem>
@@ -169,3 +170,4 @@ export const PaiementFilters = ({
     </div>
   );
 };
+

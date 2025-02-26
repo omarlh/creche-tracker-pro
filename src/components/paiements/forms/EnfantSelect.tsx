@@ -18,10 +18,12 @@ export const EnfantSelect = ({ selectedEnfantId, onEnfantChange }: EnfantSelectP
         <SelectTrigger id="enfant">
           <SelectValue placeholder="Sélectionner un enfant" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
+          <SelectItem value="">Sélectionner un enfant</SelectItem>
           {/* EnfantSelect items will be populated from parent component */}
         </SelectContent>
       </Select>
     </div>
   );
 };
+
