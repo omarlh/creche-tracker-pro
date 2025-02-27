@@ -72,6 +72,7 @@ export const EnfantTableau = ({
               <div class="info-value"><strong>Nom:</strong> ${enfant.nom}</div>
               <div class="info-value"><strong>Prénom:</strong> ${enfant.prenom}</div>
               <div class="info-value"><strong>Classe:</strong> ${enfant.classe || '-'}</div>
+              <div class="info-value"><strong>Année scolaire:</strong> ${enfant.anneeScolaire || '2024-2025'}</div>
               <div class="info-value"><strong>Date d'inscription:</strong> ${new Date(enfant.dateInscription || "").toLocaleDateString("fr-FR")}</div>
               <div class="info-value">
                 <strong>Statut:</strong> 

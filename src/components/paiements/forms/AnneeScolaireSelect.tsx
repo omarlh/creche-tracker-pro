@@ -2,23 +2,16 @@
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const anneesDisponibles = [
-  "2023-2024",
-  "2024-2025",
-  "2025-2026",
-  "2026-2027",
-  "2027-2028",
-  "2028-2029",
-  "2029-2030",
-  "2030-2031",
-  "2031-2032",
-  "2032-2033",
-  "2033-2034",
-  "2034-2035",
-  "2035-2036",
-  "2036-2037",
-  "2037-2038",
-];
+const genererAnneesDisponibles = () => {
+  const anneesDisponibles = [];
+  const currentYear = new Date().getFullYear();
+  for (let i = -2; i <= 15; i++) {
+    const anneeDebut = currentYear + i;
+    const anneeFin = anneeDebut + 1;
+    anneesDisponibles.push(`${anneeDebut}-${anneeFin}`);
+  }
+  return anneesDisponibles;
+};
 
 interface AnneeScolaireSelectProps {
   value: string;
@@ -26,6 +19,8 @@ interface AnneeScolaireSelectProps {
 }
 
 export function AnneeScolaireSelect({ value, onChange }: AnneeScolaireSelectProps) {
+  const anneesDisponibles = genererAnneesDisponibles();
+  
   return (
     <div className="space-y-2">
       <Label htmlFor="anneeScolaire">Année scolaire</Label>
