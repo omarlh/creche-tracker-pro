@@ -39,6 +39,7 @@ const Paiements = () => {
     setDeletePassword,
     fetchPaiements,
     fetchEnfants,
+    setAnneeScolaire
   } = usePaiementManager();
 
   useEffect(() => {
@@ -145,7 +146,7 @@ const Paiements = () => {
               commentaire={commentaire}
               onCommentaireChange={setCommentaire}
               anneeScolaire={anneeScolaire}
-              onAnneeScolaireChange={(annee: string) => {/* Add your handler here */}}
+              onAnneeScolaireChange={setAnneeScolaire}
               selectedPaiement={selectedPaiement}
               defaultMontant={defaultMontant}
               enfants={enfants}

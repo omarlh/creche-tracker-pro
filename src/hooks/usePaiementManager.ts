@@ -30,6 +30,7 @@ export const usePaiementManager = () => {
 
   const handleEditClick = (paiement: Paiement) => {
     setSelectedPaiement(paiement);
+    setAnneeScolaire(paiement.anneeScolaire);
     setIsSheetOpen(true);
   };
 
@@ -57,7 +58,8 @@ export const usePaiementManager = () => {
         methodePaiement,
         commentaire,
         moisConcerne,
-        statut
+        statut,
+        anneeScolaire
       };
       modifierPaiement(paiementModifie);
       toast({
@@ -72,7 +74,8 @@ export const usePaiementManager = () => {
         methodePaiement,
         commentaire,
         moisConcerne,
-        statut
+        statut,
+        anneeScolaire
       };
       ajouterPaiement(nouveauPaiement);
       toast({
@@ -103,7 +106,8 @@ export const usePaiementManager = () => {
         moisConcerne: moisFormate,
         methodePaiement: "especes" as const,
         statut: "en_attente" as const,
-        commentaire: `Paiement mensuel pour ${mois}`
+        commentaire: `Paiement mensuel pour ${mois}`,
+        anneeScolaire
       };
       ajouterPaiement(nouveauPaiement);
     });
@@ -158,6 +162,7 @@ export const usePaiementManager = () => {
     isSearchFocused,
     setIsSearchFocused,
     anneeScolaire,
+    setAnneeScolaire,
     deletePassword,
     isPasswordError,
     paiementToDelete,

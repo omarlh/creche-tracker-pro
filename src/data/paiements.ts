@@ -17,7 +17,7 @@ export type Paiement = {
 
 interface PaiementStore {
   paiements: Paiement[];
-  ajouterPaiement: (paiement: Omit<Paiement, "id" | "anneeScolaire">) => Promise<void>;
+  ajouterPaiement: (paiement: Omit<Paiement, "id">) => Promise<void>;
   modifierPaiement: (paiement: Paiement) => Promise<void>;
   supprimerPaiement: (id: number) => Promise<void>;
   fetchPaiements: () => Promise<void>;
@@ -56,14 +56,6 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
   },
 
   ajouterPaiement: async (paiement) => {
-    const dateMoisConcerne = new Date(paiement.moisConcerne);
-    const mois = dateMoisConcerne.getMonth();
-    const annee = dateMoisConcerne.getFullYear();
-    
-    const anneeScolaire = mois >= 8 
-      ? `${annee}-${annee + 1}`
-      : `${annee - 1}-${annee}`;
-
     const { data, error } = await supabase
       .from('paiements')
       .insert([{
@@ -75,7 +67,7 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
         statut: paiement.statut,
         commentaire: paiement.commentaire,
         dernier_rappel: paiement.dernierRappel,
-        annee_scolaire: anneeScolaire
+        annee_scolaire: paiement.anneeScolaire
       }])
       .select()
       .single();
@@ -104,14 +96,6 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
   },
 
   modifierPaiement: async (paiement) => {
-    const dateMoisConcerne = new Date(paiement.moisConcerne);
-    const mois = dateMoisConcerne.getMonth();
-    const annee = dateMoisConcerne.getFullYear();
-    
-    const anneeScolaire = mois >= 8 
-      ? `${annee}-${annee + 1}`
-      : `${annee - 1}-${annee}`;
-
     const { error } = await supabase
       .from('paiements')
       .update({
@@ -123,7 +107,7 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
         statut: paiement.statut,
         commentaire: paiement.commentaire,
         dernier_rappel: paiement.dernierRappel,
-        annee_scolaire: anneeScolaire
+        annee_scolaire: paiement.anneeScolaire
       })
       .eq('id', paiement.id);
 
@@ -133,7 +117,7 @@ export const usePaiementStore = create<PaiementStore>((set, get) => ({
     }
 
     set(state => ({
-      paiements: state.paiements.map(p => p.id === paiement.id ? {...paiement, anneeScolaire} : p)
+      paiements: state.paiements.map(p => p.id === paiement.id ? paiement : p)
     }));
   },
 
