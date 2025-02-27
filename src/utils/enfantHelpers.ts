@@ -1,7 +1,7 @@
 
 import { type Enfant } from "@/data/enfants";
 import { useEnfantStore } from "@/data/enfants";
-import { type Toast } from "@/hooks/use-toast";
+import { type ToasterToast } from "@/hooks/use-toast";
 
 export const handleEnfantSubmit = (
   e: React.FormEvent<HTMLFormElement>,
@@ -10,10 +10,10 @@ export const handleEnfantSubmit = (
   setIsSheetOpen: (isOpen: boolean) => void,
   setShowPaiementForm: (show: boolean) => void,
   toast: {
-    (props: Omit<Toast, "id">): {
+    (props: Omit<ToasterToast, "id">): {
       id: string;
       dismiss: () => void;
-      update: (props: Toast) => void;
+      update: (props: ToasterToast) => void;
     }
   }
 ) => {
