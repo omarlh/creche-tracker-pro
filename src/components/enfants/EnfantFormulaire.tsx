@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { type Enfant } from "@/data/enfants";
+import { type Enfant } from "@/types/enfant.types";
 import { PersonalInfoForm } from "./forms/PersonalInfoForm";
 import { ContactForm } from "./forms/ContactForm";
 import { PaymentForm } from "./forms/PaymentForm";

@@ -22,7 +22,7 @@ export function TableauCroiseTable({
   getMontantInscription,
 }: TableauCroiseTableProps) {
   const filteredEnfants = enfants
-    .filter(e => e.anneeScolaire === selectedAnneeScolaire)
+    .filter(e => selectedAnneeScolaire === "all" || e.anneeScolaire === selectedAnneeScolaire)
     .filter(e => selectedClasse === "all" || e.classe === selectedClasse)
     .filter(e => {
       const fullName = `${e.prenom} ${e.nom}`.toLowerCase();
@@ -36,6 +36,7 @@ export function TableauCroiseTable({
           <TableHead rowSpan={2} className="bg-muted">Nom</TableHead>
           <TableHead rowSpan={2} className="bg-muted">Classe</TableHead>
           <TableHead rowSpan={2} className="bg-muted">Date d'inscription</TableHead>
+          <TableHead rowSpan={2} className="bg-muted">Année scolaire</TableHead>
           <TableHead rowSpan={2} className="bg-muted text-right">
             Frais d'inscription
           </TableHead>
@@ -64,6 +65,9 @@ export function TableauCroiseTable({
               </TableCell>
               <TableCell>
                 {enfant.dateInscription ? new Date(enfant.dateInscription).toLocaleDateString() : "-"}
+              </TableCell>
+              <TableCell>
+                {enfant.anneeScolaire || "-"}
               </TableCell>
               <TableCell className={`text-right ${
                 inscription.montantPaye >= inscription.montantTotal 

@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { type Enfant } from "@/data/enfants";
+import { type Enfant } from "@/types/enfant.types";
 import {
   Select,
   SelectContent,
@@ -22,6 +23,10 @@ export const PaymentForm = ({
   setShowPaiementForm,
   anneesDisponibles
 }: PaymentFormProps) => {
+  const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1;
+  const defaultAnneeScolaire = `${currentYear}-${nextYear}`;
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -59,7 +64,10 @@ export const PaymentForm = ({
           <label htmlFor="anneeScolaire" className="text-sm font-medium">
             Année scolaire
           </label>
-          <Select name="anneeScolaire" defaultValue="2023-2024">
+          <Select 
+            name="anneeScolaire" 
+            defaultValue={selectedEnfant?.anneeScolaire || defaultAnneeScolaire}
+          >
             <SelectTrigger className="bg-gray-100">
               <SelectValue placeholder="Sélectionner une année" />
             </SelectTrigger>

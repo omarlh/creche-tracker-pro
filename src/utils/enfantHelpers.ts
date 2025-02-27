@@ -1,5 +1,5 @@
 
-import { type Enfant } from "@/data/enfants";
+import { type Enfant } from "@/types/enfant.types";
 import { useEnfantStore } from "@/data/enfants";
 import { type ToasterToast } from "@/hooks/use-toast";
 
@@ -25,7 +25,8 @@ export const handleEnfantSubmit = (
   
   const montantTotal = Number(formData.get("montantTotal") || 300);
   const montantPaiement = Number(formData.get("montantPaiement") || 0);
-  const methodePaiement = formData.get("methodePaiement") as "carte" | "especes" | "cheque";
+  const methodePaiement = formData.get("methodePaiement") as "carte" | "especes" | "cheque" | "virement";
+  const anneeScolaire = formData.get("anneeScolaire") as string || "2024-2025";
 
   const nouveauPaiement = montantPaiement > 0 ? {
     id: Date.now(),
@@ -43,6 +44,8 @@ export const handleEnfantSubmit = (
     classe: formData.get("classe") as "TPS" | "PS" | "MS" | "GS",
     gsmMaman: formData.get("gsmMaman") as string,
     gsmPapa: formData.get("gsmPapa") as string,
+    anneeScolaire: anneeScolaire,
+    fraisScolariteMensuel: Number(formData.get("fraisScolariteMensuel") || 800),
     fraisInscription: {
       montantTotal,
       montantPaye: montantPaiement,

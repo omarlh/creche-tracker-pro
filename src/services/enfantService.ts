@@ -12,7 +12,7 @@ export const formatEnfantFromRow = (enfant: EnfantRow): Enfant => ({
   classe: enfant.classe as Enfant["classe"],
   gsmMaman: enfant.gsm_maman || undefined,
   gsmPapa: enfant.gsm_papa || undefined,
-  anneeScolaire: enfant.annee_scolaire || undefined,
+  anneeScolaire: enfant.annee_scolaire || "2024-2025",
   fraisScolariteMensuel: enfant.frais_scolarite_mensuel || undefined,
   fraisInscription: {
     montantTotal: enfant.montant_total || 0,

@@ -34,13 +34,14 @@ const TableauCroise = () => {
 
     return paiements.find(p => 
       p.enfantId === enfantId && 
-      p.moisConcerne === dateMois
+      p.moisConcerne === dateMois &&
+      p.anneeScolaire === selectedAnneeScolaire
     );
   };
 
   const getMontantInscription = (enfantId: number) => {
     const enfant = enfants.find(e => e.id === enfantId);
-    if (!enfant || !enfant.fraisInscription) {
+    if (!enfant || !enfant.fraisInscription || enfant.anneeScolaire !== selectedAnneeScolaire) {
       return {
         montantTotal: 800,
         montantPaye: 0

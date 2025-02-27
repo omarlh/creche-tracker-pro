@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { RapportMensuel } from "@/pages/Rapports";
-import { Enfant } from "@/data/enfants";
+import { Enfant } from "@/types/enfant.types";
 import { Paiement } from "@/data/paiements";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -9,19 +9,21 @@ export const useRapportGeneration = (
   dateDebut: string,
   dateFin: string,
   enfants: Enfant[],
-  paiements: Paiement[]
+  paiements: Paiement[],
+  anneeScolaire: string = "2024-2025"
 ) => {
   const [rapportsMensuels, setRapportsMensuels] = useState<RapportMensuel[]>([]);
 
   useEffect(() => {
     const genererRapports = async () => {
-      // Filtrer les enfants par date d'inscription
+      // Filtrer les enfants par date d'inscription et année scolaire
       const enfantsInscrits = enfants.filter(enfant => {
         const dateInscription = enfant.dateInscription || '';
         const dateFinInscription = enfant.dateFinInscription || '';
         return (
-          dateInscription >= dateDebut && 
-          (!dateFinInscription || dateFinInscription <= dateFin)
+          (dateInscription >= dateDebut && 
+          (!dateFinInscription || dateFinInscription <= dateFin)) &&
+          enfant.anneeScolaire === anneeScolaire
         );
       });
 
@@ -66,7 +68,7 @@ export const useRapportGeneration = (
       paiements
         .filter(p => {
           const enfant = enfantsInscrits.find(e => e.id === p.enfantId);
-          return enfant !== undefined;
+          return enfant !== undefined && p.anneeScolaire === anneeScolaire;
         })
         .forEach(paiement => {
           const enfant = enfantsInscrits.find(e => e.id === paiement.enfantId);
@@ -101,7 +103,7 @@ export const useRapportGeneration = (
     };
 
     genererRapports();
-  }, [dateDebut, dateFin, enfants, paiements]);
+  }, [dateDebut, dateFin, enfants, paiements, anneeScolaire]);
 
   return rapportsMensuels;
 };

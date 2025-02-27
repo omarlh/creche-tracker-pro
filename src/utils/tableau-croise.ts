@@ -1,3 +1,4 @@
+
 import type { Enfant } from "@/types/enfant.types";
 import type { Paiement } from "@/data/paiements";
 import * as XLSX from 'xlsx';
@@ -37,7 +38,7 @@ export const exportToExcel = (
   getPaiementMensuel: (enfantId: number, mois: string) => Paiement | undefined
 ) => {
   const data = enfants
-    .filter(e => e.anneeScolaire === selectedAnneeScolaire)
+    .filter(e => e.anneeScolaire === selectedAnneeScolaire || selectedAnneeScolaire === "all")
     .filter(e => selectedClasse === "all" || e.classe === selectedClasse)
     .filter(e => {
       const fullName = `${e.prenom} ${e.nom}`.toLowerCase();
@@ -49,6 +50,7 @@ export const exportToExcel = (
         "Nom": `${enfant.prenom} ${enfant.nom}`,
         "Classe": enfant.classe || "-",
         "Date d'inscription": enfant.dateInscription ? new Date(enfant.dateInscription).toLocaleDateString() : "-",
+        "Année scolaire": enfant.anneeScolaire || "-",
         "Frais d'inscription": `${inscription.montantPaye}/${inscription.montantTotal} DH`,
       };
 
