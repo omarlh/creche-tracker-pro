@@ -32,10 +32,10 @@ const TableauCroise = () => {
     const annee = parseInt(moisNum) > 8 ? anneeDebut : anneeFin;
     const dateMois = `${annee}-${moisNum}-01`;
 
+    // Récupère tous les paiements mensuels pour cet enfant et ce mois, sans filtre sur l'année scolaire
     return paiements.find(p => 
       p.enfantId === enfantId && 
-      p.moisConcerne === dateMois &&
-      p.anneeScolaire === selectedAnneeScolaire
+      p.moisConcerne === dateMois
     );
   };
 
