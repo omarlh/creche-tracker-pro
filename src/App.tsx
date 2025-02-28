@@ -13,6 +13,7 @@ import Depart from "@/pages/Depart";
 import Rapports from "@/pages/Rapports";
 import Retards from "@/pages/Retards";
 import TableauCroise from "@/pages/TableauCroise";
+import CaisseJournaliere from "@/pages/CaisseJournaliere";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <TableauCroise />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/caisse-journaliere",
+    element: (
+      <ProtectedRoute>
+        <CaisseJournaliere />
       </ProtectedRoute>
     ),
   },

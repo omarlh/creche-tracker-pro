@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { AppSidebar } from "@/components/AppSidebar";
 import { CaisseJournaliereTableau } from "@/components/caisse/CaisseJournaliereTableau";
 
