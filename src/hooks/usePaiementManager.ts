@@ -30,7 +30,6 @@ export const usePaiementManager = () => {
 
   const handleEditClick = (paiement: Paiement) => {
     setSelectedPaiement(paiement);
-    setAnneeScolaire(paiement.anneeScolaire);
     setIsSheetOpen(true);
   };
 
@@ -59,7 +58,7 @@ export const usePaiementManager = () => {
         commentaire,
         moisConcerne,
         statut,
-        anneeScolaire
+        anneeScolaire: extractSchoolYearFromDate(moisConcerne)
       };
       modifierPaiement(paiementModifie);
       toast({
@@ -75,7 +74,7 @@ export const usePaiementManager = () => {
         commentaire,
         moisConcerne,
         statut,
-        anneeScolaire
+        anneeScolaire: extractSchoolYearFromDate(moisConcerne)
       };
       ajouterPaiement(nouveauPaiement);
       toast({
@@ -85,6 +84,26 @@ export const usePaiementManager = () => {
     }
 
     setIsSheetOpen(false);
+  };
+
+  // Fonction pour extraire l'année scolaire à partir d'une date (format yyyy-mm-dd)
+  const extractSchoolYearFromDate = (dateStr: string): string => {
+    try {
+      const date = new Date(dateStr);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1; // 0-11 -> 1-12
+      
+      // Si le mois est entre septembre et décembre, l'année scolaire est année-année+1
+      // Sinon, c'est année-1-année
+      if (month >= 9) {
+        return `${year}-${year + 1}`;
+      } else {
+        return `${year - 1}-${year}`;
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'extraction de l'année scolaire:", error);
+      return getCurrentSchoolYear();
+    }
   };
 
   const handleAddMultiplePayments = (enfantId: number) => {
@@ -107,7 +126,7 @@ export const usePaiementManager = () => {
         methodePaiement: "especes" as const,
         statut: "en_attente" as const,
         commentaire: `Paiement mensuel pour ${mois}`,
-        anneeScolaire
+        anneeScolaire: extractSchoolYearFromDate(moisFormate)
       };
       ajouterPaiement(nouveauPaiement);
     });

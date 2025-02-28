@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { EnfantSelect } from "./forms/EnfantSelect";
 import { MoisConcerneSelect } from "./forms/MoisConcerneSelect";
 import { PaiementDetails } from "./forms/PaiementDetails";
-import { AnneeScolaireSelect } from "./forms/AnneeScolaireSelect";
 import type { Paiement } from "@/data/paiements";
 import type { Enfant } from "@/types/enfant.types";
 
@@ -74,10 +73,6 @@ export function PaiementFormulaire({
             statut: "complete"
           });
         }} className="space-y-4">
-          <AnneeScolaireSelect
-            value={anneeScolaire}
-            onChange={onAnneeScolaireChange}
-          />
           <EnfantSelect
             selectedEnfantId={selectedEnfantId}
             onEnfantChange={onEnfantChange}
