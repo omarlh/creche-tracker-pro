@@ -11,12 +11,15 @@ interface CaisseWhatsAppButtonProps {
 export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
   const { toast } = useToast();
 
-  const handleSendWhatsApp = async () => {
+  const sendWhatsAppMessage = async () => {
     try {
+      const today = new Date().toLocaleDateString('fr-FR');
+      const message = `Rapport de caisse du ${today}: Total ${totalJour} DH`;
+      
       const { data, error } = await supabase.functions.invoke('send-whatsapp', {
         body: {
-          to: "212664091486",
-          message: `Total recette de la journée: ${totalJour} DH`,
+          to: '00212664091486',
+          message
         }
       });
 
@@ -24,26 +27,20 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
 
       toast({
         title: "Message envoyé",
-        description: "Le résumé de la caisse a été envoyé par WhatsApp",
+        description: "Le rapport a été envoyé avec succès par WhatsApp",
       });
-
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message WhatsApp:', error);
       toast({
-        title: "Erreur",
-        description: "Une erreur s'est produite lors de l'envoi du message WhatsApp",
         variant: "destructive",
+        title: "Erreur",
+        description: "Impossible d'envoyer le message WhatsApp",
       });
     }
   };
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={handleSendWhatsApp}
-      className="text-green-600 hover:text-green-700"
-    >
+    <Button onClick={sendWhatsAppMessage} variant="whatsapp" size="sm">
       <MessageSquare className="h-4 w-4 mr-2" />
       WhatsApp
     </Button>
