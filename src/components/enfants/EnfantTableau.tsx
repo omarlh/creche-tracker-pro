@@ -116,7 +116,15 @@ export const EnfantTableau = ({
   };
 
   if (!enfants) {
-    return <div>Chargement...</div>;
+    return <div className="p-8 text-center">Chargement...</div>;
+  }
+
+  if (enfants.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
+        Aucun enfant trouvé pour les critères sélectionnés.
+      </div>
+    );
   }
 
   return (
@@ -142,7 +150,7 @@ export const EnfantTableau = ({
                 <EnfantStatut statut={enfant.statut} />
               </TableCell>
               <TableCell>
-                {new Date(enfant.dernierPaiement || "").toLocaleDateString("fr-FR")}
+                {enfant.dernierPaiement ? new Date(enfant.dernierPaiement).toLocaleDateString("fr-FR") : '-'}
               </TableCell>
               <TableCell>
                 <EnfantActions

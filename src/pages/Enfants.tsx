@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -12,6 +12,7 @@ import { EnfantSearchResult } from "@/components/enfants/search/EnfantSearchResu
 import { printEnfant } from "@/components/enfants/print/EnfantPrintPreview";
 import { EnfantFormSheet } from "@/components/enfants/EnfantFormSheet";
 import { handleEnfantSubmit } from "@/utils/enfantHelpers";
+import { EnfantDateFilters } from "@/components/enfants/EnfantDateFilters";
 
 const Enfants = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -19,9 +20,39 @@ const Enfants = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchedEnfant, setSearchedEnfant] = useState<Enfant | null>(null);
   const [showPaiementForm, setShowPaiementForm] = useState(false);
+  const [dateDebut, setDateDebut] = useState<Date | undefined>(undefined);
+  const [dateFin, setDateFin] = useState<Date | undefined>(undefined);
+  const [filteredEnfants, setFilteredEnfants] = useState<Enfant[]>([]);
   
   const enfants = useEnfantStore((state) => state.enfants);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!enfants) return;
+    
+    let filtered = [...enfants];
+    
+    // Filtrer par date de début
+    if (dateDebut) {
+      filtered = filtered.filter(enfant => {
+        const inscriptionDate = enfant.dateInscription ? new Date(enfant.dateInscription) : null;
+        return inscriptionDate ? inscriptionDate >= dateDebut : false;
+      });
+    }
+    
+    // Filtrer par date de fin
+    if (dateFin) {
+      const finDate = new Date(dateFin);
+      finDate.setHours(23, 59, 59, 999); // Fin de journée
+      
+      filtered = filtered.filter(enfant => {
+        const inscriptionDate = enfant.dateInscription ? new Date(enfant.dateInscription) : null;
+        return inscriptionDate ? inscriptionDate <= finDate : false;
+      });
+    }
+    
+    setFilteredEnfants(filtered);
+  }, [enfants, dateDebut, dateFin]);
 
   const handleAddClick = () => {
     setSelectedEnfant(null);
@@ -67,6 +98,11 @@ const Enfants = () => {
     printEnfant(enfant, calculerMontantRestant);
   };
 
+  const handleResetDates = () => {
+    setDateDebut(undefined);
+    setDateFin(undefined);
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full animate-fadeIn">
@@ -90,6 +126,14 @@ const Enfants = () => {
               </Button>
             </div>
 
+            <EnfantDateFilters 
+              dateDebut={dateDebut}
+              dateFin={dateFin}
+              onDateDebutChange={setDateDebut}
+              onDateFinChange={setDateFin}
+              onResetDates={handleResetDates}
+            />
+
             {searchedEnfant && (
               <EnfantSearchResult
                 enfant={searchedEnfant}
@@ -100,7 +144,7 @@ const Enfants = () => {
             )}
 
             <EnfantTableau 
-              enfants={enfants}
+              enfants={searchTerm ? enfants : filteredEnfants}
               onEdit={handleEditClick}
               onView={handleViewClick}
               calculerMontantRestant={calculerMontantRestant}
