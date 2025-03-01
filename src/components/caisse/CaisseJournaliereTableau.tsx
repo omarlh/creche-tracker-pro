@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -7,7 +6,11 @@ import { TableauLigne } from "./TableauLigne";
 import { TableauActions } from "./TableauActions";
 import { useToast } from "@/hooks/use-toast";
 
-export function CaisseJournaliereTableau() {
+interface CaisseJournaliereTableauProps {
+  onTotalUpdate?: (total: number) => void;
+}
+
+export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTableauProps) {
   const [paiements, setPaiements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +22,12 @@ export function CaisseJournaliereTableau() {
   useEffect(() => {
     fetchPaiements();
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (onTotalUpdate) {
+      onTotalUpdate(totalJour);
+    }
+  }, [totalJour, onTotalUpdate]);
 
   const fetchPaiements = async () => {
     try {
