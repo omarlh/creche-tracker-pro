@@ -1,8 +1,5 @@
 
-// Follow this setup guide to integrate the Supabase JS Client in a function:
-// https://supabase.com/docs/guides/functions/quickstart#supabase-client
-
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,39 +24,47 @@ serve(async (req) => {
 
     // Validate input
     if (!to || !message) {
-      throw new Error('Missing required parameters: to and message')
+      throw new Error('Le numéro de téléphone et le message sont requis')
     }
 
-    // Format phone number if needed (this is a mock implementation)
-    const formattedNumber = to.startsWith('+') ? to : `+${to}`
+    // Format phone number to ensure it starts with country code
+    const formattedPhone = to.startsWith('+212') ? to : `+212${to.replace(/^0/, '')}`
 
-    console.log(`Sending WhatsApp message to ${formattedNumber}: ${message}`)
+    const response = await fetch('https://graph.facebook.com/v17.0/171689289460681/messages', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: formattedPhone,
+        type: "text",
+        text: {
+          body: message
+        }
+      })
+    });
 
-    // In a real implementation, you would call the WhatsApp API here
-    // For now, we're just returning a success message
-    
-    // Simulate API call success
+    const data = await response.json()
+    console.log('WhatsApp API response:', data)
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Erreur lors de l\'envoi du message WhatsApp')
+    }
+
     return new Response(
-      JSON.stringify({
-        success: true,
-        message: 'Message sent successfully',
-        to: formattedNumber,
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
+      JSON.stringify({ success: true, data }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
+
   } catch (error) {
-    console.error('Error processing request:', error.message)
+    console.error('Error sending WhatsApp message:', error)
     return new Response(
-      JSON.stringify({
-        success: false,
-        error: error.message,
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      JSON.stringify({ error: error.message }),
+      { 
         status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }
