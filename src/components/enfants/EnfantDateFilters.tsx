@@ -25,7 +25,7 @@ export const EnfantDateFilters = ({
       <div className="flex-1 space-y-2">
         <Label className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          Date d'inscription (du)
+          Date début
         </Label>
         <DatePicker 
           date={dateDebut} 
@@ -36,7 +36,7 @@ export const EnfantDateFilters = ({
       <div className="flex-1 space-y-2">
         <Label className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          Date d'inscription (au)
+          Date fin
         </Label>
         <DatePicker 
           date={dateFin} 
