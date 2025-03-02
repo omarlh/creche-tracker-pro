@@ -1,3 +1,4 @@
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Enfant } from "@/types/enfant.types";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,11 @@ export function TableauCroiseTable({
       return paiementDate >= new Date(startDate) && paiementDate <= new Date(endDate);
     });
 
+    // Récupérer les frais d'inscription de l'enfant
+    const inscriptionInfo = getMontantInscription(enfant.id);
+    
+    // Séparer les paiements mensuels de ceux liés à l'inscription
+    // On considère qu'un paiement est pour l'inscription s'il a une année scolaire
     const paiementsMensuels = paiementsFiltres.filter(p => !p.anneeScolaire);
     const paiementsInscription = paiementsFiltres.filter(p => p.anneeScolaire);
 
@@ -83,6 +89,13 @@ export function TableauCroiseTable({
               margin: 5px 0;
               color: #495057;
             }
+            .frais-inscription {
+              background-color: #e9f7ef;
+              padding: 15px;
+              border-radius: 8px;
+              margin-bottom: 20px;
+              border: 1px solid #d5f5e3;
+            }
             @media print {
               body { padding: 0; }
               button { display: none; }
@@ -94,7 +107,7 @@ export function TableauCroiseTable({
             <h1>Historique des paiements</h1>
             <p><strong>Élève:</strong> ${enfant.prenom} ${enfant.nom}</p>
             <p><strong>Classe:</strong> ${enfant.classe || 'Non définie'}</p>
-            <p><strong>Date d'inscription:</strong> ${new Date(enfant.dateInscription || '').toLocaleDateString('fr-FR')}</p>
+            <p><strong>Date d'inscription:</strong> ${enfant.dateInscription ? new Date(enfant.dateInscription).toLocaleDateString('fr-FR') : 'Non définie'}</p>
           </div>
 
           <div class="date-block">
@@ -103,8 +116,15 @@ export function TableauCroiseTable({
             <div class="date-item"><strong>Au:</strong> ${new Date(endDate).toLocaleDateString('fr-FR')}</div>
           </div>
 
-          <div class="paiements-section">
+          <div class="frais-inscription">
             <h2>Frais d'inscription</h2>
+            <p><strong>Montant total:</strong> ${inscriptionInfo.montantTotal} DH</p>
+            <p><strong>Montant payé:</strong> ${inscriptionInfo.montantPaye} DH</p>
+            <p><strong>Reste à payer:</strong> ${inscriptionInfo.montantTotal - inscriptionInfo.montantPaye} DH</p>
+          </div>
+
+          <div class="paiements-section">
+            <h2>Détail des paiements d'inscription</h2>
             <table>
               <thead>
                 <tr>
@@ -116,7 +136,7 @@ export function TableauCroiseTable({
                 </tr>
               </thead>
               <tbody>
-                ${paiementsInscription.map(p => `
+                ${paiementsInscription.length > 0 ? paiementsInscription.map(p => `
                   <tr>
                     <td>${new Date(p.datePaiement).toLocaleDateString('fr-FR')}</td>
                     <td>${p.montant} DH</td>
@@ -124,7 +144,7 @@ export function TableauCroiseTable({
                     <td>${p.anneeScolaire || '-'}</td>
                     <td>${p.statut}</td>
                   </tr>
-                `).join('')}
+                `).join('') : '<tr><td colspan="5" style="text-align: center;">Aucun paiement d\'inscription trouvé pour cette période</td></tr>'}
               </tbody>
             </table>
             <p class="total">Total des frais d'inscription payés: ${totalInscription} DH</p>
@@ -141,7 +161,7 @@ export function TableauCroiseTable({
                 </tr>
               </thead>
               <tbody>
-                ${paiementsMensuels.map(p => `
+                ${paiementsMensuels.length > 0 ? paiementsMensuels.map(p => `
                   <tr>
                     <td>${new Date(p.moisConcerne).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</td>
                     <td>${new Date(p.datePaiement).toLocaleDateString('fr-FR')}</td>
@@ -149,7 +169,7 @@ export function TableauCroiseTable({
                     <td>${p.methodePaiement}</td>
                     <td>${p.statut}</td>
                   </tr>
-                `).join('')}
+                `).join('') : '<tr><td colspan="5" style="text-align: center;">Aucun paiement mensuel trouvé pour cette période</td></tr>'}
               </tbody>
             </table>
             <p class="total">Total des frais mensuels payés: ${totalMensuel} DH</p>
