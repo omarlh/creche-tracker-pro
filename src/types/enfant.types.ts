@@ -29,6 +29,15 @@ export type Enfant = {
   assurance_declaree?: boolean;
   date_assurance?: string;
   telephone?: string;
+  paiements?: Array<{
+    id: number;
+    montant: number;
+    datePaiement: string;
+    moisConcerne: string;
+    methodePaiement: string;
+    statut: string;
+    anneeScolaire?: string;
+  }>;
 };
 
 export type EnfantRow = {

@@ -31,7 +31,15 @@ const TableauCroise = () => {
     const enfantPaiements = paiements.filter(p => p.enfantId === enfant.id);
     return {
       ...enfant,
-      paiements: enfantPaiements
+      paiements: enfantPaiements.map(p => ({
+        id: p.id,
+        montant: p.montant,
+        datePaiement: p.datePaiement,
+        moisConcerne: p.moisConcerne,
+        methodePaiement: p.methodePaiement,
+        statut: p.statut,
+        anneeScolaire: p.anneeScolaire
+      }))
     };
   });
 
