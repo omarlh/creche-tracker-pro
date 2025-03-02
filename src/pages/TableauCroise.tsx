@@ -26,6 +26,15 @@ const TableauCroise = () => {
     fetchPaiements();
   }, [fetchEnfants, fetchPaiements]);
 
+  // Enrichir les enfants avec leurs paiements pour l'historique
+  const enfantsWithPaiements = enfants.map(enfant => {
+    const enfantPaiements = paiements.filter(p => p.enfantId === enfant.id);
+    return {
+      ...enfant,
+      paiements: enfantPaiements
+    };
+  });
+
   const getPaiementMensuel = (enfantId: number, mois: string) => {
     const moisNum = moisMapping[mois as keyof typeof moisMapping];
     const [anneeDebut, anneeFin] = selectedAnneeScolaire.split("-");
@@ -108,7 +117,7 @@ const TableauCroise = () => {
               </CardHeader>
               <CardContent className="overflow-x-auto">
                 <TableauCroiseTable
-                  enfants={enfants}
+                  enfants={enfantsWithPaiements}
                   selectedAnneeScolaire={selectedAnneeScolaire}
                   selectedClasse={selectedClasse}
                   searchTerm={searchTerm}
