@@ -56,14 +56,8 @@ export const AppSidebar = () => {
     >
       <div className="flex h-14 items-center border-b px-4">
         <div className="flex items-center gap-2">
-          {!open ? (
-            <LayoutDashboard className="h-6 w-6" />
-          ) : (
-            <>
-              <LayoutDashboard className="h-6 w-6" />
-              <span className="text-lg font-semibold">CrePay</span>
-            </>
-          )}
+          <LayoutDashboard className="h-6 w-6" />
+          {open && <span className="text-lg font-semibold">CrePay</span>}
         </div>
         <div className="ml-auto">
           <Button
