@@ -95,7 +95,7 @@ export const AppSidebar = () => {
           </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto p-3">
+      <div className="flex-1 overflow-auto py-3 px-3">
         <nav className="grid gap-1">
           <SidebarItem
             icon={LayoutDashboard}
