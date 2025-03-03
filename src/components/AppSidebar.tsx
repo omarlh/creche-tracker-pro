@@ -8,7 +8,6 @@ import {
   LogOut,
   LucideIcon,
   PieChart,
-  Search,
   Settings,
   Table,
   Users,
@@ -26,6 +25,23 @@ interface SidebarItemProps {
 }
 
 const SidebarItem = ({ icon: Icon, label, href, active }: SidebarItemProps) => {
+  const { open } = useSidebar();
+  
+  if (!open) {
+    return (
+      <Link
+        to={href}
+        className={cn(
+          "flex items-center justify-center rounded-lg p-2 transition-all hover:text-primary",
+          active ? "bg-primary/10 text-primary" : "text-muted-foreground"
+        )}
+        title={label}
+      >
+        <Icon className="h-5 w-5" />
+      </Link>
+    );
+  }
+  
   return (
     <Link
       to={href}
@@ -99,7 +115,7 @@ export const AppSidebar = () => {
           </Button>
         </div>
       </div>
-      <div className={cn("flex-1 overflow-auto p-3", !open && "items-center")}>
+      <div className="flex-1 overflow-auto p-3">
         <nav className="grid gap-1">
           <SidebarItem
             icon={LayoutDashboard}
