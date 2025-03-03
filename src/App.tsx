@@ -19,7 +19,6 @@ import Retards from './pages/Retards';
 import TableauCroise from './pages/TableauCroise';
 import ListeAnnuelle from './pages/ListeAnnuelle';
 import Depart from './pages/Depart';
-import ContactParents from './pages/ContactParents';
 
 import './App.css';
 
@@ -110,15 +109,6 @@ function App() {
           element={
             <ProtectedRoute>
               <Depart />
-            </ProtectedRoute>
-          } 
-        />
-        
-        <Route 
-          path="/contacts" 
-          element={
-            <ProtectedRoute>
-              <ContactParents />
             </ProtectedRoute>
           } 
         />

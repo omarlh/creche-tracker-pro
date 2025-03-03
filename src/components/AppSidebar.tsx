@@ -11,7 +11,6 @@ import {
   Settings,
   Table,
   Users,
-  Phone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -145,12 +144,6 @@ export const AppSidebar = () => {
             label="Tableau croisé"
             href="/tableau-croise"
             active={pathname === "/tableau-croise"}
-          />
-          <SidebarItem
-            icon={Phone}
-            label="Contacts Parents"
-            href="/contacts"
-            active={pathname === "/contacts"}
           />
         </nav>
       </div>
