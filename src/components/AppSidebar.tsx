@@ -41,7 +41,7 @@ const SidebarItem = ({ icon: Icon, label, href, active }: SidebarItemProps) => {
 };
 
 export const AppSidebar = () => {
-  const { collapsed, setCollapsed } = useSidebar();
+  const { open, setOpen } = useSidebar();
   const location = useLocation();
   const pathname = location.pathname;
 
@@ -49,12 +49,12 @@ export const AppSidebar = () => {
     <div
       className={cn(
         "flex h-screen flex-col border-r bg-background transition-all duration-300",
-        collapsed ? "w-16" : "w-64"
+        open ? "w-64" : "w-16"
       )}
     >
       <div className="flex h-14 items-center border-b px-4">
         <div className="flex items-center gap-2">
-          {collapsed ? (
+          {!open ? (
             <LayoutDashboard className="h-6 w-6" />
           ) : (
             <>
@@ -67,9 +67,9 @@ export const AppSidebar = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={() => setOpen(!open)}
           >
-            {collapsed ? (
+            {!open ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
@@ -99,7 +99,7 @@ export const AppSidebar = () => {
           </Button>
         </div>
       </div>
-      <div className={cn("flex-1 overflow-auto p-3", collapsed && "items-center")}>
+      <div className={cn("flex-1 overflow-auto p-3", !open && "items-center")}>
         <nav className="grid gap-1">
           <SidebarItem
             icon={LayoutDashboard}

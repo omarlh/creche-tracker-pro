@@ -4,7 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from '@/components/theme-provider';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 // Pages
 import Index from './pages/Index';
@@ -31,12 +31,12 @@ function App() {
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login onLogin={() => setAuthenticated(true)} />} />
+        <Route path="/login" element={<Login />} />
         
         <Route 
           path="/dashboard" 
           element={
-            <ProtectedRoute authenticated={authenticated}>
+            <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
           } 
@@ -45,7 +45,7 @@ function App() {
         <Route 
           path="/enfants" 
           element={
-            <ProtectedRoute authenticated={authenticated}>
+            <ProtectedRoute>
               <Enfants />
             </ProtectedRoute>
           } 
@@ -54,7 +54,7 @@ function App() {
         <Route 
           path="/paiements" 
           element={
-            <ProtectedRoute authenticated={authenticated}>
+            <ProtectedRoute>
               <Paiements />
             </ProtectedRoute>
           } 
@@ -63,7 +63,7 @@ function App() {
         <Route 
           path="/caisse" 
           element={
-            <ProtectedRoute authenticated={authenticated}>
+            <ProtectedRoute>
               <CaisseJournaliere />
             </ProtectedRoute>
           } 
@@ -72,7 +72,7 @@ function App() {
         <Route 
           path="/rapports" 
           element={
-            <ProtectedRoute authenticated={authenticated}>
+            <ProtectedRoute>
               <Rapports />
             </ProtectedRoute>
           } 
@@ -81,7 +81,7 @@ function App() {
         <Route 
           path="/retards" 
           element={
-            <ProtectedRoute authenticated={authenticated}>
+            <ProtectedRoute>
               <Retards />
             </ProtectedRoute>
           } 
@@ -90,7 +90,7 @@ function App() {
         <Route 
           path="/tableau-croise" 
           element={
-            <ProtectedRoute authenticated={authenticated}>
+            <ProtectedRoute>
               <TableauCroise />
             </ProtectedRoute>
           } 
@@ -99,7 +99,7 @@ function App() {
         <Route 
           path="/liste-annuelle" 
           element={
-            <ProtectedRoute authenticated={authenticated}>
+            <ProtectedRoute>
               <ListeAnnuelle />
             </ProtectedRoute>
           } 
@@ -108,7 +108,7 @@ function App() {
         <Route 
           path="/depart" 
           element={
-            <ProtectedRoute authenticated={authenticated}>
+            <ProtectedRoute>
               <Depart />
             </ProtectedRoute>
           } 
@@ -117,7 +117,7 @@ function App() {
         <Route 
           path="/contacts" 
           element={
-            <ProtectedRoute authenticated={authenticated}>
+            <ProtectedRoute>
               <ContactParents />
             </ProtectedRoute>
           } 
