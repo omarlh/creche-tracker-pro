@@ -26,32 +26,19 @@ interface SidebarItemProps {
 
 const SidebarItem = ({ icon: Icon, label, href, active }: SidebarItemProps) => {
   const { open } = useSidebar();
-  
-  if (!open) {
-    return (
-      <Link
-        to={href}
-        className={cn(
-          "flex items-center justify-center rounded-lg p-2 transition-all hover:text-primary",
-          active ? "bg-primary/10 text-primary" : "text-muted-foreground"
-        )}
-        title={label}
-      >
-        <Icon className="h-5 w-5" />
-      </Link>
-    );
-  }
-  
+
   return (
     <Link
       to={href}
       className={cn(
         "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary",
-        active ? "bg-primary/10 text-primary" : "text-muted-foreground"
+        active ? "bg-primary/10 text-primary" : "text-muted-foreground",
+        !open && "justify-center px-2"
       )}
+      title={!open ? label : undefined}
     >
       <Icon className="h-5 w-5" />
-      <span>{label}</span>
+      {open && <span>{label}</span>}
     </Link>
   );
 };
