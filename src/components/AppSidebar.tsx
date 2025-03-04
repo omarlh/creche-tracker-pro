@@ -31,7 +31,7 @@ const SidebarItem = ({ icon: Icon, label, href, active }: SidebarItemProps) => {
       to={href}
       className={cn(
         "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary",
-        active ? "bg-primary/10 text-primary" : "text-muted-foreground",
+        active ? "bg-primary/20 text-primary font-medium" : "text-gray-700",
         !open && "justify-center px-2"
       )}
       title={!open ? label : undefined}
@@ -50,14 +50,14 @@ export const AppSidebar = () => {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-40 flex h-screen flex-col border-r bg-background transition-all duration-300",
+        "fixed inset-y-0 left-0 z-40 flex h-screen flex-col border-r bg-gray-50 shadow-md transition-all duration-300",
         open ? "w-64" : "w-16"
       )}
     >
-      <div className="flex h-14 items-center border-b px-4">
+      <div className="flex h-14 items-center border-b bg-white px-4">
         <div className="flex items-center gap-2">
-          <LayoutDashboard className="h-6 w-6" />
-          {open && <span className="text-lg font-semibold">CrePay</span>}
+          <LayoutDashboard className="h-6 w-6 text-primary" />
+          {open && <span className="text-lg font-semibold text-gray-800">CrePay</span>}
         </div>
         <div className="ml-auto">
           <Button
@@ -141,7 +141,7 @@ export const AppSidebar = () => {
           />
         </nav>
       </div>
-      <div className="mt-auto border-t p-3">
+      <div className="mt-auto border-t bg-white p-3">
         <nav className="grid gap-1">
           <SidebarItem
             icon={Settings}
