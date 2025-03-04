@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import {
   BarChart,
@@ -143,12 +142,6 @@ export const AppSidebar = () => {
       </div>
       <div className="mt-auto border-t bg-white p-3">
         <nav className="grid gap-1">
-          <SidebarItem
-            icon={Settings}
-            label="Paramètres"
-            href="/settings"
-            active={pathname === "/settings"}
-          />
           <SidebarItem
             icon={LogOut}
             label="Déconnexion"
