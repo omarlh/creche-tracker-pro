@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
@@ -33,7 +32,7 @@ function App() {
       <SidebarProvider defaultOpen={true}>
         <div className="flex min-h-screen bg-background">
           <AppSidebar />
-          <main className="flex-1 ml-16 md:ml-64 p-4">
+          <main className="flex-1 ml-16 md:ml-64">
             {children}
           </main>
         </div>
