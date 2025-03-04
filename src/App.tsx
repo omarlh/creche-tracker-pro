@@ -5,6 +5,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from '@/components/theme-provider';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { AppSidebar } from '@/components/AppSidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 // Pages
 import Index from './pages/Index';
@@ -26,6 +28,19 @@ function App() {
   const [authenticated, setAuthenticated] = useState(true);
   const { toast } = useToast();
 
+  const LayoutWithSidebar = ({ children }: { children: React.ReactNode }) => {
+    return (
+      <SidebarProvider defaultOpen={true}>
+        <div className="flex min-h-screen bg-background">
+          <AppSidebar />
+          <main className="flex-1 ml-16 md:ml-64 p-4">
+            {children}
+          </main>
+        </div>
+      </SidebarProvider>
+    );
+  };
+
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <Routes>
@@ -36,7 +51,9 @@ function App() {
           path="/dashboard" 
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <LayoutWithSidebar>
+                <Dashboard />
+              </LayoutWithSidebar>
             </ProtectedRoute>
           } 
         />
@@ -45,7 +62,9 @@ function App() {
           path="/enfants" 
           element={
             <ProtectedRoute>
-              <Enfants />
+              <LayoutWithSidebar>
+                <Enfants />
+              </LayoutWithSidebar>
             </ProtectedRoute>
           } 
         />
@@ -54,7 +73,9 @@ function App() {
           path="/paiements" 
           element={
             <ProtectedRoute>
-              <Paiements />
+              <LayoutWithSidebar>
+                <Paiements />
+              </LayoutWithSidebar>
             </ProtectedRoute>
           } 
         />
@@ -63,7 +84,9 @@ function App() {
           path="/caisse" 
           element={
             <ProtectedRoute>
-              <CaisseJournaliere />
+              <LayoutWithSidebar>
+                <CaisseJournaliere />
+              </LayoutWithSidebar>
             </ProtectedRoute>
           } 
         />
@@ -72,7 +95,9 @@ function App() {
           path="/rapports" 
           element={
             <ProtectedRoute>
-              <Rapports />
+              <LayoutWithSidebar>
+                <Rapports />
+              </LayoutWithSidebar>
             </ProtectedRoute>
           } 
         />
@@ -81,7 +106,9 @@ function App() {
           path="/retards" 
           element={
             <ProtectedRoute>
-              <Retards />
+              <LayoutWithSidebar>
+                <Retards />
+              </LayoutWithSidebar>
             </ProtectedRoute>
           } 
         />
@@ -90,7 +117,9 @@ function App() {
           path="/tableau-croise" 
           element={
             <ProtectedRoute>
-              <TableauCroise />
+              <LayoutWithSidebar>
+                <TableauCroise />
+              </LayoutWithSidebar>
             </ProtectedRoute>
           } 
         />
@@ -99,7 +128,9 @@ function App() {
           path="/liste-annuelle" 
           element={
             <ProtectedRoute>
-              <ListeAnnuelle />
+              <LayoutWithSidebar>
+                <ListeAnnuelle />
+              </LayoutWithSidebar>
             </ProtectedRoute>
           } 
         />
@@ -108,7 +139,9 @@ function App() {
           path="/depart" 
           element={
             <ProtectedRoute>
-              <Depart />
+              <LayoutWithSidebar>
+                <Depart />
+              </LayoutWithSidebar>
             </ProtectedRoute>
           } 
         />

@@ -48,9 +48,9 @@ export const AppSidebar = () => {
   const pathname = location.pathname;
 
   return (
-    <div
+    <aside
       className={cn(
-        "flex h-screen flex-col border-r bg-background transition-all duration-300",
+        "fixed inset-y-0 left-0 z-40 flex h-screen flex-col border-r bg-background transition-all duration-300",
         open ? "w-64" : "w-16"
       )}
     >
@@ -95,7 +95,7 @@ export const AppSidebar = () => {
           </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto py-3 px-3">
+      <div className="flex-1 overflow-auto p-3">
         <nav className="grid gap-1">
           <SidebarItem
             icon={LayoutDashboard}
@@ -157,6 +157,6 @@ export const AppSidebar = () => {
           />
         </nav>
       </div>
-    </div>
+    </aside>
   );
 };
