@@ -19,6 +19,7 @@ const Dashboard = () => {
   const [anneeScolaire, setAnneeScolaire] = useState(getCurrentSchoolYear())
   const [totalFraisInscription, setTotalFraisInscription] = useState(0)
   const [paiementsMensuels, setPaiementsMensuels] = useState<any[]>([])
+  const [fraisInscriptionParMois, setFraisInscriptionParMois] = useState<Record<string, number>>({})
 
   useEffect(() => {
     fetchEnfants()
@@ -35,6 +36,7 @@ const Dashboard = () => {
 
       if (enfantIds.length === 0) {
         setTotalFraisInscription(0)
+        setFraisInscriptionParMois({})
         return
       }
 
@@ -59,6 +61,32 @@ const Dashboard = () => {
       // Calculer le total des frais d'inscription
       const total = filteredData.reduce((sum, p) => sum + (p.montant || 0), 0)
       setTotalFraisInscription(total)
+
+      // Calculer les frais d'inscription par mois
+      const parMois: Record<string, number> = {}
+      
+      filteredData.forEach(p => {
+        const date = new Date(p.date_paiement)
+        const year = date.getFullYear()
+        const month = date.getMonth()
+        
+        // Déterminer le mois dans l'année scolaire
+        const moisScolaires = getMoisAnneeScolaire()
+        let moisIndex
+        
+        if (month >= 8) { // Septembre à Décembre
+          moisIndex = month - 8
+        } else { // Janvier à Juin
+          moisIndex = month + 4
+        }
+        
+        if (moisIndex >= 0 && moisIndex < moisScolaires.length) {
+          const moisNom = moisScolaires[moisIndex]
+          parMois[moisNom] = (parMois[moisNom] || 0) + (p.montant || 0)
+        }
+      })
+      
+      setFraisInscriptionParMois(parMois)
     }
 
     getFraisInscription()
@@ -103,10 +131,12 @@ const Dashboard = () => {
         
         // Calculer le total des paiements pour ce mois
         const totalMois = paiementsMois.reduce((sum, p) => sum + p.montant, 0);
+        const fraisInscription = fraisInscriptionParMois[mois] || 0;
         
         return {
           mois,
           total: totalMois,
+          fraisInscription,
           nbPaiements: paiementsMois.length
         };
       });
@@ -115,7 +145,7 @@ const Dashboard = () => {
     };
     
     calculerPaiementsMensuels();
-  }, [paiements, anneeScolaire]);
+  }, [paiements, anneeScolaire, fraisInscriptionParMois]);
 
   // Filtrer les enfants par année scolaire sélectionnée
   const enfantsFiltres = enfants.filter(e => e.anneeScolaire === anneeScolaire);
@@ -214,8 +244,13 @@ const Dashboard = () => {
                     />
                     <Bar 
                       dataKey="total" 
-                      name="Montant" 
+                      name="Mensualités" 
                       fill="#8884d8"
+                    />
+                    <Bar 
+                      dataKey="fraisInscription" 
+                      name="Frais d'inscription" 
+                      fill="#82ca9d"
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -236,7 +271,9 @@ const Dashboard = () => {
                     <tr className="border-b">
                       <th className="text-left py-3 px-4">Mois</th>
                       <th className="text-left py-3 px-4">Nombre de paiements</th>
-                      <th className="text-right py-3 px-4">Montant total</th>
+                      <th className="text-right py-3 px-4">Montant mensualités</th>
+                      <th className="text-right py-3 px-4">Frais d'inscription</th>
+                      <th className="text-right py-3 px-4">Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -245,12 +282,16 @@ const Dashboard = () => {
                         <td className="py-3 px-4">{item.mois}</td>
                         <td className="py-3 px-4">{item.nbPaiements}</td>
                         <td className="py-3 px-4 text-right font-medium">{item.total} DH</td>
+                        <td className="py-3 px-4 text-right font-medium">{item.fraisInscription} DH</td>
+                        <td className="py-3 px-4 text-right font-medium">{item.total + item.fraisInscription} DH</td>
                       </tr>
                     ))}
                     <tr className="bg-muted/50 font-medium">
                       <td className="py-3 px-4">Total</td>
                       <td className="py-3 px-4">{paiementsMensuels.reduce((sum, item) => sum + item.nbPaiements, 0)}</td>
                       <td className="py-3 px-4 text-right">{paiementsMensuels.reduce((sum, item) => sum + item.total, 0)} DH</td>
+                      <td className="py-3 px-4 text-right">{paiementsMensuels.reduce((sum, item) => sum + item.fraisInscription, 0)} DH</td>
+                      <td className="py-3 px-4 text-right">{paiementsMensuels.reduce((sum, item) => sum + item.total + item.fraisInscription, 0)} DH</td>
                     </tr>
                   </tbody>
                 </table>
