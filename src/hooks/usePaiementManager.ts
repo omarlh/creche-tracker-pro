@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePaiementStore, type Paiement } from "@/data/paiements";
@@ -14,7 +13,7 @@ export const usePaiementManager = () => {
   const [deletePassword, setDeletePassword] = useState("");
   const [isPasswordError, setIsPasswordError] = useState(false);
   const [paiementToDelete, setPaiementToDelete] = useState<Paiement | null>(null);
-  const [moisDisponibles, setMoisDisponibles] = useState(getMoisAnneeScolaire(anneeScolaire));
+  const [moisDisponibles, setMoisDisponibles] = useState(getMoisAnneeScolaire());
   const [defaultMontant] = useState<number>(800);
   const [selectedEnfant, setSelectedEnfant] = useState("all");
   const [selectedMois, setSelectedMois] = useState("all");
@@ -86,15 +85,12 @@ export const usePaiementManager = () => {
     setIsSheetOpen(false);
   };
 
-  // Fonction pour extraire l'année scolaire à partir d'une date (format yyyy-mm-dd)
   const extractSchoolYearFromDate = (dateStr: string): string => {
     try {
       const date = new Date(dateStr);
       const year = date.getFullYear();
       const month = date.getMonth() + 1; // 0-11 -> 1-12
       
-      // Si le mois est entre septembre et décembre, l'année scolaire est année-année+1
-      // Sinon, c'est année-1-année
       if (month >= 9) {
         return `${year}-${year + 1}`;
       } else {
