@@ -28,7 +28,9 @@ serve(async (req) => {
     }
 
     // Format phone number to ensure it starts with country code
-    const formattedPhone = to.startsWith('+212') ? to : `+212${to.replace(/^0/, '')}`
+    const formattedPhone = to.startsWith('+') ? to : `+${to.replace(/^00/, '')}`
+    
+    console.log(`Sending WhatsApp message to ${formattedPhone}: ${message}`)
 
     const response = await fetch('https://graph.facebook.com/v17.0/171689289460681/messages', {
       method: 'POST',

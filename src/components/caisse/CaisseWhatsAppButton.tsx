@@ -21,17 +21,26 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       const today = new Date().toLocaleDateString('fr-FR');
       const message = `La recette d'aujourd'hui est de ${totalJour.toFixed(2)} DH`;
       
-      // Ensure the phone number is correctly formatted (removing any spaces or special characters)
-      const formattedPhoneNumber = '00212664091486'.replace(/\s+/g, '');
+      // Format the phone number correctly for the WhatsApp API
+      // The API requires the phone number to be in the format +COUNTRYCODEPHONENUMBER
+      // For Morocco, the country code is 212
+      const phoneNumber = "212664091486";
+      
+      console.log(`Sending WhatsApp message to ${phoneNumber}: ${message}`);
       
       const { data, error } = await supabase.functions.invoke('send-whatsapp', {
         body: {
-          to: formattedPhoneNumber,
+          to: phoneNumber,
           message
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      console.log('WhatsApp send response:', data);
 
       toast({
         title: "Message envoyé",
@@ -42,7 +51,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible d'envoyer le message WhatsApp",
+        description: "Impossible d'envoyer le message WhatsApp. Vérifiez la console pour plus de détails.",
       });
     } finally {
       setIsSending(false);
