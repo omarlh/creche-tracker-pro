@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -5,6 +6,7 @@ import { TableauHeader } from "./TableauHeader";
 import { TableauLigne } from "./TableauLigne";
 import { TableauActions } from "./TableauActions";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 
 interface CaisseJournaliereTableauProps {
   onTotalUpdate?: (total: number) => void;
@@ -35,12 +37,16 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
       setError(null);
       console.log("Fetching paiements...");
       
-      const today = new Date().toISOString().split('T')[0];
+      // Format dates correctly for Supabase query
+      const formattedStartDate = format(startDate, 'yyyy-MM-dd');
+      const formattedEndDate = format(endDate, 'yyyy-MM-dd');
       
+      // Updated query to fetch payments between the selected date range
       const { data, error } = await supabase
         .from('paiements')
         .select('*')
-        .eq('date_paiement', today);
+        .gte('date_paiement', formattedStartDate)
+        .lte('date_paiement', formattedEndDate);
 
       if (error) {
         console.error('Erreur Supabase:', error);
@@ -49,7 +55,9 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
 
       console.log("Paiements récupérés:", data);
       setPaiements(data || []);
-      const total = (data || []).reduce((sum: number, paiement: any) => sum + (paiement.montant || 0), 0);
+      
+      // Calculate the correct total
+      const total = (data || []).reduce((sum: number, paiement: any) => sum + (parseFloat(paiement.montant) || 0), 0);
       setTotalJour(total);
       
     } catch (err: any) {
@@ -86,13 +94,19 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
             </div>
           ) : (
             <>
-              {paiements.map((paiement) => (
-                <TableauLigne
-                  key={paiement.id}
-                  methode={paiement.methode_paiement}
-                  montant={paiement.montant}
-                />
-              ))}
+              {paiements.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground">
+                  Aucun paiement trouvé pour cette période
+                </div>
+              ) : (
+                paiements.map((paiement) => (
+                  <TableauLigne
+                    key={paiement.id}
+                    methode={paiement.methode_paiement}
+                    montant={paiement.montant}
+                  />
+                ))
+              )}
               <TableauActions
                 totalJour={totalJour}
                 onExport={() => console.log("Export data")}

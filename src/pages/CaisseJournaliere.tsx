@@ -4,18 +4,12 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { CaisseJournaliereTableau } from "@/components/caisse/CaisseJournaliereTableau";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import { TableauActions } from "@/components/caisse/TableauActions";
 
 export default function CaisseJournaliere() {
   const [totalJour, setTotalJour] = useState(0);
 
   const handleTotalUpdate = (total: number) => {
     setTotalJour(total);
-  };
-
-  const handleExport = () => {
-    // Cette fonction reste vide car le bouton d'export a été supprimé
-    console.log("Export functionality removed");
   };
 
   return (
@@ -34,7 +28,6 @@ export default function CaisseJournaliere() {
               </div>
             </div>
             <CaisseJournaliereTableau onTotalUpdate={handleTotalUpdate} />
-            <TableauActions totalJour={totalJour} onExport={handleExport} />
           </div>
         </div>
       </div>
