@@ -19,7 +19,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
     try {
       setIsSending(true);
       const today = new Date().toLocaleDateString('fr-FR');
-      const message = `Rapport de caisse du ${today}: Total ${totalJour.toFixed(2)} DH`;
+      const message = `La recette d'aujourd'hui est de ${totalJour.toFixed(2)} DH`;
       
       // Ensure the phone number is correctly formatted (removing any spaces or special characters)
       const formattedPhoneNumber = '00212664091486'.replace(/\s+/g, '');
