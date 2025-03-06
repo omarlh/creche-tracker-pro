@@ -1,16 +1,19 @@
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { getCurrentSchoolYear } from "@/lib/dateUtils"
 import { AnneeScolaireSelect } from "@/components/paiements/forms/AnneeScolaireSelect"
 import { DashboardCards } from "@/components/dashboard/DashboardCards"
 import { PaiementsChart } from "@/components/dashboard/PaiementsChart"
 import { PaiementsTable } from "@/components/dashboard/PaiementsTable"
 import { useDashboardData } from "@/hooks/useDashboardData"
+import { useToast } from "@/components/ui/use-toast"
 
 const Dashboard = () => {
   const [anneeScolaire, setAnneeScolaire] = useState(getCurrentSchoolYear())
+  const { toast } = useToast();
   
   const {
+    isLoading,
     enfantsFiltres,
     enfantsActifs,
     totalMensualites,
@@ -21,9 +24,23 @@ const Dashboard = () => {
     reloadData
   } = useDashboardData(anneeScolaire);
 
+  // Effect to reload data when anneeScolaire changes
+  useEffect(() => {
+    const loadDataForYear = async () => {
+      await reloadData();
+    };
+    
+    loadDataForYear();
+  }, [anneeScolaire, reloadData]);
+
   const handleAnneeScolaireChange = async (value: string) => {
+    if (value === anneeScolaire) return;
+    
     setAnneeScolaire(value);
-    await reloadData();
+    toast({
+      title: "Année scolaire modifiée",
+      description: `Les données sont maintenant filtrées pour l'année ${value}`,
+    });
   };
 
   return (
@@ -47,15 +64,18 @@ const Dashboard = () => {
           totalFraisInscription={totalFraisInscription}
           moyennePaiements={moyennePaiements}
           anneeScolaire={anneeScolaire}
+          isLoading={isLoading}
         />
 
         <PaiementsChart 
           paiementsMensuels={paiementsMensuels}
           anneeScolaire={anneeScolaire}
+          isLoading={isLoading}
         />
 
         <PaiementsTable
           paiementsMensuels={paiementsMensuels}
+          isLoading={isLoading}
         />
       </div>
     </main>

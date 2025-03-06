@@ -1,5 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DashboardCardsProps {
   enfantsTotal: number;
@@ -9,6 +10,7 @@ interface DashboardCardsProps {
   totalFraisInscription: number;
   moyennePaiements: string;
   anneeScolaire: string;
+  isLoading?: boolean;
 }
 
 export const DashboardCards = ({
@@ -19,6 +21,7 @@ export const DashboardCards = ({
   totalFraisInscription,
   moyennePaiements,
   anneeScolaire,
+  isLoading = false,
 }: DashboardCardsProps) => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -27,8 +30,14 @@ export const DashboardCards = ({
           <CardTitle className="text-sm font-medium">Total Enfants</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{enfantsTotal}</div>
-          <p className="text-xs text-muted-foreground">{anneeScolaire}</p>
+          {isLoading ? (
+            <Skeleton className="h-8 w-20" />
+          ) : (
+            <>
+              <div className="text-2xl font-bold">{enfantsTotal}</div>
+              <p className="text-xs text-muted-foreground">{anneeScolaire}</p>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -37,8 +46,14 @@ export const DashboardCards = ({
           <CardTitle className="text-sm font-medium">Enfants Actifs</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{enfantsActifs}</div>
-          <p className="text-xs text-muted-foreground">{anneeScolaire}</p>
+          {isLoading ? (
+            <Skeleton className="h-8 w-20" />
+          ) : (
+            <>
+              <div className="text-2xl font-bold">{enfantsActifs}</div>
+              <p className="text-xs text-muted-foreground">{anneeScolaire}</p>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -47,11 +62,21 @@ export const DashboardCards = ({
           <CardTitle className="text-sm font-medium">Total Paiements</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalPaiements} DH</div>
-          <div className="text-xs text-muted-foreground">
-            <div>Mensualités: {totalMensualites} DH</div>
-            <div>Frais d'inscription: {totalFraisInscription} DH</div>
-          </div>
+          {isLoading ? (
+            <>
+              <Skeleton className="h-8 w-32 mb-2" />
+              <Skeleton className="h-4 w-28 mb-1" />
+              <Skeleton className="h-4 w-24" />
+            </>
+          ) : (
+            <>
+              <div className="text-2xl font-bold">{totalPaiements} DH</div>
+              <div className="text-xs text-muted-foreground">
+                <div>Mensualités: {totalMensualites} DH</div>
+                <div>Frais d'inscription: {totalFraisInscription} DH</div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -60,8 +85,17 @@ export const DashboardCards = ({
           <CardTitle className="text-sm font-medium">Moyenne par Enfant</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{moyennePaiements} DH</div>
-          <p className="text-xs text-muted-foreground">Par enfant actif</p>
+          {isLoading ? (
+            <>
+              <Skeleton className="h-8 w-28 mb-2" />
+              <Skeleton className="h-4 w-32" />
+            </>
+          ) : (
+            <>
+              <div className="text-2xl font-bold">{moyennePaiements} DH</div>
+              <p className="text-xs text-muted-foreground">Par enfant actif</p>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

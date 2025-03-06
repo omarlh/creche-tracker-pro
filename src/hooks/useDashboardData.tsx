@@ -28,13 +28,19 @@ export function useDashboardData(anneeScolaire: string) {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      await Promise.all([fetchEnfants(), fetchPaiements()]);
-      setIsLoading(false);
+      try {
+        await Promise.all([fetchEnfants(), fetchPaiements()]);
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
+    
     loadData();
   }, [fetchEnfants, fetchPaiements]);
 
-  // Calculate frais d'inscription
+  // Calculate frais d'inscription based on anneeScolaire
   useEffect(() => {
     const getFraisInscription = async () => {
       setTotalFraisInscription(0);
@@ -48,91 +54,106 @@ export function useDashboardData(anneeScolaire: string) {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('paiements_inscription')
-        .select('montant, date_paiement')
-        .in('enfant_id', enfantIds);
+      try {
+        const { data, error } = await supabase
+          .from('paiements_inscription')
+          .select('montant, date_paiement')
+          .in('enfant_id', enfantIds);
 
-      if (error) {
-        console.error('Erreur lors de la récupération des frais d\'inscription:', error);
-        return;
+        if (error) {
+          console.error('Erreur lors de la récupération des frais d\'inscription:', error);
+          return;
+        }
+
+        const { start, end } = getSchoolYearDateRange(anneeScolaire);
+        const filteredData = data.filter(p => {
+          const paymentDate = new Date(p.date_paiement);
+          return paymentDate >= start && paymentDate <= end;
+        });
+
+        const total = filteredData.reduce((sum, p) => sum + (Number(p.montant) || 0), 0);
+        setTotalFraisInscription(total);
+
+        const parMois: Record<string, number> = {};
+        
+        filteredData.forEach(p => {
+          const date = new Date(p.date_paiement);
+          const moisScolaires = getMoisAnneeScolaire();
+          let moisIndex;
+          
+          if (date.getMonth() >= 8) { // Septembre à Décembre
+            moisIndex = date.getMonth() - 8;
+          } else { // Janvier à Juin
+            moisIndex = date.getMonth() + 4;
+          }
+          
+          if (moisIndex >= 0 && moisIndex < moisScolaires.length) {
+            const moisNom = moisScolaires[moisIndex];
+            parMois[moisNom] = (parMois[moisNom] || 0) + (Number(p.montant) || 0);
+          }
+        });
+        
+        setFraisInscriptionParMois(parMois);
+      } catch (error) {
+        console.error("Error processing frais d'inscription:", error);
       }
-
-      const { start, end } = getSchoolYearDateRange(anneeScolaire);
-      const filteredData = data.filter(p => {
-        const paymentDate = new Date(p.date_paiement);
-        return paymentDate >= start && paymentDate <= end;
-      });
-
-      const total = filteredData.reduce((sum, p) => sum + (Number(p.montant) || 0), 0);
-      setTotalFraisInscription(total);
-
-      const parMois: Record<string, number> = {};
-      
-      filteredData.forEach(p => {
-        const date = new Date(p.date_paiement);
-        const moisScolaires = getMoisAnneeScolaire();
-        let moisIndex;
-        
-        if (date.getMonth() >= 8) { // Septembre à Décembre
-          moisIndex = date.getMonth() - 8;
-        } else { // Janvier à Juin
-          moisIndex = date.getMonth() + 4;
-        }
-        
-        if (moisIndex >= 0 && moisIndex < moisScolaires.length) {
-          const moisNom = moisScolaires[moisIndex];
-          parMois[moisNom] = (parMois[moisNom] || 0) + (Number(p.montant) || 0);
-        }
-      });
-      
-      setFraisInscriptionParMois(parMois);
     };
 
-    getFraisInscription();
+    if (enfants && enfants.length > 0) {
+      getFraisInscription();
+    }
   }, [anneeScolaire, enfants]);
 
   // Calculate paiements mensuels
   useEffect(() => {
     const calculerPaiementsMensuels = () => {
-      const moisScolaires = getMoisAnneeScolaire();
-      
-      const paiementsAnnee = paiements.filter(p => {
-        if (p.anneeScolaire === anneeScolaire) {
-          return true;
-        }
-        const datePaiement = new Date(p.datePaiement);
-        return isDateInSchoolYear(datePaiement, anneeScolaire);
-      });
-      
-      const donneesParMois = moisScolaires.map((mois, index) => {
-        const [anneeDebut, anneeFin] = anneeScolaire.split('-').map(y => parseInt(y));
-        const moisNum = index <= 3 ? index + 8 : index - 4;
-        const annee = index <= 3 ? anneeDebut : anneeFin;
+      try {
+        const moisScolaires = getMoisAnneeScolaire();
         
-        const dateDebut = new Date(annee, moisNum, 1);
-        const dateFin = new Date(annee, moisNum + 1, 0);
-        
-        const paiementsMois = paiementsAnnee.filter(p => {
+        const paiementsAnnee = paiements.filter(p => {
+          if (p.anneeScolaire === anneeScolaire) {
+            return true;
+          }
           const datePaiement = new Date(p.datePaiement);
-          return datePaiement >= dateDebut && datePaiement <= dateFin;
+          return isDateInSchoolYear(datePaiement, anneeScolaire);
         });
         
-        const totalMois = paiementsMois.reduce((sum, p) => sum + Number(p.montant), 0);
-        const fraisInscription = fraisInscriptionParMois[mois] || 0;
+        const donneesParMois = moisScolaires.map((mois, index) => {
+          const [anneeDebut, anneeFin] = anneeScolaire.split('-').map(y => parseInt(y));
+          const moisNum = index <= 3 ? index + 8 : index - 4;
+          const annee = index <= 3 ? anneeDebut : anneeFin;
+          
+          const dateDebut = new Date(annee, moisNum, 1);
+          const dateFin = new Date(annee, moisNum + 1, 0);
+          
+          const paiementsMois = paiementsAnnee.filter(p => {
+            const datePaiement = new Date(p.datePaiement);
+            return datePaiement >= dateDebut && datePaiement <= dateFin;
+          });
+          
+          const totalMois = paiementsMois.reduce((sum, p) => sum + Number(p.montant), 0);
+          const fraisInscription = fraisInscriptionParMois[mois] || 0;
+          
+          return {
+            mois,
+            total: totalMois,
+            fraisInscription,
+            nbPaiements: paiementsMois.length
+          };
+        });
         
-        return {
-          mois,
-          total: totalMois,
-          fraisInscription,
-          nbPaiements: paiementsMois.length
-        };
-      });
-      
-      setPaiementsMensuels(donneesParMois);
+        setPaiementsMensuels(donneesParMois);
+      } catch (error) {
+        console.error("Error calculating paiements mensuels:", error);
+        setPaiementsMensuels([]);
+      }
     };
     
-    calculerPaiementsMensuels();
+    if (paiements && paiements.length > 0) {
+      calculerPaiementsMensuels();
+    } else {
+      setPaiementsMensuels([]);
+    }
   }, [paiements, anneeScolaire, fraisInscriptionParMois]);
 
   // Calculate derived data
@@ -141,6 +162,23 @@ export function useDashboardData(anneeScolaire: string) {
   const totalMensualites = paiementsMensuels.reduce((sum, m) => sum + m.total, 0);
   const totalPaiements = totalMensualites + totalFraisInscription;
   const moyennePaiements = enfantsActifs ? (totalPaiements / enfantsActifs).toFixed(2) : "0";
+
+  const reloadData = async () => {
+    setIsLoading(true);
+    try {
+      // Reset states to avoid stale data
+      setPaiementsMensuels([]);
+      setTotalFraisInscription(0);
+      setFraisInscriptionParMois({});
+      
+      // Fetch fresh data
+      await Promise.all([fetchEnfants(), fetchPaiements()]);
+    } catch (error) {
+      console.error("Error reloading dashboard data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return {
     isLoading,
@@ -151,6 +189,6 @@ export function useDashboardData(anneeScolaire: string) {
     totalPaiements,
     moyennePaiements,
     paiementsMensuels,
-    reloadData: () => Promise.all([fetchEnfants(), fetchPaiements()])
+    reloadData
   };
 }
