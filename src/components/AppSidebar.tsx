@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import {
   BarChart,
@@ -104,13 +105,13 @@ export const AppSidebar = () => {
           />
           <SidebarItem
             icon={Users}
-            label="Enfants"
+            label="Inscription Enfants"
             href="/enfants"
             active={pathname === "/enfants"}
           />
           <SidebarItem
             icon={CreditCard}
-            label="Paiements"
+            label="Paiements des frais de scolarité mensuels"
             href="/paiements"
             active={pathname === "/paiements"}
           />

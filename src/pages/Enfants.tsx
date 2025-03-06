@@ -111,7 +111,7 @@ const Enfants = () => {
           <div className="max-w-6xl mx-auto">
             <div className="mb-6">
               <h1 className="text-3xl font-semibold tracking-tight">
-                Inscription d'un Enfant/ Frais d'inscription
+                Inscription Enfants
               </h1>
             </div>
 
