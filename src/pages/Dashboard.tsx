@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useEnfantStore } from "@/data/enfants"
@@ -22,115 +21,97 @@ const Dashboard = () => {
   const [fraisInscriptionParMois, setFraisInscriptionParMois] = useState<Record<string, number>>({})
 
   useEffect(() => {
-    fetchEnfants()
-    fetchPaiements()
-  }, [fetchEnfants, fetchPaiements])
+    const loadData = async () => {
+      await Promise.all([fetchEnfants(), fetchPaiements()]);
+    };
+    loadData();
+  }, [fetchEnfants, fetchPaiements]);
 
-  // Récupérer les frais d'inscription pour l'année scolaire sélectionnée
   useEffect(() => {
     const getFraisInscription = async () => {
-      // Récupérer les IDs des enfants pour l'année scolaire sélectionnée
+      setTotalFraisInscription(0);
+      setFraisInscriptionParMois({});
+      setPaiementsMensuels([]);
+
       const enfantIds = enfants
         .filter(e => e.anneeScolaire === anneeScolaire)
-        .map(e => e.id)
+        .map(e => e.id);
 
       if (enfantIds.length === 0) {
-        setTotalFraisInscription(0)
-        setFraisInscriptionParMois({})
-        return
+        return;
       }
 
-      // Récupérer tous les paiements d'inscription pour ces enfants
       const { data, error } = await supabase
         .from('paiements_inscription')
         .select('montant, date_paiement')
-        .in('enfant_id', enfantIds)
+        .in('enfant_id', enfantIds);
 
       if (error) {
-        console.error('Erreur lors de la récupération des frais d\'inscription:', error)
-        return
+        console.error('Erreur lors de la récupération des frais d\'inscription:', error);
+        return;
       }
 
-      // Filtrer les paiements par année scolaire
       const { start, end } = getSchoolYearDateRange(anneeScolaire);
       const filteredData = data.filter(p => {
         const paymentDate = new Date(p.date_paiement);
         return paymentDate >= start && paymentDate <= end;
       });
 
-      // Calculer le total des frais d'inscription
-      const total = filteredData.reduce((sum, p) => sum + (p.montant || 0), 0)
-      setTotalFraisInscription(total)
+      const total = filteredData.reduce((sum, p) => sum + (Number(p.montant) || 0), 0);
+      setTotalFraisInscription(total);
 
-      // Calculer les frais d'inscription par mois
-      const parMois: Record<string, number> = {}
+      const parMois: Record<string, number> = {};
       
       filteredData.forEach(p => {
-        const date = new Date(p.date_paiement)
-        const year = date.getFullYear()
-        const month = date.getMonth()
+        const date = new Date(p.date_paiement);
+        const moisScolaires = getMoisAnneeScolaire();
+        let moisIndex;
         
-        // Déterminer le mois dans l'année scolaire
-        const moisScolaires = getMoisAnneeScolaire()
-        let moisIndex
-        
-        if (month >= 8) { // Septembre à Décembre
-          moisIndex = month - 8
+        if (date.getMonth() >= 8) { // Septembre à Décembre
+          moisIndex = date.getMonth() - 8;
         } else { // Janvier à Juin
-          moisIndex = month + 4
+          moisIndex = date.getMonth() + 4;
         }
         
         if (moisIndex >= 0 && moisIndex < moisScolaires.length) {
-          const moisNom = moisScolaires[moisIndex]
-          parMois[moisNom] = (parMois[moisNom] || 0) + (p.montant || 0)
+          const moisNom = moisScolaires[moisIndex];
+          parMois[moisNom] = (parMois[moisNom] || 0) + (Number(p.montant) || 0);
         }
-      })
+      });
       
-      setFraisInscriptionParMois(parMois)
-    }
+      setFraisInscriptionParMois(parMois);
+    };
 
-    getFraisInscription()
-  }, [anneeScolaire, enfants])
+    getFraisInscription();
+  }, [anneeScolaire, enfants]);
 
-  // Calculer les paiements par mois pour l'année scolaire sélectionnée
   useEffect(() => {
     const calculerPaiementsMensuels = () => {
-      // Récupérer les mois de l'année scolaire
       const moisScolaires = getMoisAnneeScolaire();
-      
-      // Récupérer la plage de dates de l'année scolaire
       const dateRange = getSchoolYearDateRange(anneeScolaire);
       
-      // Filtrer les paiements pour cette année scolaire
       const paiementsAnnee = paiements.filter(p => {
-        // Vérifier si le paiement a une année scolaire spécifiée
-        if (p.anneeScolaire && p.anneeScolaire === anneeScolaire) {
+        if (p.anneeScolaire === anneeScolaire) {
           return true;
         }
-        
-        // Sinon, vérifier si la date du paiement est dans la plage de l'année scolaire
         const datePaiement = new Date(p.datePaiement);
         return isDateInSchoolYear(datePaiement, anneeScolaire);
       });
       
-      // Créer les données pour chaque mois
       const donneesParMois = moisScolaires.map((mois, index) => {
         const [anneeDebut, anneeFin] = anneeScolaire.split('-').map(y => parseInt(y));
-        const moisNum = index <= 3 ? index + 8 : index - 4; // 8=septembre, 9=octobre, etc.
+        const moisNum = index <= 3 ? index + 8 : index - 4;
         const annee = index <= 3 ? anneeDebut : anneeFin;
         
-        // Déterminer le début et la fin du mois
         const dateDebut = new Date(annee, moisNum, 1);
         const dateFin = new Date(annee, moisNum + 1, 0);
         
-        // Filtrer les paiements pour ce mois
         const paiementsMois = paiementsAnnee.filter(p => {
           const datePaiement = new Date(p.datePaiement);
           return datePaiement >= dateDebut && datePaiement <= dateFin;
         });
         
-        // Calculer le total des paiements pour ce mois
-        const totalMois = paiementsMois.reduce((sum, p) => sum + p.montant, 0);
+        const totalMois = paiementsMois.reduce((sum, p) => sum + Number(p.montant), 0);
         const fraisInscription = fraisInscriptionParMois[mois] || 0;
         
         return {
@@ -147,17 +128,13 @@ const Dashboard = () => {
     calculerPaiementsMensuels();
   }, [paiements, anneeScolaire, fraisInscriptionParMois]);
 
-  // Filtrer les enfants par année scolaire sélectionnée
   const enfantsFiltres = enfants.filter(e => e.anneeScolaire === anneeScolaire);
   const enfantsActifs = enfantsFiltres.filter(e => e.statut === "actif").length;
 
-  // Calculer le total des mensualités pour l'année scolaire sélectionnée
   const totalMensualites = paiementsMensuels.reduce((sum, m) => sum + m.total, 0);
 
-  // Calculer le total global (mensualités + frais d'inscription)
   const totalPaiements = totalMensualites + totalFraisInscription;
 
-  // Calculer la moyenne par enfant (uniquement pour les enfants actifs)
   const moyennePaiements = enfantsActifs ? (totalPaiements / enfantsActifs).toFixed(2) : "0";
 
   return (
@@ -168,7 +145,11 @@ const Dashboard = () => {
           <div className="w-64">
             <AnneeScolaireSelect
               value={anneeScolaire}
-              onChange={(value) => setAnneeScolaire(value)}
+              onChange={(value) => {
+                setAnneeScolaire(value);
+                fetchEnfants();
+                fetchPaiements();
+              }}
             />
           </div>
         </div>
