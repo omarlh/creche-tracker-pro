@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 interface PaiementMensuel {
   mois: string;
@@ -17,6 +17,14 @@ interface PaiementsChartProps {
 }
 
 export const PaiementsChart = ({ paiementsMensuels, anneeScolaire, isLoading = false }: PaiementsChartProps) => {
+  // Format data for the chart
+  const chartData = paiementsMensuels.map(p => ({
+    ...p,
+    // Ensure values are actual numbers
+    total: typeof p.total === 'number' ? p.total : 0,
+    fraisInscription: typeof p.fraisInscription === 'number' ? p.fraisInscription : 0
+  }));
+
   return (
     <div className="mb-8">
       <Card>
@@ -29,10 +37,14 @@ export const PaiementsChart = ({ paiementsMensuels, anneeScolaire, isLoading = f
               <div className="w-full h-full flex items-center justify-center">
                 <Skeleton className="h-[90%] w-[95%]" />
               </div>
+            ) : chartData.length === 0 ? (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                Aucune donnée disponible pour cette période
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={paiementsMensuels}
+                  data={chartData}
                   margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
@@ -47,6 +59,7 @@ export const PaiementsChart = ({ paiementsMensuels, anneeScolaire, isLoading = f
                     formatter={(value) => [`${value} DH`, 'Montant']}
                     labelFormatter={(label) => `${label}`}
                   />
+                  <Legend />
                   <Bar 
                     dataKey="total" 
                     name="Mensualités" 

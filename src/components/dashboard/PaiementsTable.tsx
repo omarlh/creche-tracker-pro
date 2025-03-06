@@ -27,6 +27,20 @@ export const PaiementsTable = ({ paiementsMensuels, isLoading = false }: Paiemen
     ));
   };
 
+  // Ensure all values are numbers to prevent NaN in calculations
+  const safeData = paiementsMensuels.map(item => ({
+    ...item,
+    total: typeof item.total === 'number' ? item.total : 0,
+    fraisInscription: typeof item.fraisInscription === 'number' ? item.fraisInscription : 0,
+    nbPaiements: typeof item.nbPaiements === 'number' ? item.nbPaiements : 0,
+  }));
+
+  // Calculate totals safely
+  const totalNbPaiements = safeData.reduce((sum, item) => sum + item.nbPaiements, 0);
+  const totalMensualites = safeData.reduce((sum, item) => sum + item.total, 0);
+  const totalFraisInscription = safeData.reduce((sum, item) => sum + item.fraisInscription, 0);
+  const totalGeneral = totalMensualites + totalFraisInscription;
+
   return (
     <Card>
       <CardHeader>
@@ -47,23 +61,29 @@ export const PaiementsTable = ({ paiementsMensuels, isLoading = false }: Paiemen
             <tbody>
               {isLoading ? (
                 renderSkeletonRows()
+              ) : safeData.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                    Aucune donnée disponible pour cette période
+                  </td>
+                </tr>
               ) : (
                 <>
-                  {paiementsMensuels.map((item, index) => (
+                  {safeData.map((item, index) => (
                     <tr key={index} className="border-b">
                       <td className="py-3 px-4">{item.mois}</td>
                       <td className="py-3 px-4">{item.nbPaiements}</td>
-                      <td className="py-3 px-4 text-right font-medium">{item.total} DH</td>
-                      <td className="py-3 px-4 text-right font-medium">{item.fraisInscription} DH</td>
-                      <td className="py-3 px-4 text-right font-medium">{item.total + item.fraisInscription} DH</td>
+                      <td className="py-3 px-4 text-right font-medium">{item.total.toFixed(2)} DH</td>
+                      <td className="py-3 px-4 text-right font-medium">{item.fraisInscription.toFixed(2)} DH</td>
+                      <td className="py-3 px-4 text-right font-medium">{(item.total + item.fraisInscription).toFixed(2)} DH</td>
                     </tr>
                   ))}
                   <tr className="bg-muted/50 font-medium">
                     <td className="py-3 px-4">Total</td>
-                    <td className="py-3 px-4">{paiementsMensuels.reduce((sum, item) => sum + item.nbPaiements, 0)}</td>
-                    <td className="py-3 px-4 text-right">{paiementsMensuels.reduce((sum, item) => sum + item.total, 0)} DH</td>
-                    <td className="py-3 px-4 text-right">{paiementsMensuels.reduce((sum, item) => sum + item.fraisInscription, 0)} DH</td>
-                    <td className="py-3 px-4 text-right">{paiementsMensuels.reduce((sum, item) => sum + item.total + item.fraisInscription, 0)} DH</td>
+                    <td className="py-3 px-4">{totalNbPaiements}</td>
+                    <td className="py-3 px-4 text-right">{totalMensualites.toFixed(2)} DH</td>
+                    <td className="py-3 px-4 text-right">{totalFraisInscription.toFixed(2)} DH</td>
+                    <td className="py-3 px-4 text-right">{totalGeneral.toFixed(2)} DH</td>
                   </tr>
                 </>
               )}

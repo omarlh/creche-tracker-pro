@@ -23,6 +23,12 @@ export const DashboardCards = ({
   anneeScolaire,
   isLoading = false,
 }: DashboardCardsProps) => {
+  // Ensure values are proper numbers to prevent display issues
+  const safeTotal = isNaN(Number(totalPaiements)) ? 0 : totalPaiements;
+  const safeMensualites = isNaN(Number(totalMensualites)) ? 0 : totalMensualites;
+  const safeFraisInscription = isNaN(Number(totalFraisInscription)) ? 0 : totalFraisInscription;
+  const safeMoyenne = isNaN(Number(moyennePaiements)) ? "0" : moyennePaiements;
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
       <Card>
@@ -70,10 +76,10 @@ export const DashboardCards = ({
             </>
           ) : (
             <>
-              <div className="text-2xl font-bold">{totalPaiements} DH</div>
+              <div className="text-2xl font-bold">{safeTotal.toFixed(2)} DH</div>
               <div className="text-xs text-muted-foreground">
-                <div>Mensualités: {totalMensualites} DH</div>
-                <div>Frais d'inscription: {totalFraisInscription} DH</div>
+                <div>Mensualités: {safeMensualites.toFixed(2)} DH</div>
+                <div>Frais d'inscription: {safeFraisInscription.toFixed(2)} DH</div>
               </div>
             </>
           )}
@@ -92,7 +98,7 @@ export const DashboardCards = ({
             </>
           ) : (
             <>
-              <div className="text-2xl font-bold">{moyennePaiements} DH</div>
+              <div className="text-2xl font-bold">{Number(safeMoyenne).toFixed(2)} DH</div>
               <p className="text-xs text-muted-foreground">Par enfant actif</p>
             </>
           )}

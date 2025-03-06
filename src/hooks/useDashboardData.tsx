@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useEnfantStore } from "@/data/enfants";
 import { usePaiementStore } from "@/data/paiements";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,15 +23,19 @@ export function useDashboardData(anneeScolaire: string) {
   const [paiementsMensuels, setPaiementsMensuels] = useState<PaiementMensuel[]>([]);
   const [fraisInscriptionParMois, setFraisInscriptionParMois] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  // Fetch initial data
+  // Fetch initial data with improved error handling
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
+      setError(null);
+      
       try {
         await Promise.all([fetchEnfants(), fetchPaiements()]);
-      } catch (error) {
-        console.error("Error loading dashboard data:", error);
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+        setError(err instanceof Error ? err : new Error("Failed to load dashboard data"));
       } finally {
         setIsLoading(false);
       }
@@ -40,21 +44,21 @@ export function useDashboardData(anneeScolaire: string) {
     loadData();
   }, [fetchEnfants, fetchPaiements]);
 
-  // Calculate frais d'inscription based on anneeScolaire
+  // Calculate frais d'inscription based on anneeScolaire with improved error handling
   useEffect(() => {
     const getFraisInscription = async () => {
-      setTotalFraisInscription(0);
-      setFraisInscriptionParMois({});
-
-      const enfantIds = enfants
-        .filter(e => e.anneeScolaire === anneeScolaire)
-        .map(e => e.id);
-
-      if (enfantIds.length === 0) {
-        return;
-      }
-
       try {
+        setTotalFraisInscription(0);
+        setFraisInscriptionParMois({});
+
+        const enfantIds = enfants
+          .filter(e => e.anneeScolaire === anneeScolaire)
+          .map(e => e.id);
+
+        if (enfantIds.length === 0) {
+          return;
+        }
+
         const { data, error } = await supabase
           .from('paiements_inscription')
           .select('montant, date_paiement')
@@ -62,7 +66,7 @@ export function useDashboardData(anneeScolaire: string) {
 
         if (error) {
           console.error('Erreur lors de la récupération des frais d\'inscription:', error);
-          return;
+          throw error;
         }
 
         const { start, end } = getSchoolYearDateRange(anneeScolaire);
@@ -75,16 +79,18 @@ export function useDashboardData(anneeScolaire: string) {
         setTotalFraisInscription(total);
 
         const parMois: Record<string, number> = {};
+        const moisScolaires = getMoisAnneeScolaire();
         
         filteredData.forEach(p => {
           const date = new Date(p.date_paiement);
-          const moisScolaires = getMoisAnneeScolaire();
           let moisIndex;
           
           if (date.getMonth() >= 8) { // Septembre à Décembre
             moisIndex = date.getMonth() - 8;
-          } else { // Janvier à Juin
+          } else if (date.getMonth() <= 5) { // Janvier à Juin
             moisIndex = date.getMonth() + 4;
+          } else {
+            return; // Ignore July and August
           }
           
           if (moisIndex >= 0 && moisIndex < moisScolaires.length) {
@@ -94,8 +100,9 @@ export function useDashboardData(anneeScolaire: string) {
         });
         
         setFraisInscriptionParMois(parMois);
-      } catch (error) {
-        console.error("Error processing frais d'inscription:", error);
+      } catch (err) {
+        console.error("Error processing frais d'inscription:", err);
+        setError(err instanceof Error ? err : new Error("Failed to process inscription fees"));
       }
     };
 
@@ -104,7 +111,7 @@ export function useDashboardData(anneeScolaire: string) {
     }
   }, [anneeScolaire, enfants]);
 
-  // Calculate paiements mensuels
+  // Calculate paiements mensuels with improved error handling
   useEffect(() => {
     const calculerPaiementsMensuels = () => {
       try {
@@ -143,8 +150,9 @@ export function useDashboardData(anneeScolaire: string) {
         });
         
         setPaiementsMensuels(donneesParMois);
-      } catch (error) {
-        console.error("Error calculating paiements mensuels:", error);
+      } catch (err) {
+        console.error("Error calculating paiements mensuels:", err);
+        setError(err instanceof Error ? err : new Error("Failed to calculate monthly payments"));
         setPaiementsMensuels([]);
       }
     };
@@ -156,15 +164,18 @@ export function useDashboardData(anneeScolaire: string) {
     }
   }, [paiements, anneeScolaire, fraisInscriptionParMois]);
 
-  // Calculate derived data
+  // Calculate derived data with defensive coding
   const enfantsFiltres = enfants.filter(e => e.anneeScolaire === anneeScolaire);
   const enfantsActifs = enfantsFiltres.filter(e => e.statut === "actif").length;
-  const totalMensualites = paiementsMensuels.reduce((sum, m) => sum + m.total, 0);
+  const totalMensualites = paiementsMensuels.reduce((sum, m) => sum + m.total, 0) || 0;
   const totalPaiements = totalMensualites + totalFraisInscription;
   const moyennePaiements = enfantsActifs ? (totalPaiements / enfantsActifs).toFixed(2) : "0";
 
-  const reloadData = async () => {
+  // Improved reloadData function with better error handling
+  const reloadData = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
       // Reset states to avoid stale data
       setPaiementsMensuels([]);
@@ -173,15 +184,17 @@ export function useDashboardData(anneeScolaire: string) {
       
       // Fetch fresh data
       await Promise.all([fetchEnfants(), fetchPaiements()]);
-    } catch (error) {
-      console.error("Error reloading dashboard data:", error);
+    } catch (err) {
+      console.error("Error reloading dashboard data:", err);
+      setError(err instanceof Error ? err : new Error("Failed to reload dashboard data"));
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fetchEnfants, fetchPaiements]);
 
   return {
     isLoading,
+    error,
     enfantsFiltres,
     enfantsActifs,
     totalMensualites,
