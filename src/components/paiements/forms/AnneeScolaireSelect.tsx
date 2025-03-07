@@ -30,7 +30,7 @@ export function AnneeScolaireSelect({ value, onChange, disabled = false }: Annee
         onValueChange={onChange} 
         disabled={disabled}
       >
-        <SelectTrigger id="anneeScolaire">
+        <SelectTrigger id="anneeScolaire" className="w-full">
           <SelectValue placeholder="Sélectionner une année scolaire" />
         </SelectTrigger>
         <SelectContent>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useEnfantStore } from "@/data/enfants";
 import { usePaiementStore } from "@/data/paiements";
@@ -203,13 +204,14 @@ export function useDashboardData(anneeScolaire: string) {
       
       // Update the lastFetchTime to trigger the useEffects
       setLastFetchTime(Date.now());
+      console.log("Dashboard data reloaded for year:", anneeScolaire);
     } catch (err) {
       console.error("Error reloading dashboard data:", err);
       setError(err instanceof Error ? err : new Error("Failed to reload dashboard data"));
     } finally {
       setIsLoading(false);
     }
-  }, [fetchEnfants, fetchPaiements]);
+  }, [fetchEnfants, fetchPaiements, anneeScolaire]);
 
   return {
     isLoading,

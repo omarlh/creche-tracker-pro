@@ -28,19 +28,18 @@ const Dashboard = () => {
     reloadData
   } = useDashboardData(anneeScolaire);
 
-  // Effect to reload data when anneeScolaire changes
+  // Reload data when anneeScolaire changes
   useEffect(() => {
-    const loadDataForYear = async () => {
-      await reloadData();
-    };
-    
-    loadDataForYear();
+    reloadData();
+    console.log("Dashboard reloading data for school year:", anneeScolaire);
   }, [anneeScolaire, reloadData]);
 
   const handleAnneeScolaireChange = (value: string) => {
     if (value === anneeScolaire) return;
     
+    console.log("Changing school year from", anneeScolaire, "to", value);
     setAnneeScolaire(value);
+    
     toast({
       title: "Année scolaire modifiée",
       description: `Les données sont maintenant filtrées pour l'année ${value}`,
