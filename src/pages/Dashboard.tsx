@@ -30,7 +30,11 @@ const Dashboard = () => {
 
   // Effect to reload data when anneeScolaire changes
   useEffect(() => {
-    reloadData();
+    const loadDataForYear = async () => {
+      await reloadData();
+    };
+    
+    loadDataForYear();
   }, [anneeScolaire, reloadData]);
 
   const handleAnneeScolaireChange = (value: string) => {

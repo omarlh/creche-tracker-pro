@@ -25,7 +25,11 @@ export function AnneeScolaireSelect({ value, onChange, disabled = false }: Annee
   return (
     <div className="space-y-2">
       <Label htmlFor="anneeScolaire">Année scolaire</Label>
-      <Select value={value} onValueChange={onChange} disabled={disabled}>
+      <Select 
+        value={value} 
+        onValueChange={onChange} 
+        disabled={disabled}
+      >
         <SelectTrigger id="anneeScolaire">
           <SelectValue placeholder="Sélectionner une année scolaire" />
         </SelectTrigger>
