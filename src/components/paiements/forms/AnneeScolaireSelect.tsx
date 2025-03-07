@@ -16,15 +16,16 @@ const genererAnneesDisponibles = () => {
 interface AnneeScolaireSelectProps {
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-export function AnneeScolaireSelect({ value, onChange }: AnneeScolaireSelectProps) {
+export function AnneeScolaireSelect({ value, onChange, disabled = false }: AnneeScolaireSelectProps) {
   const anneesDisponibles = genererAnneesDisponibles();
   
   return (
     <div className="space-y-2">
       <Label htmlFor="anneeScolaire">Année scolaire</Label>
-      <Select value={value} onValueChange={onChange}>
+      <Select value={value} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger id="anneeScolaire">
           <SelectValue placeholder="Sélectionner une année scolaire" />
         </SelectTrigger>
