@@ -26,7 +26,7 @@ export function AnneeScolaireSelect({ value, onChange, disabled = false }: Annee
     <div className="space-y-2">
       <Label htmlFor="anneeScolaire">Année scolaire</Label>
       <Select 
-        value={value} 
+        defaultValue={value}
         onValueChange={onChange} 
         disabled={disabled}
       >

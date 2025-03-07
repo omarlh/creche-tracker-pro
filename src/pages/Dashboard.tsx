@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { getCurrentSchoolYear } from "@/lib/dateUtils"
 import { AnneeScolaireSelect } from "@/components/paiements/forms/AnneeScolaireSelect"
 import { DashboardCards } from "@/components/dashboard/DashboardCards"
@@ -28,13 +28,17 @@ const Dashboard = () => {
     reloadData
   } = useDashboardData(anneeScolaire);
 
-  // Reload data when anneeScolaire changes
+  // Force reload data when anneeScolaire changes
   useEffect(() => {
-    reloadData();
-    console.log("Dashboard reloading data for school year:", anneeScolaire);
+    const loadData = async () => {
+      console.log("Dashboard reloading data for school year:", anneeScolaire);
+      await reloadData();
+    };
+    
+    loadData();
   }, [anneeScolaire, reloadData]);
 
-  const handleAnneeScolaireChange = (value: string) => {
+  const handleAnneeScolaireChange = useCallback((value: string) => {
     if (value === anneeScolaire) return;
     
     console.log("Changing school year from", anneeScolaire, "to", value);
@@ -44,7 +48,7 @@ const Dashboard = () => {
       title: "Année scolaire modifiée",
       description: `Les données sont maintenant filtrées pour l'année ${value}`,
     });
-  };
+  }, [anneeScolaire, toast]);
 
   const handleManualRefresh = async () => {
     toast({
