@@ -3,7 +3,7 @@ import React from 'react';
 import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { CalendarRange, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 interface DateRangeFilterProps {
   dateDebut: Date | undefined;
@@ -30,6 +30,7 @@ export function DateRangeFilter({
           date={dateDebut} 
           onDateChange={onDateDebutChange}
           placeholder="Date du" 
+          className="bg-white dark:bg-slate-950"
         />
       </div>
       <div className="space-y-2">
@@ -38,6 +39,7 @@ export function DateRangeFilter({
           date={dateFin} 
           onDateChange={onDateFinChange}
           placeholder="Date au" 
+          className="bg-white dark:bg-slate-950"
         />
       </div>
       <Button 
@@ -45,7 +47,7 @@ export function DateRangeFilter({
         size="icon"
         onClick={onResetDates}
         disabled={isLoading}
-        className="mb-0.5 h-10"
+        className="mb-0.5 h-10 bg-white dark:bg-slate-950"
         title="Réinitialiser les dates"
       >
         <RotateCcw className="h-4 w-4" />

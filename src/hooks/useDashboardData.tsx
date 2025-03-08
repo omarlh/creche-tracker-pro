@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useEnfantStore } from "@/data/enfants";
 import { usePaiementStore } from "@/data/paiements";
 import { DashboardData } from "@/types/dashboard.types";
@@ -30,33 +30,39 @@ export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardDat
     error: paiementsMensuelsError 
   } = usePaiementsMensuels(paiements, currentAnneeScolaire, fraisInscriptionParMois, lastFetchTime);
 
-  // Filter enfants and paiements by date range if provided
-  const enfantsFiltres = enfants.filter(enfant => {
-    if (!dateDebut && !dateFin) return true;
+  // Filter enfants based on date range
+  const enfantsFiltres = useCallback(() => {
+    console.log("Filtering enfants with dates:", { dateDebut, dateFin });
     
-    const dateInscription = enfant.dateInscription ? new Date(enfant.dateInscription) : null;
-    
-    if (!dateInscription) return true;
-    
-    if (dateDebut && dateFin) {
-      return dateInscription >= dateDebut && dateInscription <= dateFin;
-    } else if (dateDebut) {
-      return dateInscription >= dateDebut;
-    } else if (dateFin) {
-      return dateInscription <= dateFin;
-    }
-    
-    return true;
-  });
+    return enfants.filter(enfant => {
+      if (!dateDebut && !dateFin) return true;
+      
+      const dateInscription = enfant.dateInscription ? new Date(enfant.dateInscription) : null;
+      
+      if (!dateInscription) return true;
+      
+      if (dateDebut && dateFin) {
+        return dateInscription >= dateDebut && dateInscription <= dateFin;
+      } else if (dateDebut) {
+        return dateInscription >= dateDebut;
+      } else if (dateFin) {
+        return dateInscription <= dateFin;
+      }
+      
+      return true;
+    });
+  }, [enfants, dateDebut, dateFin]);
 
+  const filteredEnfants = enfantsFiltres();
+  
   // Calculate derived data with defensive coding
-  const stats = calculateDashboardStats(enfantsFiltres, paiementsMensuels, totalFraisInscription);
+  const stats = calculateDashboardStats(filteredEnfants, paiementsMensuels, totalFraisInscription);
 
   // Combine errors
   const combinedError = fraisInscriptionError || paiementsMensuelsError || error;
 
   // Initial data loading
-  useState(() => {
+  useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       setError(null);
@@ -72,7 +78,7 @@ export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardDat
     };
     
     loadData();
-  });
+  }, [fetchEnfants, fetchPaiements]);
 
   // Improved reloadData function with better error handling
   const reloadData = useCallback(async () => {
@@ -97,7 +103,7 @@ export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardDat
   return {
     isLoading,
     error: combinedError,
-    enfantsFiltres,
+    enfantsFiltres: filteredEnfants,
     enfantsActifs: stats.enfantsActifs,
     totalMensualites: stats.totalMensualites,
     totalFraisInscription,

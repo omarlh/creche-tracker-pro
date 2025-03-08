@@ -17,6 +17,9 @@ const Dashboard = () => {
   const { toast } = useToast();
   const currentYear = getCurrentSchoolYear();
   
+  // Debugging log
+  console.log("Dashboard state:", { dateDebut, dateFin });
+  
   const {
     isLoading,
     error,
@@ -34,13 +37,18 @@ const Dashboard = () => {
   useEffect(() => {
     const loadData = async () => {
       console.log("Dashboard reloading data with date filters:", { dateDebut, dateFin });
-      await reloadData();
+      try {
+        await reloadData();
+      } catch (err) {
+        console.error("Error reloading dashboard data:", err);
+      }
     };
     
     loadData();
   }, [dateDebut, dateFin, reloadData]);
 
   const handleDateDebutChange = useCallback((date: Date | undefined) => {
+    console.log("Date début changed:", date);
     setDateDebut(date);
     
     toast({
@@ -50,6 +58,7 @@ const Dashboard = () => {
   }, [toast]);
 
   const handleDateFinChange = useCallback((date: Date | undefined) => {
+    console.log("Date fin changed:", date);
     setDateFin(date);
     
     toast({
@@ -59,6 +68,7 @@ const Dashboard = () => {
   }, [toast]);
 
   const handleResetDates = useCallback(() => {
+    console.log("Resetting dates");
     setDateDebut(undefined);
     setDateFin(undefined);
     
@@ -91,7 +101,7 @@ const Dashboard = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-white dark:bg-slate-950"
               onClick={handleManualRefresh}
               disabled={isLoading}
             >
@@ -143,7 +153,7 @@ const Dashboard = () => {
         />
       </div>
     </main>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
