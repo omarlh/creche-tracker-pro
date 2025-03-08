@@ -42,11 +42,17 @@ export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardDat
       if (!dateInscription) return true;
       
       if (dateDebut && dateFin) {
-        return dateInscription >= dateDebut && dateInscription <= dateFin;
+        // Make dateFin inclusive by setting it to the end of the day
+        const dateFinEnd = new Date(dateFin);
+        dateFinEnd.setHours(23, 59, 59, 999);
+        return dateInscription >= dateDebut && dateInscription <= dateFinEnd;
       } else if (dateDebut) {
         return dateInscription >= dateDebut;
       } else if (dateFin) {
-        return dateInscription <= dateFin;
+        // Make dateFin inclusive by setting it to the end of the day
+        const dateFinEnd = new Date(dateFin);
+        dateFinEnd.setHours(23, 59, 59, 999);
+        return dateInscription <= dateFinEnd;
       }
       
       return true;

@@ -40,7 +40,7 @@ export function DatePicker({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP", { locale: fr }) : <span>{placeholder}</span>}
+          {date ? format(date, "dd/MM/yyyy", { locale: fr }) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0 bg-white dark:bg-slate-950" align="start">

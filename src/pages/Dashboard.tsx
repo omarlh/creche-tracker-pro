@@ -53,7 +53,7 @@ const Dashboard = () => {
     
     toast({
       title: "Date de début modifiée",
-      description: date ? `Les données sont maintenant filtrées à partir du ${date.toLocaleDateString()}` : "Filtre de date de début supprimé",
+      description: date ? `Les données sont maintenant filtrées à partir du ${date.toLocaleDateString('fr-FR')}` : "Filtre de date de début supprimé",
     });
   }, [toast]);
 
@@ -63,7 +63,7 @@ const Dashboard = () => {
     
     toast({
       title: "Date de fin modifiée",
-      description: date ? `Les données sont maintenant filtrées jusqu'au ${date.toLocaleDateString()}` : "Filtre de date de fin supprimé",
+      description: date ? `Les données sont maintenant filtrées jusqu'au ${date.toLocaleDateString('fr-FR')}` : "Filtre de date de fin supprimé",
     });
   }, [toast]);
 
