@@ -34,9 +34,9 @@ export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardDat
   const enfantsFiltres = useCallback(() => {
     console.log("Filtering enfants with dates:", { dateDebut, dateFin });
     
+    if (!dateDebut && !dateFin) return enfants;
+    
     return enfants.filter(enfant => {
-      if (!dateDebut && !dateFin) return true;
-      
       const dateInscription = enfant.dateInscription ? new Date(enfant.dateInscription) : null;
       
       if (!dateInscription) return true;

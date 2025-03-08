@@ -17,9 +17,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   const currentYear = getCurrentSchoolYear();
   
-  // Debugging log
-  console.log("Dashboard state:", { dateDebut, dateFin });
-  
+  // Get dashboard data with date filters
   const {
     isLoading,
     error,
@@ -33,38 +31,33 @@ const Dashboard = () => {
     reloadData
   } = useDashboardData(dateDebut, dateFin);
 
-  // Force reload data when date filters change
+  // Reload data when date filters change
   useEffect(() => {
-    const loadData = async () => {
-      console.log("Dashboard reloading data with date filters:", { dateDebut, dateFin });
-      try {
-        await reloadData();
-      } catch (err) {
-        console.error("Error reloading dashboard data:", err);
-      }
-    };
-    
-    loadData();
+    reloadData();
   }, [dateDebut, dateFin, reloadData]);
 
   const handleDateDebutChange = useCallback((date: Date | undefined) => {
     console.log("Date début changed:", date);
     setDateDebut(date);
     
-    toast({
-      title: "Date de début modifiée",
-      description: date ? `Les données sont maintenant filtrées à partir du ${date.toLocaleDateString('fr-FR')}` : "Filtre de date de début supprimé",
-    });
+    if (date) {
+      toast({
+        title: "Date de début modifiée",
+        description: `Les données sont maintenant filtrées à partir du ${date.toLocaleDateString('fr-FR')}`,
+      });
+    }
   }, [toast]);
 
   const handleDateFinChange = useCallback((date: Date | undefined) => {
     console.log("Date fin changed:", date);
     setDateFin(date);
     
-    toast({
-      title: "Date de fin modifiée",
-      description: date ? `Les données sont maintenant filtrées jusqu'au ${date.toLocaleDateString('fr-FR')}` : "Filtre de date de fin supprimé",
-    });
+    if (date) {
+      toast({
+        title: "Date de fin modifiée",
+        description: `Les données sont maintenant filtrées jusqu'au ${date.toLocaleDateString('fr-FR')}`,
+      });
+    }
   }, [toast]);
 
   const handleResetDates = useCallback(() => {
@@ -97,7 +90,7 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
           <h1 className="text-3xl font-bold">Tableau de bord</h1>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
             <Button 
               variant="outline" 
               size="sm" 

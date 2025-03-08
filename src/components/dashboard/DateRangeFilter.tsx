@@ -2,7 +2,6 @@
 import React from 'react';
 import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { RotateCcw } from "lucide-react";
 
 interface DateRangeFilterProps {
@@ -23,9 +22,9 @@ export function DateRangeFilter({
   isLoading
 }: DateRangeFilterProps) {
   return (
-    <div className="flex flex-col md:flex-row md:items-end gap-4">
+    <div className="flex flex-col sm:flex-row gap-4">
       <div className="space-y-2">
-        <Label htmlFor="dateDebut">Date début</Label>
+        <label className="text-sm font-medium">Date de début</label>
         <DatePicker 
           date={dateDebut} 
           onDateChange={onDateDebutChange}
@@ -34,7 +33,7 @@ export function DateRangeFilter({
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="dateFin">Date fin</Label>
+        <label className="text-sm font-medium">Date de fin</label>
         <DatePicker 
           date={dateFin} 
           onDateChange={onDateFinChange}
@@ -47,7 +46,7 @@ export function DateRangeFilter({
         size="icon"
         onClick={onResetDates}
         disabled={isLoading}
-        className="mb-0.5 h-10 bg-white dark:bg-slate-950"
+        className="mt-auto mb-0.5 h-10 bg-white dark:bg-slate-950"
         title="Réinitialiser les dates"
       >
         <RotateCcw className="h-4 w-4" />
