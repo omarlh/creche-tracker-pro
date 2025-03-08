@@ -8,7 +8,7 @@ export interface TableauLigneProps {
 
 export function TableauLigne({ methode, montant }: TableauLigneProps) {
   const formatMethode = (methode: string) => {
-    switch (methode) {
+    switch (methode.toLowerCase()) {
       case "carte":
         return "Carte bancaire";
       case "especes":
@@ -16,7 +16,7 @@ export function TableauLigne({ methode, montant }: TableauLigneProps) {
       case "cheque":
         return "Chèque";
       default:
-        return methode;
+        return methode.charAt(0).toUpperCase() + methode.slice(1);
     }
   };
 

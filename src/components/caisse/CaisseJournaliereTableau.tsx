@@ -7,13 +7,21 @@ import { TableauLigne } from "./TableauLigne";
 import { TableauActions } from "./TableauActions";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 
 interface CaisseJournaliereTableauProps {
   onTotalUpdate?: (total: number) => void;
 }
 
+type Paiement = {
+  id: number;
+  montant: number;
+  date_paiement: string;
+  methode_paiement: string;
+};
+
 export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTableauProps) {
-  const [paiements, setPaiements] = useState<any[]>([]);
+  const [paiements, setPaiements] = useState<Paiement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalJour, setTotalJour] = useState(0);
@@ -41,23 +49,50 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
       const formattedStartDate = format(startDate, 'yyyy-MM-dd');
       const formattedEndDate = format(endDate, 'yyyy-MM-dd');
       
-      // Updated query to fetch payments between the selected date range
-      const { data, error } = await supabase
+      console.log("Date range for paiements:", { formattedStartDate, formattedEndDate });
+      
+      // Get regular payments
+      const { data: paiementsData, error: paiementsError } = await supabase
         .from('paiements')
-        .select('*')
+        .select('id, montant, date_paiement, methode_paiement')
         .gte('date_paiement', formattedStartDate)
         .lte('date_paiement', formattedEndDate);
 
-      if (error) {
-        console.error('Erreur Supabase:', error);
-        throw error;
+      if (paiementsError) {
+        console.error('Erreur Supabase (paiements):', paiementsError);
+        throw paiementsError;
       }
 
-      console.log("Paiements récupérés:", data);
-      setPaiements(data || []);
+      // Get inscription payments
+      const { data: inscriptionsData, error: inscriptionsError } = await supabase
+        .from('paiements_inscription')
+        .select('id, montant, date_paiement, methode_paiement')
+        .gte('date_paiement', formattedStartDate)
+        .lte('date_paiement', formattedEndDate);
+
+      if (inscriptionsError) {
+        console.error('Erreur Supabase (paiements_inscription):', inscriptionsError);
+        throw inscriptionsError;
+      }
+
+      // Combine all payments
+      const allPaiements = [
+        ...(paiementsData || []),
+        ...(inscriptionsData || [])
+      ];
+
+      console.log("Paiements récupérés:", allPaiements);
+      setPaiements(allPaiements);
       
-      // Calculate the correct total
-      const total = (data || []).reduce((sum: number, paiement: any) => sum + (parseFloat(paiement.montant) || 0), 0);
+      // Calculate the total correctly
+      const total = allPaiements.reduce((sum, paiement) => {
+        const montant = typeof paiement.montant === 'number' 
+          ? paiement.montant 
+          : parseFloat(paiement.montant as any) || 0;
+        return sum + montant;
+      }, 0);
+      
+      console.log("Total calculé:", total);
       setTotalJour(total);
       
     } catch (err: any) {
@@ -71,6 +106,27 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
     } finally {
       setLoading(false);
     }
+  };
+
+  const groupPaiementsByMethod = () => {
+    const grouped: Record<string, number> = {};
+    
+    paiements.forEach(paiement => {
+      const method = paiement.methode_paiement || 'Autre';
+      const montant = typeof paiement.montant === 'number' 
+        ? paiement.montant 
+        : parseFloat(paiement.montant as any) || 0;
+      
+      if (!grouped[method]) {
+        grouped[method] = 0;
+      }
+      grouped[method] += montant;
+    });
+    
+    return Object.entries(grouped).map(([methode, montant]) => ({
+      methode,
+      montant
+    }));
   };
 
   if (loading) return <div>Chargement...</div>;
@@ -99,13 +155,25 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
                   Aucun paiement trouvé pour cette période
                 </div>
               ) : (
-                paiements.map((paiement) => (
-                  <TableauLigne
-                    key={paiement.id}
-                    methode={paiement.methode_paiement}
-                    montant={paiement.montant}
-                  />
-                ))
+                <div className="border rounded-md mt-4">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Méthode de paiement</TableHead>
+                        <TableHead className="text-right">Montant</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {groupPaiementsByMethod().map((item, index) => (
+                        <TableauLigne
+                          key={index}
+                          methode={item.methode}
+                          montant={item.montant}
+                        />
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
               <TableauActions
                 totalJour={totalJour}
