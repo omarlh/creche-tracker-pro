@@ -1,19 +1,21 @@
 
 import { useState, useEffect, useCallback } from "react"
-import { getCurrentSchoolYear } from "@/lib/dateUtils"
-import { AnneeScolaireSelect } from "@/components/paiements/forms/AnneeScolaireSelect"
 import { DashboardCards } from "@/components/dashboard/DashboardCards"
 import { PaiementsChart } from "@/components/dashboard/PaiementsChart"
 import { PaiementsTable } from "@/components/dashboard/PaiementsTable"
+import { DateRangeFilter } from "@/components/dashboard/DateRangeFilter"
 import { useDashboardData } from "@/hooks/useDashboardData"
 import { useToast } from "@/components/ui/use-toast"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { getCurrentSchoolYear } from "@/lib/dateUtils"
 
 const Dashboard = () => {
-  const [anneeScolaire, setAnneeScolaire] = useState(getCurrentSchoolYear())
+  const [dateDebut, setDateDebut] = useState<Date | undefined>(undefined);
+  const [dateFin, setDateFin] = useState<Date | undefined>(undefined);
   const { toast } = useToast();
+  const currentYear = getCurrentSchoolYear();
   
   const {
     isLoading,
@@ -26,29 +28,45 @@ const Dashboard = () => {
     moyennePaiements,
     paiementsMensuels,
     reloadData
-  } = useDashboardData(anneeScolaire);
+  } = useDashboardData(dateDebut, dateFin);
 
-  // Force reload data when anneeScolaire changes
+  // Force reload data when date filters change
   useEffect(() => {
     const loadData = async () => {
-      console.log("Dashboard reloading data for school year:", anneeScolaire);
+      console.log("Dashboard reloading data with date filters:", { dateDebut, dateFin });
       await reloadData();
     };
     
     loadData();
-  }, [anneeScolaire, reloadData]);
+  }, [dateDebut, dateFin, reloadData]);
 
-  const handleAnneeScolaireChange = useCallback((value: string) => {
-    if (value === anneeScolaire) return;
-    
-    console.log("Changing school year from", anneeScolaire, "to", value);
-    setAnneeScolaire(value);
+  const handleDateDebutChange = useCallback((date: Date | undefined) => {
+    setDateDebut(date);
     
     toast({
-      title: "Année scolaire modifiée",
-      description: `Les données sont maintenant filtrées pour l'année ${value}`,
+      title: "Date de début modifiée",
+      description: date ? `Les données sont maintenant filtrées à partir du ${date.toLocaleDateString()}` : "Filtre de date de début supprimé",
     });
-  }, [anneeScolaire, toast]);
+  }, [toast]);
+
+  const handleDateFinChange = useCallback((date: Date | undefined) => {
+    setDateFin(date);
+    
+    toast({
+      title: "Date de fin modifiée",
+      description: date ? `Les données sont maintenant filtrées jusqu'au ${date.toLocaleDateString()}` : "Filtre de date de fin supprimé",
+    });
+  }, [toast]);
+
+  const handleResetDates = useCallback(() => {
+    setDateDebut(undefined);
+    setDateFin(undefined);
+    
+    toast({
+      title: "Filtres réinitialisés",
+      description: "Les dates ont été réinitialisées, affichage de toutes les données",
+    });
+  }, [toast]);
 
   const handleManualRefresh = async () => {
     toast({
@@ -80,13 +98,14 @@ const Dashboard = () => {
               <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               Actualiser
             </Button>
-            <div className="w-64">
-              <AnneeScolaireSelect
-                value={anneeScolaire}
-                onChange={handleAnneeScolaireChange}
-                disabled={isLoading}
-              />
-            </div>
+            <DateRangeFilter
+              dateDebut={dateDebut}
+              dateFin={dateFin}
+              onDateDebutChange={handleDateDebutChange}
+              onDateFinChange={handleDateFinChange}
+              onResetDates={handleResetDates}
+              isLoading={isLoading}
+            />
           </div>
         </div>
 
@@ -108,13 +127,13 @@ const Dashboard = () => {
           totalMensualites={totalMensualites}
           totalFraisInscription={totalFraisInscription}
           moyennePaiements={moyennePaiements}
-          anneeScolaire={anneeScolaire}
+          anneeScolaire={currentYear}
           isLoading={isLoading}
         />
 
         <PaiementsChart 
           paiementsMensuels={paiementsMensuels}
-          anneeScolaire={anneeScolaire}
+          anneeScolaire={currentYear}
           isLoading={isLoading}
         />
 

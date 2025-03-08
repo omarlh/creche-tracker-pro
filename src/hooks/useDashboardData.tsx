@@ -7,28 +7,49 @@ import { calculateDashboardStats } from "@/utils/dashboardCalculations";
 import { useFraisInscription } from "@/hooks/useFraisInscription";
 import { usePaiementsMensuels } from "@/hooks/usePaiementsMensuels";
 
-export function useDashboardData(anneeScolaire: string): DashboardData {
+export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardData {
   const { enfants, fetchEnfants } = useEnfantStore();
   const { paiements, fetchPaiements } = usePaiementStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [lastFetchTime, setLastFetchTime] = useState(Date.now());
 
+  // For backwards compatibility - use current school year for frais d'inscription calculation
+  const currentAnneeScolaire = new Date().getFullYear() + "-" + (new Date().getFullYear() + 1);
+  
   // Get frais d'inscription data
   const { 
     totalFraisInscription, 
     fraisInscriptionParMois, 
     error: fraisInscriptionError 
-  } = useFraisInscription(enfants, anneeScolaire, lastFetchTime);
+  } = useFraisInscription(enfants, currentAnneeScolaire, lastFetchTime);
 
   // Get paiements mensuels data
   const { 
     paiementsMensuels, 
     error: paiementsMensuelsError 
-  } = usePaiementsMensuels(paiements, anneeScolaire, fraisInscriptionParMois, lastFetchTime);
+  } = usePaiementsMensuels(paiements, currentAnneeScolaire, fraisInscriptionParMois, lastFetchTime);
+
+  // Filter enfants and paiements by date range if provided
+  const enfantsFiltres = enfants.filter(enfant => {
+    if (!dateDebut && !dateFin) return true;
+    
+    const dateInscription = enfant.dateInscription ? new Date(enfant.dateInscription) : null;
+    
+    if (!dateInscription) return true;
+    
+    if (dateDebut && dateFin) {
+      return dateInscription >= dateDebut && dateInscription <= dateFin;
+    } else if (dateDebut) {
+      return dateInscription >= dateDebut;
+    } else if (dateFin) {
+      return dateInscription <= dateFin;
+    }
+    
+    return true;
+  });
 
   // Calculate derived data with defensive coding
-  const enfantsFiltres = enfants.filter(e => e.anneeScolaire === anneeScolaire);
   const stats = calculateDashboardStats(enfantsFiltres, paiementsMensuels, totalFraisInscription);
 
   // Combine errors
@@ -64,14 +85,14 @@ export function useDashboardData(anneeScolaire: string): DashboardData {
       
       // Update the lastFetchTime to trigger the useEffects
       setLastFetchTime(Date.now());
-      console.log("Dashboard data reloaded for year:", anneeScolaire);
+      console.log("Dashboard data reloaded with date filters:", { dateDebut, dateFin });
     } catch (err) {
       console.error("Error reloading dashboard data:", err);
       setError(err instanceof Error ? err : new Error("Failed to reload dashboard data"));
     } finally {
       setIsLoading(false);
     }
-  }, [fetchEnfants, fetchPaiements, anneeScolaire]);
+  }, [fetchEnfants, fetchPaiements, dateDebut, dateFin]);
 
   return {
     isLoading,
