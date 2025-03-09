@@ -35,7 +35,6 @@ export function RapportsHeader({
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6">{titre}</h2>
       <div className="flex flex-col space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-semibold">{titre}</h1>
@@ -51,6 +50,7 @@ export function RapportsHeader({
             <DatePicker 
               date={dateDebut ? new Date(dateDebut) : undefined} 
               onDateChange={handleStartDateChange}
+              placeholder="Date du"
               className="bg-white dark:bg-slate-950"
             />
           </div>
@@ -60,6 +60,7 @@ export function RapportsHeader({
             <DatePicker 
               date={dateFin ? new Date(dateFin) : undefined} 
               onDateChange={handleEndDateChange}
+              placeholder="Date au"
               className="bg-white dark:bg-slate-950"
             />
           </div>

@@ -14,21 +14,35 @@ export function TableauHeader({
   onStartDateChange,
   onEndDateChange,
 }: TableauHeaderProps) {
+  const handleStartDateChange = (date: Date | undefined) => {
+    if (date) {
+      onStartDateChange(date);
+    }
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    if (date) {
+      onEndDateChange(date);
+    }
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium">Date de début</label>
+        <label className="text-sm font-medium">Date début</label>
         <DatePicker 
           date={startDate} 
-          onDateChange={onStartDateChange} 
+          onDateChange={handleStartDateChange} 
+          placeholder="Date du"
           className="bg-white dark:bg-slate-950"
         />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">Date de fin</label>
+        <label className="text-sm font-medium">Date fin</label>
         <DatePicker 
           date={endDate} 
-          onDateChange={onEndDateChange} 
+          onDateChange={handleEndDateChange}
+          placeholder="Date au" 
           className="bg-white dark:bg-slate-950"
         />
       </div>

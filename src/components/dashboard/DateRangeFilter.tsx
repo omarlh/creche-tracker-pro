@@ -21,22 +21,30 @@ export function DateRangeFilter({
   onResetDates,
   isLoading
 }: DateRangeFilterProps) {
+  const handleStartDateChange = (date: Date | undefined) => {
+    onDateDebutChange(date);
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    onDateFinChange(date);
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium">Date de début</label>
+        <label className="text-sm font-medium">Date début</label>
         <DatePicker 
           date={dateDebut} 
-          onDateChange={onDateDebutChange}
+          onDateChange={handleStartDateChange}
           placeholder="Date du" 
           className="bg-white dark:bg-slate-950"
         />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">Date de fin</label>
+        <label className="text-sm font-medium">Date fin</label>
         <DatePicker 
           date={dateFin} 
-          onDateChange={onDateFinChange}
+          onDateChange={handleEndDateChange}
           placeholder="Date au" 
           className="bg-white dark:bg-slate-950"
         />
