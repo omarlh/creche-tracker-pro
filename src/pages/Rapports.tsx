@@ -1,5 +1,6 @@
+
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useEnfantStore, type Enfant } from "@/data/enfants";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
@@ -36,12 +37,36 @@ const Rapports: React.FC = () => {
   const [dateFin, setDateFin] = useState<string>(today);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [rapportSelectionne, setRapportSelectionne] = useState<RapportMensuel | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
-  const { enfants } = useEnfantStore();
-  const { paiements } = usePaiementStore();
+  const { enfants, fetchEnfants } = useEnfantStore();
+  const { paiements, fetchPaiements } = usePaiementStore();
   const { toast } = useToast();
 
-  const rapportsMensuels = useRapportGeneration(dateDebut, dateFin, enfants, paiements);
+  // Fetch data on initial load
+  useEffect(() => {
+    const loadData = async () => {
+      await Promise.all([fetchEnfants(), fetchPaiements()]);
+    };
+    loadData();
+  }, [fetchEnfants, fetchPaiements]);
+
+  // Refresh data when date filters change
+  useEffect(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, [dateDebut, dateFin]);
+
+  const rapportsMensuels = useRapportGeneration(dateDebut, dateFin, enfants, paiements, undefined, refreshTrigger);
+
+  const handleDateDebutChange = (date: string) => {
+    console.log("Setting date début:", date);
+    setDateDebut(date);
+  };
+
+  const handleDateFinChange = (date: string) => {
+    console.log("Setting date fin:", date);
+    setDateFin(date);
+  };
 
   const handleExportRapport = () => {
     try {
@@ -125,8 +150,8 @@ const Rapports: React.FC = () => {
                 <RapportsHeader
                   dateDebut={dateDebut}
                   dateFin={dateFin}
-                  onDateDebutChange={setDateDebut}
-                  onDateFinChange={setDateFin}
+                  onDateDebutChange={handleDateDebutChange}
+                  onDateFinChange={handleDateFinChange}
                   onExport={handleExportRapport}
                   titre="Caisse Journalière"
                 />

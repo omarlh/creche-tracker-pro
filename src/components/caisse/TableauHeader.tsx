@@ -18,11 +18,19 @@ export function TableauHeader({
     <div className="flex flex-col sm:flex-row gap-4">
       <div className="space-y-2">
         <label className="text-sm font-medium">Date de début</label>
-        <DatePicker date={startDate} onDateChange={onStartDateChange} />
+        <DatePicker 
+          date={startDate} 
+          onDateChange={onStartDateChange} 
+          className="bg-white dark:bg-slate-950"
+        />
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium">Date de fin</label>
-        <DatePicker date={endDate} onDateChange={onEndDateChange} />
+        <DatePicker 
+          date={endDate} 
+          onDateChange={onEndDateChange} 
+          className="bg-white dark:bg-slate-950"
+        />
       </div>
     </div>
   );

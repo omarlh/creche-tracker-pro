@@ -47,6 +47,7 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
       
       // Format dates correctly for Supabase query
       const formattedStartDate = format(startDate, 'yyyy-MM-dd');
+      // Add one day to end date to make it inclusive
       const formattedEndDate = format(endDate, 'yyyy-MM-dd');
       
       console.log("Date range for paiements:", { formattedStartDate, formattedEndDate });
