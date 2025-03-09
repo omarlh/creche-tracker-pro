@@ -12,8 +12,6 @@ import { Button } from "@/components/ui/button"
 import { getCurrentSchoolYear } from "@/lib/dateUtils"
 
 const Dashboard = () => {
-  // Define today's date as the initial value
-  const today = new Date();
   const [dateDebut, setDateDebut] = useState<Date | undefined>(undefined);
   const [dateFin, setDateFin] = useState<Date | undefined>(undefined);
   const { toast } = useToast();

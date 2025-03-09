@@ -20,8 +20,9 @@ export function useFraisInscription(
         setTotalFraisInscription(0);
         setFraisInscriptionParMois({});
 
+        // Get all enfant IDs for the current school year
         const enfantIds = enfants
-          .filter(e => e.anneeScolaire === anneeScolaire)
+          .filter(e => e.anneeScolaire === anneeScolaire || !e.anneeScolaire)
           .map(e => e.id);
 
         console.log(`Found ${enfantIds.length} enfants for school year ${anneeScolaire}`);
@@ -30,6 +31,7 @@ export function useFraisInscription(
           return;
         }
 
+        // Fetch all paiements_inscription for these enfants
         const { data, error } = await supabase
           .from('paiements_inscription')
           .select('montant, date_paiement')
@@ -42,19 +44,28 @@ export function useFraisInscription(
 
         console.log(`Retrieved ${data.length} inscription payments`);
         
+        // Ensure all data has numeric montant values
+        const validatedData = data.map(item => ({
+          ...item,
+          montant: typeof item.montant === 'number' ? item.montant : Number(item.montant) || 0
+        }));
+        
+        // Filter to only include payments within this school year
         const { start, end } = getSchoolYearDateRange(anneeScolaire);
-        const filteredData = data.filter(p => {
+        const filteredData = validatedData.filter(p => {
+          if (!p.date_paiement) return false;
           const paymentDate = new Date(p.date_paiement);
           return paymentDate >= start && paymentDate <= end;
         });
 
         console.log(`Filtered to ${filteredData.length} payments within school year ${anneeScolaire}`);
         
-        const total = filteredData.reduce((sum, p) => sum + (Number(p.montant) || 0), 0);
+        // Calculate total inscription fees
+        const total = filteredData.reduce((sum, p) => sum + p.montant, 0);
         setTotalFraisInscription(total);
-
         console.log(`Total inscription fees: ${total}`);
         
+        // Calculate fees by month
         const parMois = getFraisInscriptionParMois(filteredData, anneeScolaire);
         setFraisInscriptionParMois(parMois);
         console.log("Frais inscription par mois:", parMois);

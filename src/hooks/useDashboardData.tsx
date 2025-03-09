@@ -14,8 +14,13 @@ export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardDat
   const [error, setError] = useState<Error | null>(null);
   const [lastFetchTime, setLastFetchTime] = useState(Date.now());
 
-  // For backwards compatibility - use current school year for frais d'inscription calculation
-  const currentAnneeScolaire = new Date().getFullYear() + "-" + (new Date().getFullYear() + 1);
+  // Get current school year for calculations
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth(); // 0-indexed
+  const currentAnneeScolaire = currentMonth >= 8 
+    ? `${currentYear}-${currentYear + 1}` 
+    : `${currentYear - 1}-${currentYear}`;
   
   // Get frais d'inscription data
   const { 
@@ -41,18 +46,28 @@ export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardDat
       
       if (!dateInscription) return true;
       
+      // Format dates with midnight time for accurate comparison
+      const formatDate = (date: Date) => {
+        const newDate = new Date(date);
+        newDate.setHours(0, 0, 0, 0);
+        return newDate;
+      };
+      
       if (dateDebut && dateFin) {
         // Make dateFin inclusive by setting it to the end of the day
-        const dateFinEnd = new Date(dateFin);
-        dateFinEnd.setHours(23, 59, 59, 999);
-        return dateInscription >= dateDebut && dateInscription <= dateFinEnd;
+        const dateDebutFormatted = formatDate(dateDebut);
+        const dateFinFormatted = new Date(dateFin);
+        dateFinFormatted.setHours(23, 59, 59, 999);
+        
+        return dateInscription >= dateDebutFormatted && dateInscription <= dateFinFormatted;
       } else if (dateDebut) {
-        return dateInscription >= dateDebut;
+        const dateDebutFormatted = formatDate(dateDebut);
+        return dateInscription >= dateDebutFormatted;
       } else if (dateFin) {
         // Make dateFin inclusive by setting it to the end of the day
-        const dateFinEnd = new Date(dateFin);
-        dateFinEnd.setHours(23, 59, 59, 999);
-        return dateInscription <= dateFinEnd;
+        const dateFinFormatted = new Date(dateFin);
+        dateFinFormatted.setHours(23, 59, 59, 999);
+        return dateInscription <= dateFinFormatted;
       }
       
       return true;

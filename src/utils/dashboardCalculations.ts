@@ -9,7 +9,14 @@ export const getFraisInscriptionParMois = (
   const moisScolaires = getMoisAnneeScolaire();
   const parMois: Record<string, number> = {};
   
+  // Initialize with zero values
+  moisScolaires.forEach(mois => {
+    parMois[mois] = 0;
+  });
+  
   data.forEach(p => {
+    if (!p.date_paiement) return;
+    
     const date = new Date(p.date_paiement);
     let moisIndex;
     
@@ -23,7 +30,8 @@ export const getFraisInscriptionParMois = (
     
     if (moisIndex >= 0 && moisIndex < moisScolaires.length) {
       const moisNom = moisScolaires[moisIndex];
-      parMois[moisNom] = (parMois[moisNom] || 0) + (Number(p.montant) || 0);
+      const montant = typeof p.montant === 'number' ? p.montant : Number(p.montant) || 0;
+      parMois[moisNom] = (parMois[moisNom] || 0) + montant;
     }
   });
   
@@ -38,17 +46,31 @@ export const calculerPaiementsMensuels = (
 ): PaiementMensuel[] => {
   const moisScolaires = getMoisAnneeScolaire();
   
+  // Initialize results with all months
+  const resultats: Record<string, PaiementMensuel> = {};
+  moisScolaires.forEach(mois => {
+    resultats[mois] = {
+      mois,
+      total: 0,
+      fraisInscription: fraisInscriptionParMois[mois] || 0,
+      nbPaiements: 0
+    };
+  });
+  
+  // Filter paiements by school year
   const paiementsAnnee = paiements.filter(p => {
     // Filter by explicit année scolaire if available
     if (p.anneeScolaire === anneeScolaire) {
       return true;
     }
+    
     // Otherwise check if the date falls within the school year
-    const datePaiement = new Date(p.datePaiement);
+    const datePaiement = new Date(p.datePaiement || p.date_paiement);
     return isDateInSchoolYear(datePaiement, anneeScolaire);
   });
   
-  return moisScolaires.map((mois, index) => {
+  // Process each month
+  moisScolaires.forEach((mois, index) => {
     const [anneeDebut, anneeFin] = anneeScolaire.split('-').map(y => parseInt(y));
     const moisNum = index <= 3 ? index + 8 : index - 4;
     const annee = index <= 3 ? anneeDebut : anneeFin;
@@ -56,21 +78,29 @@ export const calculerPaiementsMensuels = (
     const dateDebut = new Date(annee, moisNum, 1);
     const dateFin = new Date(annee, moisNum + 1, 0);
     
+    // Find payments for this month
     const paiementsMois = paiementsAnnee.filter(p => {
-      const datePaiement = new Date(p.datePaiement);
+      const datePaiement = new Date(p.datePaiement || p.date_paiement);
       return datePaiement >= dateDebut && datePaiement <= dateFin;
     });
     
-    const totalMois = paiementsMois.reduce((sum, p) => sum + Number(p.montant), 0);
-    const fraisInscription = fraisInscriptionParMois[mois] || 0;
-    
-    return {
-      mois,
-      total: totalMois,
-      fraisInscription,
-      nbPaiements: paiementsMois.length
-    };
+    if (paiementsMois.length > 0) {
+      const totalMois = paiementsMois.reduce((sum, p) => {
+        const montant = typeof p.montant === 'number' ? p.montant : Number(p.montant) || 0;
+        return sum + montant;
+      }, 0);
+      
+      resultats[mois] = {
+        mois,
+        total: totalMois,
+        fraisInscription: fraisInscriptionParMois[mois] || 0,
+        nbPaiements: paiementsMois.length
+      };
+    }
   });
+  
+  // Convert to array and return
+  return moisScolaires.map(mois => resultats[mois]);
 };
 
 // Calculate derived statistics
@@ -79,10 +109,27 @@ export const calculateDashboardStats = (
   paiementsMensuels: PaiementMensuel[],
   totalFraisInscription: number
 ) => {
+  // Count active enfants
   const enfantsActifs = enfantsFiltres.filter(e => e.statut === "actif").length;
-  const totalMensualites = paiementsMensuels.reduce((sum, m) => sum + m.total, 0) || 0;
-  const totalPaiements = totalMensualites + totalFraisInscription;
-  const moyennePaiements = enfantsActifs ? (totalPaiements / enfantsActifs).toFixed(2) : "0";
+  
+  // Calculate total mensualites
+  const totalMensualites = paiementsMensuels.reduce((sum, m) => {
+    const montant = typeof m.total === 'number' ? m.total : Number(m.total) || 0;
+    return sum + montant;
+  }, 0);
+  
+  // Ensure totalFraisInscription is a number
+  const safeTotalFraisInscription = typeof totalFraisInscription === 'number' 
+    ? totalFraisInscription 
+    : Number(totalFraisInscription) || 0;
+  
+  // Calculate total payments
+  const totalPaiements = totalMensualites + safeTotalFraisInscription;
+  
+  // Calculate average payment per active enfant
+  const moyennePaiements = enfantsActifs > 0 
+    ? (totalPaiements / enfantsActifs).toFixed(2) 
+    : "0";
 
   return {
     enfantsActifs,

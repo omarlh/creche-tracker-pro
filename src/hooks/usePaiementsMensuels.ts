@@ -18,12 +18,32 @@ export function usePaiementsMensuels(
         console.log(`Calculating monthly payments for school year: ${anneeScolaire}`);
         
         if (!paiements || paiements.length === 0) {
-          setPaiementsMensuels([]);
+          // Initialize with empty data for all months
+          const moisScolaires = [
+            "Septembre", "Octobre", "Novembre", "Décembre",
+            "Janvier", "Février", "Mars", "Avril", "Mai", "Juin"
+          ];
+          
+          const emptyData = moisScolaires.map(mois => ({
+            mois,
+            total: 0,
+            fraisInscription: fraisInscriptionParMois[mois] || 0,
+            nbPaiements: 0
+          }));
+          
+          setPaiementsMensuels(emptyData);
           return;
         }
         
+        // Make sure all paiements have correct numeric values
+        const validatedPaiements = paiements.map(p => ({
+          ...p,
+          montant: typeof p.montant === 'number' ? p.montant : Number(p.montant) || 0,
+          datePaiement: p.datePaiement || p.date_paiement
+        }));
+        
         const donneesParMois = calculerPaiementsMensuels(
-          paiements,
+          validatedPaiements,
           anneeScolaire,
           fraisInscriptionParMois
         );
