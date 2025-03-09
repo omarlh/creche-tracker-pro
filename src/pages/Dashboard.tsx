@@ -33,11 +33,12 @@ const Dashboard = () => {
 
   // Reload data when date filters change
   useEffect(() => {
+    console.log("Date filters changed:", { dateDebut, dateFin });
     reloadData();
   }, [dateDebut, dateFin, reloadData]);
 
   const handleDateDebutChange = useCallback((date: Date | undefined) => {
-    console.log("Date début changed:", date);
+    console.log("Date début selected:", date);
     setDateDebut(date);
     
     if (date) {
@@ -49,7 +50,7 @@ const Dashboard = () => {
   }, [toast]);
 
   const handleDateFinChange = useCallback((date: Date | undefined) => {
-    console.log("Date fin changed:", date);
+    console.log("Date fin selected:", date);
     setDateFin(date);
     
     if (date) {
