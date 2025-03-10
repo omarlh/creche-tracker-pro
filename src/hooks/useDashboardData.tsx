@@ -7,7 +7,7 @@ import { calculateDashboardStats } from "@/utils/dashboardCalculations";
 import { useFraisInscription } from "@/hooks/useFraisInscription";
 import { usePaiementsMensuels } from "@/hooks/usePaiementsMensuels";
 
-export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardData {
+export function useDashboardData(): DashboardData {
   const { enfants, fetchEnfants } = useEnfantStore();
   const { paiements, fetchPaiements } = usePaiementStore();
   const [isLoading, setIsLoading] = useState(true);
@@ -34,50 +34,9 @@ export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardDat
     paiementsMensuels, 
     error: paiementsMensuelsError 
   } = usePaiementsMensuels(paiements, currentAnneeScolaire, fraisInscriptionParMois, lastFetchTime);
-
-  // Filter enfants based on date range
-  const enfantsFiltres = useCallback(() => {
-    console.log("Filtering enfants with dates:", { dateDebut, dateFin });
-    
-    if (!dateDebut && !dateFin) return enfants;
-    
-    return enfants.filter(enfant => {
-      const dateInscription = enfant.dateInscription ? new Date(enfant.dateInscription) : null;
-      
-      if (!dateInscription) return true;
-      
-      // Format dates with midnight time for accurate comparison
-      const formatDate = (date: Date) => {
-        const newDate = new Date(date);
-        newDate.setHours(0, 0, 0, 0);
-        return newDate;
-      };
-      
-      if (dateDebut && dateFin) {
-        // Make dateFin inclusive by setting it to the end of the day
-        const dateDebutFormatted = formatDate(dateDebut);
-        const dateFinFormatted = new Date(dateFin);
-        dateFinFormatted.setHours(23, 59, 59, 999);
-        
-        return dateInscription >= dateDebutFormatted && dateInscription <= dateFinFormatted;
-      } else if (dateDebut) {
-        const dateDebutFormatted = formatDate(dateDebut);
-        return dateInscription >= dateDebutFormatted;
-      } else if (dateFin) {
-        // Make dateFin inclusive by setting it to the end of the day
-        const dateFinFormatted = new Date(dateFin);
-        dateFinFormatted.setHours(23, 59, 59, 999);
-        return dateInscription <= dateFinFormatted;
-      }
-      
-      return true;
-    });
-  }, [enfants, dateDebut, dateFin]);
-
-  const filteredEnfants = enfantsFiltres();
   
   // Calculate derived data with defensive coding
-  const stats = calculateDashboardStats(filteredEnfants, paiementsMensuels, totalFraisInscription);
+  const stats = calculateDashboardStats(enfants, paiementsMensuels, totalFraisInscription);
 
   // Combine errors
   const combinedError = fraisInscriptionError || paiementsMensuelsError || error;
@@ -112,19 +71,19 @@ export function useDashboardData(dateDebut?: Date, dateFin?: Date): DashboardDat
       
       // Update the lastFetchTime to trigger the useEffects
       setLastFetchTime(Date.now());
-      console.log("Dashboard data reloaded with date filters:", { dateDebut, dateFin });
+      console.log("Dashboard data reloaded");
     } catch (err) {
       console.error("Error reloading dashboard data:", err);
       setError(err instanceof Error ? err : new Error("Failed to reload dashboard data"));
     } finally {
       setIsLoading(false);
     }
-  }, [fetchEnfants, fetchPaiements, dateDebut, dateFin]);
+  }, [fetchEnfants, fetchPaiements]);
 
   return {
     isLoading,
     error: combinedError,
-    enfantsFiltres: filteredEnfants,
+    enfantsFiltres: enfants,
     enfantsActifs: stats.enfantsActifs,
     totalMensualites: stats.totalMensualites,
     totalFraisInscription,
