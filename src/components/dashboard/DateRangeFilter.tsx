@@ -47,6 +47,12 @@ export function DateRangeFilter({
     }
     return years;
   };
+  
+  // Find the month label based on the selected month value
+  const getSelectedMonthLabel = () => {
+    const selectedMonthObj = months.find(month => month.value === selectedMonth);
+    return selectedMonthObj ? selectedMonthObj.label : "Mois";
+  };
 
   return (
     <div className="flex flex-col sm:flex-row gap-4">
@@ -59,7 +65,7 @@ export function DateRangeFilter({
             onValueChange={onMonthChange}
           >
             <SelectTrigger className="w-[150px] bg-white dark:bg-slate-950">
-              <SelectValue placeholder="Mois" />
+              <SelectValue>{getSelectedMonthLabel()}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {months.map((month) => (
@@ -81,7 +87,7 @@ export function DateRangeFilter({
             onValueChange={onYearChange}
           >
             <SelectTrigger className="w-[150px] bg-white dark:bg-slate-950">
-              <SelectValue placeholder="Année" />
+              <SelectValue>{selectedYear === "all" ? "Toutes les années" : selectedYear}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {generateYearOptions().map((year) => (
