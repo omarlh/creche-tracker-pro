@@ -63,9 +63,10 @@ export function DateRangeFilter({
           <Select 
             value={selectedMonth} 
             onValueChange={onMonthChange}
+            defaultValue="all"
           >
             <SelectTrigger className="w-[150px] bg-white dark:bg-slate-950">
-              <SelectValue>{getSelectedMonthLabel()}</SelectValue>
+              <SelectValue placeholder="Mois">{getSelectedMonthLabel()}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {months.map((month) => (
@@ -85,9 +86,10 @@ export function DateRangeFilter({
           <Select 
             value={selectedYear} 
             onValueChange={onYearChange}
+            defaultValue="all"
           >
             <SelectTrigger className="w-[150px] bg-white dark:bg-slate-950">
-              <SelectValue>{selectedYear === "all" ? "Toutes les années" : selectedYear}</SelectValue>
+              <SelectValue placeholder="Année">{selectedYear === "all" ? "Toutes les années" : selectedYear}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {generateYearOptions().map((year) => (
