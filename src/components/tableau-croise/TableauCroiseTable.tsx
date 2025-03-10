@@ -29,8 +29,6 @@ export function TableauCroiseTable({
 }: TableauCroiseTableProps) {
   const [dateDialogOpen, setDateDialogOpen] = useState(false);
   const [selectedEnfantId, setSelectedEnfantId] = useState<number | null>(null);
-  const [dateDebut, setDateDebut] = useState("");
-  const [dateFin, setDateFin] = useState("");
 
   const filteredEnfants = enfants
     .filter(e => selectedAnneeScolaire === "all" || e.anneeScolaire === selectedAnneeScolaire)
@@ -42,13 +40,16 @@ export function TableauCroiseTable({
 
   const handleHistoriqueClick = (enfantId: number) => {
     setSelectedEnfantId(enfantId);
-    setDateDebut("");
-    setDateFin("");
     setDateDialogOpen(true);
   };
 
-  const handleConfirmDates = () => {
-    if (selectedEnfantId && dateDebut && dateFin) {
+  const handleConfirmSchoolYear = (anneeScolaire: string) => {
+    if (selectedEnfantId) {
+      // Generate start and end dates based on school year
+      const [yearStart, yearEnd] = anneeScolaire.split('-');
+      const dateDebut = `${yearStart}-09-01`; // September 1st of start year
+      const dateFin = `${yearEnd}-06-30`;    // June 30th of end year
+      
       printEnfantHistorique(
         selectedEnfantId, 
         dateDebut, 
@@ -56,7 +57,6 @@ export function TableauCroiseTable({
         enfants, 
         getMontantInscription
       );
-      setDateDialogOpen(false);
     }
   };
 
@@ -76,11 +76,7 @@ export function TableauCroiseTable({
       <DateRangeDialog 
         open={dateDialogOpen}
         onOpenChange={setDateDialogOpen}
-        dateDebut={dateDebut}
-        dateFin={dateFin}
-        setDateDebut={setDateDebut}
-        setDateFin={setDateFin}
-        onConfirm={handleConfirmDates}
+        onConfirm={handleConfirmSchoolYear}
       />
     </>
   );
