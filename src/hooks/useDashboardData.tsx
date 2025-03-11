@@ -6,21 +6,17 @@ import { DashboardData } from "@/types/dashboard.types";
 import { calculateDashboardStats } from "@/utils/dashboardCalculations";
 import { useFraisInscription } from "@/hooks/useFraisInscription";
 import { usePaiementsMensuels } from "@/hooks/usePaiementsMensuels";
+import { getCurrentSchoolYear } from "@/lib/dateUtils";
 
-export function useDashboardData(): DashboardData {
+export function useDashboardData(anneeScolaire?: string): DashboardData {
   const { enfants, fetchEnfants } = useEnfantStore();
   const { paiements, fetchPaiements } = usePaiementStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [lastFetchTime, setLastFetchTime] = useState(Date.now());
 
-  // Get current school year for calculations
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth(); // 0-indexed
-  const currentAnneeScolaire = currentMonth >= 8 
-    ? `${currentYear}-${currentYear + 1}` 
-    : `${currentYear - 1}-${currentYear}`;
+  // Get current school year for calculations if not provided
+  const currentAnneeScolaire = anneeScolaire || getCurrentSchoolYear();
   
   // Get frais d'inscription data
   const { 
@@ -35,8 +31,13 @@ export function useDashboardData(): DashboardData {
     error: paiementsMensuelsError 
   } = usePaiementsMensuels(paiements, currentAnneeScolaire, fraisInscriptionParMois, lastFetchTime);
   
+  // Filter enfants by the selected school year
+  const enfantsFiltres = enfants.filter(enfant => 
+    !anneeScolaire || enfant.anneeScolaire === anneeScolaire
+  );
+
   // Calculate derived data with defensive coding
-  const stats = calculateDashboardStats(enfants, paiementsMensuels, totalFraisInscription);
+  const stats = calculateDashboardStats(enfantsFiltres, paiementsMensuels, totalFraisInscription);
 
   // Combine errors
   const combinedError = fraisInscriptionError || paiementsMensuelsError || error;
@@ -83,7 +84,7 @@ export function useDashboardData(): DashboardData {
   return {
     isLoading,
     error: combinedError,
-    enfantsFiltres: enfants,
+    enfantsFiltres,
     enfantsActifs: stats.enfantsActifs,
     totalMensualites: stats.totalMensualites,
     totalFraisInscription,

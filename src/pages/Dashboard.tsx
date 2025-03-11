@@ -14,8 +14,9 @@ import { getCurrentSchoolYear } from "@/lib/dateUtils"
 const Dashboard = () => {
   const { toast } = useToast();
   const currentYear = getCurrentSchoolYear();
+  const [selectedAnneeScolaire, setSelectedAnneeScolaire] = useState(currentYear);
   
-  // Get dashboard data without date filters
+  // Get dashboard data with selected school year filter
   const {
     isLoading,
     error,
@@ -27,16 +28,20 @@ const Dashboard = () => {
     moyennePaiements,
     paiementsMensuels,
     reloadData
-  } = useDashboardData();
+  } = useDashboardData(selectedAnneeScolaire);
 
   const handleResetFilters = useCallback(() => {
-    console.log("Resetting filters");
+    setSelectedAnneeScolaire(currentYear);
     
     toast({
       title: "Filtres réinitialisés",
       description: "Affichage de toutes les données",
     });
-  }, [toast]);
+  }, [toast, currentYear]);
+
+  const handleAnneeScolaireChange = (value: string) => {
+    setSelectedAnneeScolaire(value);
+  };
 
   const handleManualRefresh = async () => {
     toast({
@@ -55,9 +60,9 @@ const Dashboard = () => {
   return (
     <main className="flex-1 p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-8">
           <h1 className="text-3xl font-bold">Tableau de bord</h1>
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+          <div className="flex flex-col gap-4">
             <Button 
               variant="outline" 
               size="sm" 
@@ -71,6 +76,8 @@ const Dashboard = () => {
             <DateRangeFilter
               onReset={handleResetFilters}
               isLoading={isLoading}
+              selectedAnneeScolaire={selectedAnneeScolaire}
+              onAnneeScolaireChange={handleAnneeScolaireChange}
             />
           </div>
         </div>
@@ -93,13 +100,13 @@ const Dashboard = () => {
           totalMensualites={totalMensualites}
           totalFraisInscription={totalFraisInscription}
           moyennePaiements={moyennePaiements}
-          anneeScolaire={currentYear}
+          anneeScolaire={selectedAnneeScolaire}
           isLoading={isLoading}
         />
 
         <PaiementsChart 
           paiementsMensuels={paiementsMensuels}
-          anneeScolaire={currentYear}
+          anneeScolaire={selectedAnneeScolaire}
           isLoading={isLoading}
         />
 

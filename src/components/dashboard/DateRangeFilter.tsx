@@ -1,25 +1,61 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Calendar } from "lucide-react";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface DateRangeFilterProps {
   onReset: () => void;
   isLoading: boolean;
+  selectedAnneeScolaire: string;
+  onAnneeScolaireChange: (value: string) => void;
 }
 
 export function DateRangeFilter({
   onReset,
-  isLoading
+  isLoading,
+  selectedAnneeScolaire,
+  onAnneeScolaireChange
 }: DateRangeFilterProps) {
+  const genererAnnesScolaires = () => {
+    const anneesDisponibles = [];
+    const currentYear = new Date().getFullYear();
+    for (let i = -5; i <= 5; i++) {
+      const anneeDebut = currentYear + i;
+      const anneeFin = anneeDebut + 1;
+      anneesDisponibles.push(`${anneeDebut}-${anneeFin}`);
+    }
+    return anneesDisponibles;
+  };
+
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+      <div className="flex-1 max-w-xs">
+        <Label className="flex items-center gap-2 mb-2">
+          <Calendar className="h-4 w-4" />
+          Année scolaire
+        </Label>
+        <Select value={selectedAnneeScolaire} onValueChange={onAnneeScolaireChange}>
+          <SelectTrigger className="bg-white dark:bg-slate-950">
+            <SelectValue placeholder="Sélectionner une année scolaire" />
+          </SelectTrigger>
+          <SelectContent>
+            {genererAnnesScolaires().map((annee) => (
+              <SelectItem key={annee} value={annee}>
+                {annee}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
       <Button 
         variant="outline" 
         size="icon"
         onClick={onReset}
         disabled={isLoading}
-        className="h-10 bg-white dark:bg-slate-950"
+        className="h-10 bg-white dark:bg-slate-950 mt-8"
         title="Réinitialiser les filtres"
       >
         <RotateCcw className="h-4 w-4" />
