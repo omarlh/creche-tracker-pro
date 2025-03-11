@@ -31,10 +31,16 @@ export function useDashboardData(anneeScolaire?: string): DashboardData {
     error: paiementsMensuelsError 
   } = usePaiementsMensuels(paiements, currentAnneeScolaire, fraisInscriptionParMois, lastFetchTime);
   
-  // Filter enfants by the selected school year
-  const enfantsFiltres = enfants.filter(enfant => 
-    !anneeScolaire || enfant.anneeScolaire === anneeScolaire
-  );
+  // Filter enfants by the selected school year - Fix for year format like "2025-2026" and "2025/2026"
+  const enfantsFiltres = enfants.filter(enfant => {
+    if (!anneeScolaire) return true;
+    
+    // Normalize year format to handle both formats
+    const normalizedAnneeScolaire = anneeScolaire.replace('/', '-');
+    const normalizedEnfantAnnee = enfant.anneeScolaire?.replace('/', '-') || '';
+    
+    return normalizedEnfantAnnee === normalizedAnneeScolaire;
+  });
 
   // Calculate derived data with defensive coding
   const stats = calculateDashboardStats(enfantsFiltres, paiementsMensuels, totalFraisInscription);

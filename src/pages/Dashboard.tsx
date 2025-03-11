@@ -39,8 +39,12 @@ const Dashboard = () => {
     });
   }, [toast, currentYear]);
 
+  // Normalize display format to always use dashes
+  const normalizedDisplayAnneeScolaire = selectedAnneeScolaire.replace('/', '-');
+
   const handleAnneeScolaireChange = (value: string) => {
-    setSelectedAnneeScolaire(value);
+    // Ensure consistent internal format (with dashes)
+    setSelectedAnneeScolaire(value.replace('/', '-'));
   };
 
   const handleManualRefresh = async () => {
@@ -76,7 +80,7 @@ const Dashboard = () => {
             <DateRangeFilter
               onReset={handleResetFilters}
               isLoading={isLoading}
-              selectedAnneeScolaire={selectedAnneeScolaire}
+              selectedAnneeScolaire={normalizedDisplayAnneeScolaire}
               onAnneeScolaireChange={handleAnneeScolaireChange}
             />
           </div>
@@ -100,13 +104,13 @@ const Dashboard = () => {
           totalMensualites={totalMensualites}
           totalFraisInscription={totalFraisInscription}
           moyennePaiements={moyennePaiements}
-          anneeScolaire={selectedAnneeScolaire}
+          anneeScolaire={normalizedDisplayAnneeScolaire}
           isLoading={isLoading}
         />
 
         <PaiementsChart 
           paiementsMensuels={paiementsMensuels}
-          anneeScolaire={selectedAnneeScolaire}
+          anneeScolaire={normalizedDisplayAnneeScolaire}
           isLoading={isLoading}
         />
 

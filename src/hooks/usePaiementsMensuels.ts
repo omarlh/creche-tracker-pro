@@ -42,9 +42,12 @@ export function usePaiementsMensuels(
           datePaiement: p.datePaiement || p.date_paiement
         }));
         
+        // Normalize year format to handle both formats (2025-2026 and 2025/2026)
+        const normalizedAnneeScolaire = anneeScolaire.replace('/', '-');
+        
         const donneesParMois = calculerPaiementsMensuels(
           validatedPaiements,
-          anneeScolaire,
+          normalizedAnneeScolaire,
           fraisInscriptionParMois
         );
         

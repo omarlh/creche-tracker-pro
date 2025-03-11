@@ -21,12 +21,24 @@ export function DateRangeFilter({
   const genererAnnesScolaires = () => {
     const anneesDisponibles = [];
     const currentYear = new Date().getFullYear();
+    
+    // Generate years from current year - 5 to current year + 5
     for (let i = -5; i <= 5; i++) {
       const anneeDebut = currentYear + i;
       const anneeFin = anneeDebut + 1;
       anneesDisponibles.push(`${anneeDebut}-${anneeFin}`);
     }
-    return anneesDisponibles;
+    
+    // Also include slash format for compatibility
+    const slashFormats = [];
+    for (let i = -5; i <= 5; i++) {
+      const anneeDebut = currentYear + i;
+      const anneeFin = anneeDebut + 1;
+      slashFormats.push(`${anneeDebut}/${anneeFin}`);
+    }
+    
+    // Combine and remove duplicates
+    return [...new Set([...anneesDisponibles, ...slashFormats])];
   };
 
   return (

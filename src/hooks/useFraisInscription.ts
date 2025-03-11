@@ -20,9 +20,15 @@ export function useFraisInscription(
         setTotalFraisInscription(0);
         setFraisInscriptionParMois({});
 
+        // Normalize year format to handle both formats (2025-2026 and 2025/2026)
+        const normalizedAnneeScolaire = anneeScolaire.replace('/', '-');
+
         // Get all enfant IDs for the current school year
         const enfantIds = enfants
-          .filter(e => e.anneeScolaire === anneeScolaire || !e.anneeScolaire)
+          .filter(e => {
+            const normalizedEnfantAnnee = e.anneeScolaire?.replace('/', '-') || '';
+            return normalizedEnfantAnnee === normalizedAnneeScolaire || !e.anneeScolaire;
+          })
           .map(e => e.id);
 
         console.log(`Found ${enfantIds.length} enfants for school year ${anneeScolaire}`);
@@ -51,7 +57,7 @@ export function useFraisInscription(
         }));
         
         // Filter to only include payments within this school year
-        const { start, end } = getSchoolYearDateRange(anneeScolaire);
+        const { start, end } = getSchoolYearDateRange(normalizedAnneeScolaire);
         const filteredData = validatedData.filter(p => {
           if (!p.date_paiement) return false;
           const paymentDate = new Date(p.date_paiement);
@@ -66,7 +72,7 @@ export function useFraisInscription(
         console.log(`Total inscription fees: ${total}`);
         
         // Calculate fees by month
-        const parMois = getFraisInscriptionParMois(filteredData, anneeScolaire);
+        const parMois = getFraisInscriptionParMois(filteredData, normalizedAnneeScolaire);
         setFraisInscriptionParMois(parMois);
         console.log("Frais inscription par mois:", parMois);
       } catch (err) {
