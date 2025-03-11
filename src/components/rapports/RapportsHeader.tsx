@@ -1,10 +1,12 @@
 
-import React, { KeyboardEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { fr } from 'date-fns/locale';
+import { parse, isValid, format } from 'date-fns';
 
 interface RapportsHeaderProps {
   dateDebut: string;
@@ -23,6 +25,15 @@ export function RapportsHeader({
   onExport,
   titre
 }: RapportsHeaderProps) {
+  const [startDateInput, setStartDateInput] = useState(formatDisplayDate(dateDebut));
+  const [endDateInput, setEndDateInput] = useState(formatDisplayDate(dateFin));
+
+  // Update the input fields when props change
+  useEffect(() => {
+    setStartDateInput(formatDisplayDate(dateDebut));
+    setEndDateInput(formatDisplayDate(dateFin));
+  }, [dateDebut, dateFin]);
+
   const handleStartDateChange = (date: Date | undefined) => {
     if (date) {
       onDateDebutChange(date.toISOString().split('T')[0]);
@@ -35,41 +46,43 @@ export function RapportsHeader({
     }
   };
 
-  const handleManualStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = event.target.value;
-    if (inputValue && isValidDateFormat(inputValue)) {
-      const date = parseDate(inputValue);
-      if (date) {
-        onDateDebutChange(date.toISOString().split('T')[0]);
+  const handleStartDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    setStartDateInput(inputValue);
+    
+    if (isValidDateFormat(inputValue)) {
+      const parsedDate = parseDate(inputValue);
+      if (parsedDate) {
+        onDateDebutChange(parsedDate.toISOString().split('T')[0]);
       }
     }
   };
 
-  const handleManualEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = event.target.value;
-    if (inputValue && isValidDateFormat(inputValue)) {
-      const date = parseDate(inputValue);
-      if (date) {
-        onDateFinChange(date.toISOString().split('T')[0]);
+  const handleEndDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    setEndDateInput(inputValue);
+    
+    if (isValidDateFormat(inputValue)) {
+      const parsedDate = parseDate(inputValue);
+      if (parsedDate) {
+        onDateFinChange(parsedDate.toISOString().split('T')[0]);
       }
     }
   };
 
-  const handleKeyDown = (
-    event: KeyboardEvent<HTMLInputElement>, 
-    type: 'start' | 'end'
-  ) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      const inputValue = event.currentTarget.value;
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, type: 'start' | 'end') => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
       
-      if (inputValue && isValidDateFormat(inputValue)) {
-        const date = parseDate(inputValue);
-        if (date) {
+      const inputValue = type === 'start' ? startDateInput : endDateInput;
+      
+      if (isValidDateFormat(inputValue)) {
+        const parsedDate = parseDate(inputValue);
+        if (parsedDate) {
           if (type === 'start') {
-            onDateDebutChange(date.toISOString().split('T')[0]);
+            onDateDebutChange(parsedDate.toISOString().split('T')[0]);
           } else {
-            onDateFinChange(date.toISOString().split('T')[0]);
+            onDateFinChange(parsedDate.toISOString().split('T')[0]);
           }
         }
       }
@@ -78,38 +91,39 @@ export function RapportsHeader({
 
   // Helper function to validate date format (DD/MM/YYYY)
   const isValidDateFormat = (dateString: string): boolean => {
+    if (!dateString) return false;
+    
     const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-    return regex.test(dateString);
+    if (!regex.test(dateString)) return false;
+    
+    const parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
+    return isValid(parsedDate);
   };
 
   // Helper function to parse a date from format DD/MM/YYYY
   const parseDate = (dateString: string): Date | null => {
-    const parts = dateString.split('/');
-    if (parts.length !== 3) return null;
-    
-    const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-indexed
-    const year = parseInt(parts[2], 10);
-    
-    const date = new Date(year, month, day);
-    
-    // Validate that the date is correct (handles invalid dates like 31/02/2023)
-    if (
-      date.getFullYear() !== year ||
-      date.getMonth() !== month ||
-      date.getDate() !== day
-    ) {
-      return null;
+    try {
+      const parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
+      if (isValid(parsedDate)) {
+        return parsedDate;
+      }
+    } catch (error) {
+      console.error("Error parsing date:", error);
     }
-    
-    return date;
+    return null;
   };
 
   // Format date for display (YYYY-MM-DD to DD/MM/YYYY)
   const formatDisplayDate = (isoDate: string): string => {
     if (!isoDate) return '';
-    const date = new Date(isoDate);
-    return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+    try {
+      const date = new Date(isoDate);
+      if (!isValid(date)) return '';
+      return format(date, 'dd/MM/yyyy', { locale: fr });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return '';
+    }
   };
 
   return (
@@ -127,19 +141,19 @@ export function RapportsHeader({
           <div className="space-y-2">
             <Label className="text-sm font-medium">Date début</Label>
             <div className="flex items-center gap-2">
-              <DatePicker 
-                date={dateDebut ? new Date(dateDebut) : undefined} 
-                onDateChange={handleStartDateChange}
-                placeholder="Date du"
-                className="bg-white dark:bg-slate-950 w-1/2"
-              />
               <Input
                 type="text"
                 placeholder="JJ/MM/AAAA"
-                value={formatDisplayDate(dateDebut)}
-                onChange={handleManualStartDateChange}
+                value={startDateInput}
+                onChange={handleStartDateInputChange}
                 onKeyDown={(e) => handleKeyDown(e, 'start')}
-                className="bg-white dark:bg-slate-950 w-1/2"
+                className="bg-white dark:bg-slate-950"
+              />
+              <DatePicker 
+                date={dateDebut ? new Date(dateDebut) : undefined} 
+                onDateChange={handleStartDateChange}
+                placeholder="Sélectionner"
+                className="bg-white dark:bg-slate-950"
               />
             </div>
           </div>
@@ -147,19 +161,19 @@ export function RapportsHeader({
           <div className="space-y-2">
             <Label className="text-sm font-medium">Date fin</Label>
             <div className="flex items-center gap-2">
-              <DatePicker 
-                date={dateFin ? new Date(dateFin) : undefined} 
-                onDateChange={handleEndDateChange}
-                placeholder="Date au"
-                className="bg-white dark:bg-slate-950 w-1/2"
-              />
               <Input
                 type="text"
                 placeholder="JJ/MM/AAAA"
-                value={formatDisplayDate(dateFin)}
-                onChange={handleManualEndDateChange}
+                value={endDateInput}
+                onChange={handleEndDateInputChange}
                 onKeyDown={(e) => handleKeyDown(e, 'end')}
-                className="bg-white dark:bg-slate-950 w-1/2"
+                className="bg-white dark:bg-slate-950"
+              />
+              <DatePicker 
+                date={dateFin ? new Date(dateFin) : undefined} 
+                onDateChange={handleEndDateChange}
+                placeholder="Sélectionner"
+                className="bg-white dark:bg-slate-950"
               />
             </div>
           </div>
