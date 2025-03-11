@@ -59,11 +59,15 @@ const Rapports: React.FC = () => {
   const rapportsMensuels = useRapportGeneration(dateDebut, dateFin, enfants, paiements, undefined, refreshTrigger);
 
   const handleDateDebutChange = (date: string) => {
+    if (!date) return;
+    
     console.log("Setting date début:", date);
     setDateDebut(date);
   };
 
   const handleDateFinChange = (date: string) => {
+    if (!date) return;
+    
     console.log("Setting date fin:", date);
     setDateFin(date);
   };
