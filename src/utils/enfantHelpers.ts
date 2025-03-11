@@ -27,11 +27,12 @@ export const handleEnfantSubmit = (
   const montantPaiement = Number(formData.get("montantPaiement") || 0);
   const methodePaiement = formData.get("methodePaiement") as "carte" | "especes" | "cheque" | "virement";
   const anneeScolaire = formData.get("anneeScolaire") as string || "2024-2025";
+  const datePaiementSaisie = formData.get("datePaiement") as string || new Date().toISOString().split('T')[0];
 
   const nouveauPaiement = montantPaiement > 0 ? {
     id: Date.now(),
     montant: montantPaiement,
-    datePaiement: new Date().toISOString().split('T')[0],
+    datePaiement: datePaiementSaisie,
     methodePaiement,
   } : null;
 
@@ -52,7 +53,7 @@ export const handleEnfantSubmit = (
       paiements: nouveauPaiement ? [nouveauPaiement] : [],
     },
     statut: (formData.get("statut") as "actif" | "inactif") || "actif",
-    dernierPaiement: new Date().toISOString().split('T')[0],
+    dernierPaiement: datePaiementSaisie,
   };
 
   if (selectedEnfant) {
