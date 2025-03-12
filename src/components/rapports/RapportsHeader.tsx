@@ -8,15 +8,6 @@ import { Label } from "@/components/ui/label";
 import { fr } from 'date-fns/locale';
 import { parse, isValid, format } from 'date-fns';
 
-interface RapportsHeaderProps {
-  dateDebut: string;
-  dateFin: string;
-  onDateDebutChange: (date: string) => void;
-  onDateFinChange: (date: string) => void;
-  onExport: () => void;
-  titre: string;
-}
-
 // Helper function to format date for display (YYYY-MM-DD to DD/MM/YYYY)
 const formatDisplayDate = (isoDate: string): string => {
   if (!isoDate) return '';
@@ -29,6 +20,15 @@ const formatDisplayDate = (isoDate: string): string => {
     return '';
   }
 };
+
+interface RapportsHeaderProps {
+  dateDebut: string;
+  dateFin: string;
+  onDateDebutChange: (date: string) => void;
+  onDateFinChange: (date: string) => void;
+  onExport: () => void;
+  titre: string;
+}
 
 export function RapportsHeader({ 
   dateDebut, 

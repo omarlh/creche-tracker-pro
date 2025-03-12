@@ -19,6 +19,19 @@ export const useRapportGeneration = (
     const genererRapports = async () => {
       console.log("Générant rapports avec dates:", { dateDebut, dateFin });
       
+      if (!dateDebut || !dateFin) {
+        console.log("Dates invalides pour la génération de rapports");
+        setRapportsMensuels([]);
+        return;
+      }
+      
+      // Ensure dateFin is not before dateDebut
+      if (new Date(dateFin) < new Date(dateDebut)) {
+        console.log("La date de fin est antérieure à la date de début");
+        setRapportsMensuels([]);
+        return;
+      }
+      
       // Convert string dates to Date objects for comparison
       const dateDebutObj = new Date(dateDebut);
       // Set dateFin to end of day for inclusive comparison

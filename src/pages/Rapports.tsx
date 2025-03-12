@@ -53,6 +53,7 @@ const Rapports: React.FC = () => {
 
   // Refresh data when date filters change
   useEffect(() => {
+    console.log("Dates changed, refreshing data:", { dateDebut, dateFin });
     setRefreshTrigger(prev => prev + 1);
   }, [dateDebut, dateFin]);
 
@@ -74,6 +75,16 @@ const Rapports: React.FC = () => {
 
   const handleExportRapport = () => {
     try {
+      if (rapportsMensuels.length === 0) {
+        toast({
+          title: "Aucune donnée à exporter",
+          description: "Veuillez sélectionner une période contenant des données",
+          variant: "destructive",
+          duration: 3000,
+        });
+        return;
+      }
+      
       const data = rapportsMensuels.map(rapport => ({
         "Date": new Date(rapport.mois).toLocaleDateString("fr-FR", {
           year: "numeric",
