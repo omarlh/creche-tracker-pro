@@ -8,6 +8,7 @@ import { TableauActions } from "./TableauActions";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
+import { PaiementsDetailParDate } from "./PaiementsDetailParDate";
 
 interface CaisseJournaliereTableauProps {
   onTotalUpdate?: (total: number) => void;
@@ -130,6 +131,49 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
     }));
   };
 
+  // Group paiements by date for the detailed view
+  const groupPaiementsByDate = () => {
+    const grouped: Record<string, {
+      totalScolarite: number,
+      totalInscription: number,
+      totalGeneral: number,
+      date: string
+    }> = {};
+    
+    paiements.forEach(paiement => {
+      const date = paiement.date_paiement;
+      const montant = typeof paiement.montant === 'number' 
+        ? paiement.montant 
+        : parseFloat(paiement.montant as any) || 0;
+      
+      if (!grouped[date]) {
+        grouped[date] = {
+          totalScolarite: 0,
+          totalInscription: 0,
+          totalGeneral: 0,
+          date: date
+        };
+      }
+      
+      // Assuming payments from 'paiements' table are school fees
+      // and payments from 'paiements_inscription' are registration fees
+      // We'll determine which is which by checking if the payment has a specific property
+      const isInscription = !paiement.hasOwnProperty('mois_concerne');
+      
+      if (isInscription) {
+        grouped[date].totalInscription += montant;
+      } else {
+        grouped[date].totalScolarite += montant;
+      }
+      
+      grouped[date].totalGeneral += montant;
+    });
+    
+    return Object.values(grouped).sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+  };
+
   if (loading) return <div>Chargement...</div>;
 
   return (
@@ -180,6 +224,12 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
                 totalJour={totalJour}
                 onExport={() => console.log("Export data")}
               />
+              
+              {/* Detailed payments by date */}
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold mb-4">Détail des paiements par date</h3>
+                <PaiementsDetailParDate paiementsParDate={groupPaiementsByDate()} />
+              </div>
             </>
           )}
         </div>
