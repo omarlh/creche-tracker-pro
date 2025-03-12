@@ -17,6 +17,19 @@ interface RapportsHeaderProps {
   titre: string;
 }
 
+// Helper function to format date for display (YYYY-MM-DD to DD/MM/YYYY)
+const formatDisplayDate = (isoDate: string): string => {
+  if (!isoDate) return '';
+  try {
+    const date = new Date(isoDate);
+    if (!isValid(date)) return '';
+    return format(date, 'dd/MM/yyyy', { locale: fr });
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return '';
+  }
+};
+
 export function RapportsHeader({ 
   dateDebut, 
   dateFin, 
@@ -111,19 +124,6 @@ export function RapportsHeader({
       console.error("Error parsing date:", error);
     }
     return null;
-  };
-
-  // Format date for display (YYYY-MM-DD to DD/MM/YYYY)
-  const formatDisplayDate = (isoDate: string): string => {
-    if (!isoDate) return '';
-    try {
-      const date = new Date(isoDate);
-      if (!isValid(date)) return '';
-      return format(date, 'dd/MM/yyyy', { locale: fr });
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return '';
-    }
   };
 
   return (
