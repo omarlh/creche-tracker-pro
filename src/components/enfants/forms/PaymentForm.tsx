@@ -95,7 +95,8 @@ export const PaymentForm = ({
         </div>
       </div>
 
-      {(showPaiementForm || !selectedEnfant) && (
+      {/* Always show payment fields for new enfants or when showPaiementForm is true */}
+      {(!selectedEnfant || showPaiementForm) && (
         <div className="space-y-4 border-t pt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -129,17 +130,20 @@ export const PaymentForm = ({
             <label htmlFor="methodePaiement" className="text-sm font-medium">
               Méthode de paiement
             </label>
-            <select
-              id="methodePaiement"
+            <Select
               name="methodePaiement"
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
               defaultValue="carte"
             >
-              <option value="carte">Carte bancaire</option>
-              <option value="especes">Espèces</option>
-              <option value="cheque">Chèque</option>
-              <option value="virement">Virement bancaire</option>
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sélectionner une méthode" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="carte">Carte bancaire</SelectItem>
+                <SelectItem value="especes">Espèces</SelectItem>
+                <SelectItem value="cheque">Chèque</SelectItem>
+                <SelectItem value="virement">Virement bancaire</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       )}

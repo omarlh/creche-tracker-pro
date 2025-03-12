@@ -29,6 +29,7 @@ export const handleEnfantSubmit = (
   const anneeScolaire = formData.get("anneeScolaire") as string || "2024-2025";
   const datePaiementSaisie = formData.get("datePaiement") as string || new Date().toISOString().split('T')[0];
 
+  // Only create a new payment if there's a valid amount
   const nouveauPaiement = montantPaiement > 0 ? {
     id: Date.now(),
     montant: montantPaiement,
