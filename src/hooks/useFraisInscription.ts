@@ -48,13 +48,13 @@ export function useFraisInscription(
           throw error;
         }
 
-        console.log(`Retrieved ${data.length} inscription payments`);
+        console.log(`Retrieved ${data?.length || 0} inscription payments`);
         
         // Ensure all data has numeric montant values
-        const validatedData = data.map(item => ({
+        const validatedData = data?.map(item => ({
           ...item,
           montant: typeof item.montant === 'number' ? item.montant : Number(item.montant) || 0
-        }));
+        })) || [];
         
         // Filter to only include payments within this school year
         const { start, end } = getSchoolYearDateRange(normalizedAnneeScolaire);

@@ -61,6 +61,15 @@ const Dashboard = () => {
     });
   };
 
+  // Log values for debugging
+  useEffect(() => {
+    console.log("Dashboard values:", {
+      totalMensualites,
+      totalFraisInscription,
+      totalPaiements
+    });
+  }, [totalMensualites, totalFraisInscription, totalPaiements]);
+
   return (
     <main className="flex-1 p-8">
       <div className="max-w-6xl mx-auto">

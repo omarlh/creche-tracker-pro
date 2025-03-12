@@ -45,6 +45,17 @@ export function useDashboardData(anneeScolaire?: string): DashboardData {
   // Calculate derived data with defensive coding
   const stats = calculateDashboardStats(enfantsFiltres, paiementsMensuels, totalFraisInscription);
 
+  // Log values for debugging
+  useEffect(() => {
+    console.log("Dashboard data calculated:", {
+      totalFraisInscription,
+      paiementsMensuels,
+      enfantsActifs: stats.enfantsActifs,
+      totalMensualites: stats.totalMensualites,
+      totalPaiements: stats.totalPaiements
+    });
+  }, [totalFraisInscription, paiementsMensuels, stats]);
+
   // Combine errors
   const combinedError = fraisInscriptionError || paiementsMensuelsError || error;
 

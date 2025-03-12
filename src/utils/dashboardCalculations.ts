@@ -1,3 +1,4 @@
+
 import { PaiementMensuel } from "@/types/dashboard.types";
 import { getMoisAnneeScolaire, isDateInSchoolYear } from "@/lib/dateUtils";
 
@@ -14,6 +15,7 @@ export const getFraisInscriptionParMois = (
     parMois[mois] = 0;
   });
   
+  // For each payment, add the amount to the corresponding month
   data.forEach(p => {
     if (!p.date_paiement) return;
     
@@ -114,8 +116,9 @@ export const calculateDashboardStats = (
   
   // Calculate total mensualites
   const totalMensualites = paiementsMensuels.reduce((sum, m) => {
-    const montant = typeof m.total === 'number' ? m.total : Number(m.total) || 0;
-    return sum + montant;
+    // Remove fraisInscription from the total as they're counted separately
+    const montantMensuel = typeof m.total === 'number' ? m.total : Number(m.total) || 0;
+    return sum + montantMensuel;
   }, 0);
   
   // Ensure totalFraisInscription is a number
