@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
@@ -15,7 +16,6 @@ import NotFound from './pages/NotFound';
 import Enfants from './pages/Enfants';
 import Paiements from './pages/Paiements';
 import CaisseJournaliere from './pages/CaisseJournaliere';
-import Rapports from './pages/Rapports';
 import Retards from './pages/Retards';
 import TableauCroise from './pages/TableauCroise';
 import ListeAnnuelle from './pages/ListeAnnuelle';
@@ -85,17 +85,6 @@ function App() {
             <ProtectedRoute>
               <LayoutWithSidebar>
                 <CaisseJournaliere />
-              </LayoutWithSidebar>
-            </ProtectedRoute>
-          } 
-        />
-        
-        <Route 
-          path="/rapports" 
-          element={
-            <ProtectedRoute>
-              <LayoutWithSidebar>
-                <Rapports />
               </LayoutWithSidebar>
             </ProtectedRoute>
           } 

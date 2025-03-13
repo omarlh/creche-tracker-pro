@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   LogOut,
   LucideIcon,
-  PieChart,
   Settings,
   Table,
   Users,
@@ -120,12 +119,6 @@ export const AppSidebar = () => {
             label="Caisse journalière"
             href="/caisse"
             active={pathname === "/caisse"}
-          />
-          <SidebarItem
-            icon={PieChart}
-            label="Rapports"
-            href="/rapports"
-            active={pathname === "/rapports"}
           />
           <SidebarItem
             icon={CalendarClock}
