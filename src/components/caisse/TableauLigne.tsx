@@ -1,10 +1,8 @@
 
 import { TableCell, TableRow } from "@/components/ui/table";
+import { PaiementMethodSummary } from "@/types/caisse.types";
 
-export interface TableauLigneProps {
-  methode: string;
-  montant: number;
-}
+export type TableauLigneProps = PaiementMethodSummary;
 
 export function TableauLigne({ methode, montant }: TableauLigneProps) {
   const formatMethode = (methode: string) => {

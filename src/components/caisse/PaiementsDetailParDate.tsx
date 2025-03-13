@@ -6,13 +6,7 @@ import { Eye } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { DetaillePaiementJour } from "./DetaillePaiementJour";
-
-type PaiementJournalier = {
-  date: string;
-  totalScolarite: number;
-  totalInscription: number;
-  totalGeneral: number;
-};
+import { PaiementJournalier } from "@/types/caisse.types";
 
 interface PaiementsDetailParDateProps {
   paiementsParDate: PaiementJournalier[];
