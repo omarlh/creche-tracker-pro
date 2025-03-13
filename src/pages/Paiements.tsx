@@ -47,10 +47,11 @@ const Paiements = () => {
     fetchEnfants();
   }, [fetchPaiements, fetchEnfants]);
 
-  // Initialiser avec la date d'aujourd'hui
-  const today = new Date().toISOString().split('T')[0];
-  const [selectedStartDate, setSelectedStartDate] = useState(today);
-  const [selectedEndDate, setSelectedEndDate] = useState(today);
+  // Initialiser avec le premier jour du mois actuel pour la date de début
+  const today = new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+  const [selectedStartDate, setSelectedStartDate] = useState(firstDayOfMonth);
+  const [selectedEndDate, setSelectedEndDate] = useState(today.toISOString().split('T')[0]);
 
   const [selectedEnfantId, setSelectedEnfantId] = useState<number | null>(
     selectedPaiement?.enfantId || null
@@ -59,10 +60,10 @@ const Paiements = () => {
     selectedPaiement?.montant || defaultMontant
   );
   const [datePaiement, setDatePaiement] = useState<string>(
-    selectedPaiement?.datePaiement || today
+    selectedPaiement?.datePaiement || today.toISOString().split('T')[0]
   );
   const [moisConcerne, setMoisConcerne] = useState<string>(
-    selectedPaiement?.moisConcerne || today
+    selectedPaiement?.moisConcerne || today.toISOString().split('T')[0]
   );
   const [methodePaiement, setMethodePaiement] = useState<"carte" | "especes" | "cheque">(
     selectedPaiement?.methodePaiement || "especes"
@@ -75,6 +76,10 @@ const Paiements = () => {
     const paiementDate = new Date(paiement.datePaiement);
     const startDate = new Date(selectedStartDate);
     const endDate = new Date(selectedEndDate);
+    
+    // Ajuster les dates pour ignorer l'heure
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
     
     return paiementDate >= startDate && paiementDate <= endDate;
   });

@@ -2,7 +2,9 @@
 import { Calendar, User } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { type Enfant } from "@/data/enfants";
+import { useEffect } from "react";
 
 interface PaiementFiltersProps {
   selectedEnfant: string;
@@ -14,31 +16,6 @@ interface PaiementFiltersProps {
   enfants: Enfant[];
 }
 
-const months = [
-  { value: "01", label: "Janvier" },
-  { value: "02", label: "Février" },
-  { value: "03", label: "Mars" },
-  { value: "04", label: "Avril" },
-  { value: "05", label: "Mai" },
-  { value: "06", label: "Juin" },
-  { value: "07", label: "Juillet" },
-  { value: "08", label: "Août" },
-  { value: "09", label: "Septembre" },
-  { value: "10", label: "Octobre" },
-  { value: "11", label: "Novembre" },
-  { value: "12", label: "Décembre" },
-];
-
-const generateYearOptions = () => {
-  const currentYear = new Date().getFullYear();
-  const years = [];
-  // Inclure les 2 années précédentes et 10 années futures
-  for (let i = currentYear - 2; i <= currentYear + 10; i++) {
-    years.push(i.toString());
-  }
-  return years;
-};
-
 export const PaiementFilters = ({
   selectedEnfant,
   selectedStartDate,
@@ -48,38 +25,6 @@ export const PaiementFilters = ({
   onEndDateChange,
   enfants,
 }: PaiementFiltersProps) => {
-  const startDate = new Date(selectedStartDate);
-  const endDate = new Date(selectedEndDate);
-  
-  const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
-  const startYear = startDate.getFullYear().toString();
-  const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
-  const endYear = endDate.getFullYear().toString();
-
-  const handleStartMonthChange = (month: string) => {
-    const newDate = new Date(startDate);
-    newDate.setMonth(parseInt(month) - 1);
-    onStartDateChange(newDate.toISOString().split('T')[0]);
-  };
-
-  const handleStartYearChange = (year: string) => {
-    const newDate = new Date(startDate);
-    newDate.setFullYear(parseInt(year));
-    onStartDateChange(newDate.toISOString().split('T')[0]);
-  };
-
-  const handleEndMonthChange = (month: string) => {
-    const newDate = new Date(endDate);
-    newDate.setMonth(parseInt(month) - 1);
-    onEndDateChange(newDate.toISOString().split('T')[0]);
-  };
-
-  const handleEndYearChange = (year: string) => {
-    const newDate = new Date(endDate);
-    newDate.setFullYear(parseInt(year));
-    onEndDateChange(newDate.toISOString().split('T')[0]);
-  };
-
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-gray-50 rounded-lg border">
       <div className="flex-1">
@@ -107,32 +52,12 @@ export const PaiementFilters = ({
           <Calendar className="h-4 w-4" />
           Date de début
         </Label>
-        <div className="grid grid-cols-2 gap-2">
-          <Select value={startMonth} onValueChange={handleStartMonthChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Mois" />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month) => (
-                <SelectItem key={month.value} value={month.value}>
-                  {month.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={startYear} onValueChange={handleStartYearChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Année" />
-            </SelectTrigger>
-            <SelectContent>
-              {generateYearOptions().map((year) => (
-                <SelectItem key={year} value={year}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <Input
+          type="date"
+          value={selectedStartDate}
+          onChange={(e) => onStartDateChange(e.target.value)}
+          className="w-full"
+        />
       </div>
 
       <div className="flex-1 space-y-2">
@@ -140,34 +65,13 @@ export const PaiementFilters = ({
           <Calendar className="h-4 w-4" />
           Date de fin
         </Label>
-        <div className="grid grid-cols-2 gap-2">
-          <Select value={endMonth} onValueChange={handleEndMonthChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Mois" />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month) => (
-                <SelectItem key={month.value} value={month.value}>
-                  {month.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={endYear} onValueChange={handleEndYearChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Année" />
-            </SelectTrigger>
-            <SelectContent>
-              {generateYearOptions().map((year) => (
-                <SelectItem key={year} value={year}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <Input
+          type="date"
+          value={selectedEndDate}
+          onChange={(e) => onEndDateChange(e.target.value)}
+          className="w-full"
+        />
       </div>
     </div>
   );
 };
-

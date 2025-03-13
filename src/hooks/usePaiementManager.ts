@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePaiementStore, type Paiement } from "@/data/paiements";
@@ -162,11 +163,10 @@ export const usePaiementManager = () => {
     const enfant = enfants.find(e => e.id === paiement.enfantId);
     const nomComplet = enfant ? `${enfant.prenom} ${enfant.nom}`.toLowerCase() : '';
     
-    const matchesSearch = nomComplet.includes(searchTerm.toLowerCase());
+    const matchesSearch = searchTerm === "" || nomComplet.includes(searchTerm.toLowerCase());
     const matchesEnfant = selectedEnfant === "all" ? true : paiement.enfantId === parseInt(selectedEnfant);
-    const matchesMois = selectedMois === "all" ? true : paiement.moisConcerne === selectedMois;
 
-    return matchesSearch && matchesEnfant && matchesMois;
+    return matchesSearch && matchesEnfant;
   });
 
   return {
