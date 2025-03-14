@@ -19,8 +19,7 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
     endDate,
     setStartDate,
     setEndDate,
-    groupPaiementsByMethod,
-    groupPaiementsByDate
+    getCaisseData,
   } = useCaisseJournaliere();
 
   // Pass total to parent component if needed
@@ -29,6 +28,8 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
   }
 
   if (loading) return <div>Chargement...</div>;
+
+  const caisseData = getCaisseData();
 
   return (
     <Card>
@@ -49,17 +50,16 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
             </div>
           ) : (
             <>
-              <CaisseSummaryTable paiementsByMethod={groupPaiementsByMethod()} />
+              <CaisseSummaryTable paiementsByMethod={caisseData.paiementsByMethod} />
               
               <TableauActions
-                totalJour={totalJour}
+                totalJour={caisseData.totalGeneral}
                 onExport={() => console.log("Export data")}
               />
               
-              {/* Detailed payments by date */}
               <div className="mt-8">
                 <h3 className="text-lg font-semibold mb-4">Détail des paiements par date</h3>
-                <PaiementsDetailParDate paiementsParDate={groupPaiementsByDate()} />
+                <PaiementsDetailParDate paiementsParDate={caisseData.paiementsByDate} />
               </div>
             </>
           )}

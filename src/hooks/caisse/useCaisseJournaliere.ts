@@ -3,16 +3,10 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-
-type Paiement = {
-  id: number;
-  montant: number;
-  date_paiement: string;
-  methode_paiement: string;
-};
+import { CaissePaiement, CaisseReportData } from "@/types/caisse.types";
 
 export function useCaisseJournaliere() {
-  const [paiements, setPaiements] = useState<Paiement[]>([]);
+  const [paiements, setPaiements] = useState<CaissePaiement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalJour, setTotalJour] = useState(0);
@@ -30,14 +24,12 @@ export function useCaisseJournaliere() {
       setError(null);
       console.log("Fetching paiements...");
       
-      // Format dates correctly for Supabase query
       const formattedStartDate = format(startDate, 'yyyy-MM-dd');
-      // Add one day to end date to make it inclusive
       const formattedEndDate = format(endDate, 'yyyy-MM-dd');
       
       console.log("Date range for paiements:", { formattedStartDate, formattedEndDate });
       
-      // Get regular payments
+      // Get regular payments (scolarite)
       const { data: paiementsData, error: paiementsError } = await supabase
         .from('paiements')
         .select('id, montant, date_paiement, methode_paiement')
@@ -61,17 +53,16 @@ export function useCaisseJournaliere() {
         throw inscriptionsError;
       }
 
-      // Combine all payments
-      const allPaiements = [
-        ...(paiementsData || []),
-        ...(inscriptionsData || [])
+      // Format all payments and add type information
+      const formattedPaiements: CaissePaiement[] = [
+        ...(paiementsData?.map(p => ({ ...p, type: 'scolarite' as const })) || []),
+        ...(inscriptionsData?.map(p => ({ ...p, type: 'inscription' as const })) || [])
       ];
 
-      console.log("Paiements récupérés:", allPaiements);
-      setPaiements(allPaiements);
+      console.log("Paiements récupérés:", formattedPaiements);
+      setPaiements(formattedPaiements);
       
-      // Calculate the total correctly
-      const total = allPaiements.reduce((sum, paiement) => {
+      const total = formattedPaiements.reduce((sum, paiement) => {
         const montant = typeof paiement.montant === 'number' 
           ? paiement.montant 
           : parseFloat(paiement.montant as any) || 0;
@@ -94,7 +85,6 @@ export function useCaisseJournaliere() {
     }
   };
 
-  // Utility functions for grouping payments
   const groupPaiementsByMethod = () => {
     const grouped: Record<string, number> = {};
     
@@ -116,7 +106,6 @@ export function useCaisseJournaliere() {
     }));
   };
 
-  // Group paiements by date for the detailed view
   const groupPaiementsByDate = () => {
     const grouped: Record<string, {
       totalScolarite: number,
@@ -140,12 +129,7 @@ export function useCaisseJournaliere() {
         };
       }
       
-      // Assuming payments from 'paiements' table are school fees
-      // and payments from 'paiements_inscription' are registration fees
-      // We'll determine which is which by checking if the payment has a specific property
-      const isInscription = !paiement.hasOwnProperty('mois_concerne');
-      
-      if (isInscription) {
+      if (paiement.type === 'inscription') {
         grouped[date].totalInscription += montant;
       } else {
         grouped[date].totalScolarite += montant;
@@ -159,8 +143,29 @@ export function useCaisseJournaliere() {
     );
   };
 
+  const getCaisseData = (): CaisseReportData => {
+    const paiementsByDate = groupPaiementsByDate();
+    const paiementsByMethod = groupPaiementsByMethod();
+    
+    const totalScolarite = paiements
+      .filter(p => p.type === 'scolarite')
+      .reduce((sum, p) => sum + (typeof p.montant === 'number' ? p.montant : 0), 0);
+      
+    const totalInscription = paiements
+      .filter(p => p.type === 'inscription')
+      .reduce((sum, p) => sum + (typeof p.montant === 'number' ? p.montant : 0), 0);
+
+    return {
+      paiements,
+      totalScolarite,
+      totalInscription,
+      totalGeneral: totalJour,
+      paiementsByMethod,
+      paiementsByDate
+    };
+  };
+
   return {
-    paiements,
     loading,
     error,
     totalJour,
@@ -169,6 +174,7 @@ export function useCaisseJournaliere() {
     setStartDate,
     setEndDate,
     groupPaiementsByMethod,
-    groupPaiementsByDate
+    groupPaiementsByDate,
+    getCaisseData
   };
 }

@@ -4,6 +4,7 @@ export type CaissePaiement = {
   montant: number;
   date_paiement: string;
   methode_paiement: string;
+  type?: 'scolarite' | 'inscription';
 };
 
 export type PaiementMethodSummary = {
@@ -16,4 +17,13 @@ export type PaiementJournalier = {
   totalScolarite: number;
   totalInscription: number;
   totalGeneral: number;
+};
+
+export type CaisseReportData = {
+  paiements: CaissePaiement[];
+  totalScolarite: number;
+  totalInscription: number;
+  totalGeneral: number;
+  paiementsByMethod: PaiementMethodSummary[];
+  paiementsByDate: PaiementJournalier[];
 };
