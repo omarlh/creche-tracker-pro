@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,6 +14,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import type { Enfant } from "@/types/enfant.types";
 
 interface CommunicationWhatsAppButtonProps {
@@ -27,6 +28,7 @@ export function CommunicationWhatsAppButton({
 }: CommunicationWhatsAppButtonProps) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
   
   const contactsCount = enfants.filter(
     (enfant) => enfant.gsmMaman || enfant.gsmPapa
@@ -62,7 +64,7 @@ export function CommunicationWhatsAppButton({
     return numbers;
   };
   
-  const sendWhatsAppMessages = () => {
+  const sendWhatsAppMessages = async () => {
     if (!message.trim()) {
       toast.error("Veuillez saisir un message");
       return;
@@ -75,32 +77,60 @@ export function CommunicationWhatsAppButton({
       return;
     }
     
-    // Pour un seul numéro, ouvrir directement WhatsApp
-    if (validNumbers.length === 1) {
-      const number = validNumbers[0];
-      const encodedMessage = encodeURIComponent(message);
-      window.open(
-        `https://wa.me/${number.startsWith('+') ? number.substring(1) : number}?text=${encodedMessage}`,
-        "_blank"
-      );
+    setIsSending(true);
+    const toastId = toast.loading(`Envoi de messages à ${validNumbers.length} contact(s)...`);
+    
+    try {
+      let successCount = 0;
+      let failCount = 0;
+      
+      // Envoyer des messages à tous les numéros valides
+      for (const number of validNumbers) {
+        try {
+          const { data, error } = await supabase.functions.invoke('send-whatsapp', {
+            body: {
+              to: number,
+              message: message
+            }
+          });
+          
+          if (error) {
+            console.error("Erreur lors de l'envoi au numéro", number, error);
+            failCount++;
+          } else {
+            console.log("Message envoyé avec succès au numéro", number, data);
+            successCount++;
+          }
+        } catch (err) {
+          console.error("Exception lors de l'envoi au numéro", number, err);
+          failCount++;
+        }
+        
+        // Petite pause entre les envois pour éviter des limitations d'API
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      if (successCount > 0) {
+        toast.success(`${successCount} message(s) envoyé(s) avec succès`, {
+          id: toastId
+        });
+      }
+      
+      if (failCount > 0) {
+        toast.error(`Échec de l'envoi pour ${failCount} contact(s)`, {
+          id: toastId
+        });
+      }
+      
       setOpen(false);
-      return;
+    } catch (error) {
+      console.error("Erreur globale lors de l'envoi des messages", error);
+      toast.error("Une erreur est survenue lors de l'envoi des messages", {
+        id: toastId
+      });
+    } finally {
+      setIsSending(false);
     }
-    
-    // Pour plusieurs numéros, on utilise un message groupé
-    // Note: La fonctionnalité de groupe n'est pas directement supportée par l'API WhatsApp
-    // Nous affichons donc un toast pour informer l'utilisateur
-    toast.info(`${validNumbers.length} contacts détectés. Vous devez les contacter un par un ou créer un groupe WhatsApp manuellement.`);
-    
-    // On ouvre le premier numéro comme exemple
-    const firstNumber = validNumbers[0];
-    const encodedMessage = encodeURIComponent(message);
-    window.open(
-      `https://wa.me/${firstNumber.startsWith('+') ? firstNumber.substring(1) : firstNumber}?text=${encodedMessage}`,
-      "_blank"
-    );
-    
-    setOpen(false);
   };
 
   return (
@@ -139,12 +169,26 @@ export function CommunicationWhatsAppButton({
             type="button"
             variant="outline"
             onClick={() => setOpen(false)}
+            disabled={isSending}
           >
             Annuler
           </Button>
-          <Button type="button" onClick={sendWhatsAppMessages}>
-            <MessageSquare className="mr-2 h-4 w-4" />
-            Envoyer
+          <Button 
+            type="button" 
+            onClick={sendWhatsAppMessages}
+            disabled={isSending}
+          >
+            {isSending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Envoi en cours...
+              </>
+            ) : (
+              <>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Envoyer
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
