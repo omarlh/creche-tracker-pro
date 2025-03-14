@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import type { Enfant, EnfantRow } from "@/types/enfant.types";
 
@@ -93,7 +94,7 @@ export const addEnfantToDB = async (enfant: Omit<Enfant, "id">) => {
           enfant_id: newEnfant.id,
           montant: p.montant,
           date_paiement: p.datePaiement,
-          methode_paiement: p.methode_paiement,
+          methode_paiement: p.methodePaiement,
         }))
       );
 
@@ -143,7 +144,7 @@ export const updateEnfantInDB = async (enfant: Enfant) => {
           enfant_id: enfant.id,
           montant: p.montant,
           date_paiement: p.datePaiement,
-          methode_paiement: p.methode_paiement,
+          methode_paiement: p.methodePaiement,
         }))
       );
 
