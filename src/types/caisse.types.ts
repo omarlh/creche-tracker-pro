@@ -27,3 +27,9 @@ export type CaisseReportData = {
   paiementsByMethod: PaiementMethodSummary[];
   paiementsByDate: PaiementJournalier[];
 };
+
+// Ajout d'un type pour normaliser les années scolaires
+export type NormalizedSchoolYear = {
+  original: string;
+  normalized: string;
+};

@@ -29,17 +29,11 @@ export function DateRangeFilter({
       anneesDisponibles.push(`${anneeDebut}-${anneeFin}`);
     }
     
-    // Also include slash format for compatibility
-    const slashFormats = [];
-    for (let i = -5; i <= 5; i++) {
-      const anneeDebut = currentYear + i;
-      const anneeFin = anneeDebut + 1;
-      slashFormats.push(`${anneeDebut}/${anneeFin}`);
-    }
-    
-    // Combine and remove duplicates
-    return [...new Set([...anneesDisponibles, ...slashFormats])];
+    return anneesDisponibles;
   };
+
+  // Afficher l'année scolaire sélectionnée correctement
+  const displayValue = selectedAnneeScolaire || "Sélectionner une année scolaire";
 
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
@@ -48,9 +42,17 @@ export function DateRangeFilter({
           <Calendar className="h-4 w-4" />
           Année scolaire
         </Label>
-        <Select value={selectedAnneeScolaire} onValueChange={onAnneeScolaireChange}>
+        <Select 
+          value={selectedAnneeScolaire} 
+          onValueChange={(value) => {
+            console.log("Selected school year value:", value);
+            onAnneeScolaireChange(value);
+          }}
+        >
           <SelectTrigger className="bg-white dark:bg-slate-950">
-            <SelectValue placeholder="Sélectionner une année scolaire" />
+            <SelectValue placeholder="Sélectionner une année scolaire">
+              {displayValue}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {genererAnnesScolaires().map((annee) => (

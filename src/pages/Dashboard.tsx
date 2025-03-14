@@ -39,12 +39,13 @@ const Dashboard = () => {
     });
   }, [toast, currentYear]);
 
-  // Normalize display format to always use dashes
+  // Normaliser pour l'affichage (garder toujours le format avec tirets)
   const normalizedDisplayAnneeScolaire = selectedAnneeScolaire.replace('/', '-');
 
   const handleAnneeScolaireChange = (value: string) => {
-    // Ensure consistent internal format (with dashes)
-    setSelectedAnneeScolaire(value.replace('/', '-'));
+    console.log("Année scolaire sélectionnée:", value);
+    // Garder le format original pour maintenir la cohérence avec les données
+    setSelectedAnneeScolaire(value);
   };
 
   const handleManualRefresh = async () => {
@@ -63,12 +64,15 @@ const Dashboard = () => {
 
   // Log values for debugging
   useEffect(() => {
-    console.log("Dashboard values:", {
+    console.log("Dashboard render values:", {
+      selectedAnneeScolaire,
+      normalizedDisplayAnneeScolaire,
+      enfantsFiltres: enfantsFiltres.length,
       totalMensualites,
       totalFraisInscription,
       totalPaiements
     });
-  }, [totalMensualites, totalFraisInscription, totalPaiements]);
+  }, [selectedAnneeScolaire, normalizedDisplayAnneeScolaire, enfantsFiltres, totalMensualites, totalFraisInscription, totalPaiements]);
 
   return (
     <main className="flex-1 p-8">

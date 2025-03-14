@@ -1,34 +1,45 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { Enfant, EnfantRow } from "@/types/enfant.types";
 
-export const formatEnfantFromRow = (enfant: EnfantRow): Enfant => ({
-  id: enfant.id,
-  nom: enfant.nom,
-  prenom: enfant.prenom,
-  dateNaissance: enfant.date_naissance || undefined,
-  dateInscription: enfant.date_inscription || undefined,
-  dateFinInscription: enfant.date_fin_inscription || undefined,
-  classe: enfant.classe as Enfant["classe"],
-  gsmMaman: enfant.gsm_maman || undefined,
-  gsmPapa: enfant.gsm_papa || undefined,
-  anneeScolaire: enfant.annee_scolaire || "2024-2025",
-  fraisScolariteMensuel: enfant.frais_scolarite_mensuel || undefined,
-  fraisInscription: {
-    montantTotal: enfant.montant_total || 0,
-    montantPaye: enfant.montant_paye || 0,
-    paiements: (enfant.paiements_inscription || []).map(p => ({
-      id: p.id,
-      montant: p.montant,
-      datePaiement: p.date_paiement || '',
-      methodePaiement: p.methode_paiement as "carte" | "especes" | "cheque" | "virement",
-    }))
-  },
-  statut: enfant.statut as "actif" | "inactif",
-  dernierPaiement: enfant.dernier_paiement || undefined,
-  assurance_declaree: enfant.assurance_declaree || false,
-  date_assurance: enfant.date_assurance || undefined,
-});
+// Fonction utilitaire pour normaliser les années scolaires
+const normalizeSchoolYear = (year: string | undefined): string => {
+  if (!year) return "";
+  // Remplacer les / par des - et s'assurer qu'il n'y a pas d'espaces
+  return year.trim().replace('/', '-');
+};
+
+export const formatEnfantFromRow = (enfant: EnfantRow): Enfant => {
+  // Normaliser l'année scolaire lors de la conversion depuis la BD
+  const anneeScolaire = normalizeSchoolYear(enfant.annee_scolaire || "2024-2025");
+  
+  return {
+    id: enfant.id,
+    nom: enfant.nom,
+    prenom: enfant.prenom,
+    dateNaissance: enfant.date_naissance || undefined,
+    dateInscription: enfant.date_inscription || undefined,
+    dateFinInscription: enfant.date_fin_inscription || undefined,
+    classe: enfant.classe as Enfant["classe"],
+    gsmMaman: enfant.gsm_maman || undefined,
+    gsmPapa: enfant.gsm_papa || undefined,
+    anneeScolaire: anneeScolaire,
+    fraisScolariteMensuel: enfant.frais_scolarite_mensuel || undefined,
+    fraisInscription: {
+      montantTotal: enfant.montant_total || 0,
+      montantPaye: enfant.montant_paye || 0,
+      paiements: (enfant.paiements_inscription || []).map(p => ({
+        id: p.id,
+        montant: p.montant,
+        datePaiement: p.date_paiement || '',
+        methodePaiement: p.methode_paiement as "carte" | "especes" | "cheque" | "virement",
+      }))
+    },
+    statut: enfant.statut as "actif" | "inactif",
+    dernierPaiement: enfant.dernier_paiement || undefined,
+    assurance_declaree: enfant.assurance_declaree || false,
+    date_assurance: enfant.date_assurance || undefined,
+  };
+};
 
 export const fetchEnfantsFromDB = async () => {
   const { data: enfantsData, error } = await supabase
@@ -82,7 +93,7 @@ export const addEnfantToDB = async (enfant: Omit<Enfant, "id">) => {
           enfant_id: newEnfant.id,
           montant: p.montant,
           date_paiement: p.datePaiement,
-          methode_paiement: p.methodePaiement,
+          methode_paiement: p.methode_paiement,
         }))
       );
 
@@ -132,7 +143,7 @@ export const updateEnfantInDB = async (enfant: Enfant) => {
           enfant_id: enfant.id,
           montant: p.montant,
           date_paiement: p.datePaiement,
-          methode_paiement: p.methodePaiement,
+          methode_paiement: p.methode_paiement,
         }))
       );
 

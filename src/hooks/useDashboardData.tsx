@@ -8,6 +8,13 @@ import { useFraisInscription } from "@/hooks/useFraisInscription";
 import { usePaiementsMensuels } from "@/hooks/usePaiementsMensuels";
 import { getCurrentSchoolYear } from "@/lib/dateUtils";
 
+// Fonction utilitaire pour normaliser les années scolaires
+const normalizeSchoolYear = (year: string | undefined): string => {
+  if (!year) return "";
+  // Remplacer les / par des - et s'assurer qu'il n'y a pas d'espaces
+  return year.trim().replace('/', '-');
+};
+
 export function useDashboardData(anneeScolaire?: string): DashboardData {
   const { enfants, fetchEnfants } = useEnfantStore();
   const { paiements, fetchPaiements } = usePaiementStore();
@@ -18,29 +25,40 @@ export function useDashboardData(anneeScolaire?: string): DashboardData {
   // Get current school year for calculations if not provided
   const currentAnneeScolaire = anneeScolaire || getCurrentSchoolYear();
   
+  // Normaliser l'année scolaire sélectionnée pour les comparaisons
+  const normalizedSelectedYear = normalizeSchoolYear(currentAnneeScolaire);
+  
   // Get frais d'inscription data
   const { 
     totalFraisInscription, 
     fraisInscriptionParMois, 
     error: fraisInscriptionError 
-  } = useFraisInscription(enfants, currentAnneeScolaire, lastFetchTime);
+  } = useFraisInscription(enfants, normalizedSelectedYear, lastFetchTime);
 
   // Get paiements mensuels data
   const { 
     paiementsMensuels, 
     error: paiementsMensuelsError 
-  } = usePaiementsMensuels(paiements, currentAnneeScolaire, fraisInscriptionParMois, lastFetchTime);
+  } = usePaiementsMensuels(paiements, normalizedSelectedYear, fraisInscriptionParMois, lastFetchTime);
   
-  // Filter enfants by the selected school year - Fix for year format like "2025-2026" and "2025/2026"
+  // Filter enfants by the selected school year with proper normalization
   const enfantsFiltres = enfants.filter(enfant => {
-    if (!anneeScolaire) return true;
+    if (!normalizedSelectedYear) return true;
     
-    // Normalize year format to handle both formats
-    const normalizedAnneeScolaire = anneeScolaire.replace('/', '-');
-    const normalizedEnfantAnnee = enfant.anneeScolaire?.replace('/', '-') || '';
+    // Normaliser l'année scolaire de l'enfant pour la comparaison
+    const normalizedEnfantAnnee = normalizeSchoolYear(enfant.anneeScolaire);
     
-    return normalizedEnfantAnnee === normalizedAnneeScolaire;
+    console.log(`Comparing years - Enfant ${enfant.id} (${enfant.prenom} ${enfant.nom}):`, {
+      enfantYear: enfant.anneeScolaire,
+      normalizedEnfantYear: normalizedEnfantAnnee,
+      selectedYear: normalizedSelectedYear,
+      matches: normalizedEnfantAnnee === normalizedSelectedYear
+    });
+    
+    return normalizedEnfantAnnee === normalizedSelectedYear;
   });
+
+  console.log(`Total enfants: ${enfants.length}, Filtered enfants: ${enfantsFiltres.length} for year ${normalizedSelectedYear}`);
 
   // Calculate derived data with defensive coding
   const stats = calculateDashboardStats(enfantsFiltres, paiementsMensuels, totalFraisInscription);
@@ -52,9 +70,15 @@ export function useDashboardData(anneeScolaire?: string): DashboardData {
       paiementsMensuels,
       enfantsActifs: stats.enfantsActifs,
       totalMensualites: stats.totalMensualites,
-      totalPaiements: stats.totalPaiements
+      totalPaiements: stats.totalPaiements,
+      enfantsFiltres: enfantsFiltres.map(e => ({ 
+        id: e.id, 
+        nom: e.nom, 
+        prenom: e.prenom, 
+        anneeScolaire: e.anneeScolaire 
+      }))
     });
-  }, [totalFraisInscription, paiementsMensuels, stats]);
+  }, [totalFraisInscription, paiementsMensuels, stats, enfantsFiltres]);
 
   // Combine errors
   const combinedError = fraisInscriptionError || paiementsMensuelsError || error;
