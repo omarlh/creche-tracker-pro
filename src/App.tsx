@@ -20,6 +20,7 @@ import Retards from './pages/Retards';
 import TableauCroise from './pages/TableauCroise';
 import ListeAnnuelle from './pages/ListeAnnuelle';
 import Depart from './pages/Depart';
+import Communication from './pages/Communication';
 
 import './App.css';
 
@@ -129,6 +130,17 @@ function App() {
             <ProtectedRoute>
               <LayoutWithSidebar>
                 <Depart />
+              </LayoutWithSidebar>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/communication" 
+          element={
+            <ProtectedRoute>
+              <LayoutWithSidebar>
+                <Communication />
               </LayoutWithSidebar>
             </ProtectedRoute>
           } 

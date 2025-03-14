@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   LucideIcon,
+  MessageSquare,
   Settings,
   Table,
   Users,
@@ -132,6 +133,12 @@ export const AppSidebar = () => {
             href="/tableau-croise"
             active={pathname === "/tableau-croise"}
           />
+          <SidebarItem
+            icon={MessageSquare}
+            label="Communication avec les parents"
+            href="/communication"
+            active={pathname === "/communication"}
+          />
         </nav>
       </div>
       <div className="mt-auto border-t bg-white p-3">
@@ -146,4 +153,4 @@ export const AppSidebar = () => {
       </div>
     </aside>
   );
-};
+}
