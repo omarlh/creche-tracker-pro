@@ -22,9 +22,8 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       const today = new Date().toLocaleDateString('fr-FR');
       const message = `La recette d'aujourd'hui est de ${totalJour.toFixed(2)} DH`;
       
-      // Format the phone number correctly for the WhatsApp API
-      // Using the improved formatting in the edge function
-      const phoneNumber = "0664091486"; // The edge function will add the Morocco country code
+      // Always use the fixed number 212664091486
+      const phoneNumber = "212664091486";
       
       console.log(`Sending WhatsApp message to ${phoneNumber}: ${message}`);
       
