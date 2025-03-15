@@ -16,6 +16,7 @@ serve(async (req) => {
     // Get WhatsApp API key from env
     const apiKey = Deno.env.get('WHATSAPP_API_KEY')
     if (!apiKey) {
+      console.error('WHATSAPP_API_KEY not set in environment variables')
       throw new Error('WHATSAPP_API_KEY not set in environment variables')
     }
 
@@ -48,6 +49,7 @@ serve(async (req) => {
     }
     
     console.log(`Attempting to send WhatsApp message to ${formattedPhone}: ${message}`)
+    console.log(`Using API key: ${apiKey.substring(0, 5)}...`)
 
     const response = await fetch('https://graph.facebook.com/v17.0/171689289460681/messages', {
       method: 'POST',

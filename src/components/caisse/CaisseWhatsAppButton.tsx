@@ -37,13 +37,13 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       if (error) {
         console.error('Supabase function error:', error);
         toast.error(`Échec de l'envoi du message: ${error.message}`, { id: toastId });
-        throw error;
+        return;
       }
 
       if (data && !data.success) {
         console.error('WhatsApp API error:', data.error);
         toast.error(`Échec de l'envoi du message: ${data.error}`, { id: toastId });
-        throw new Error(data.error);
+        return;
       }
 
       console.log('WhatsApp send response:', data);
@@ -53,7 +53,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       });
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message WhatsApp:', error);
-      toast.error("Impossible d'envoyer le message WhatsApp. Vérifiez les logs pour plus de détails.");
+      toast.error(`Impossible d'envoyer le message WhatsApp: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     } finally {
       setIsSending(false);
     }
