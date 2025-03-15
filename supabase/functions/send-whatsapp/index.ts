@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -26,21 +27,27 @@ serve(async (req) => {
       throw new Error('Le numéro de téléphone et le message sont requis')
     }
 
-    // Format phone number to ensure it starts with country code
+    // Format phone number to ensure it's in international format
     let formattedPhone = to.replace(/\s+/g, "").replace(/[^\d+]/g, "")
     
-    // If the number doesn't start with a +, add it
-    if (!formattedPhone.startsWith('+')) {
-      // If it starts with 00, replace with +
-      if (formattedPhone.startsWith('00')) {
+    // Handle Morocco phone numbers specifically
+    if (formattedPhone.startsWith('0') && formattedPhone.length === 10) {
+      // Assuming it's a Moroccan number starting with 0
+      formattedPhone = '+212' + formattedPhone.substring(1)
+    } else if (!formattedPhone.startsWith('+')) {
+      // If no leading '+', add it with Morocco country code if it looks like a Moroccan number
+      if (formattedPhone.startsWith('212')) {
+        formattedPhone = '+' + formattedPhone
+      } else if (formattedPhone.startsWith('00')) {
+        // Handle 00 international prefix
         formattedPhone = '+' + formattedPhone.substring(2)
       } else {
-        // Otherwise, just add the + prefix
-        formattedPhone = '+' + formattedPhone
+        // Assume it's a Moroccan number without prefix
+        formattedPhone = '+212' + formattedPhone
       }
     }
     
-    console.log(`Sending WhatsApp message to ${formattedPhone}: ${message}`)
+    console.log(`Attempting to send WhatsApp message to ${formattedPhone}: ${message}`)
 
     const response = await fetch('https://graph.facebook.com/v17.0/171689289460681/messages', {
       method: 'POST',
@@ -59,12 +66,24 @@ serve(async (req) => {
     });
 
     const data = await response.json()
-    console.log('WhatsApp API response:', data)
-
+    
     if (!response.ok) {
       console.error('Error response from WhatsApp API:', data)
-      throw new Error(data.error?.message || 'Erreur lors de l\'envoi du message WhatsApp')
+      
+      // Add more detailed error information
+      let errorMessage = data.error?.message || 'Erreur lors de l\'envoi du message WhatsApp'
+      
+      // Handle specific error codes from Meta API
+      if (data.error?.code === 131047) {
+        errorMessage = `Numéro non inscrit au service WhatsApp: ${formattedPhone}`
+      } else if (data.error?.code === 100) {
+        errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
+      }
+      
+      throw new Error(errorMessage)
     }
+
+    console.log('WhatsApp API success response:', data)
 
     return new Response(
       JSON.stringify({ success: true, data }),
@@ -74,7 +93,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error sending WhatsApp message:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message, success: false }),
       { 
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }

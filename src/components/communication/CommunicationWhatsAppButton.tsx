@@ -83,50 +83,40 @@ export function CommunicationWhatsAppButton({
     try {
       let successCount = 0;
       let failCount = 0;
+      let errorMessages: string[] = [];
       
       // Envoyer des messages à tous les numéros valides
       for (const number of validNumbers) {
         try {
-          // Vérifier si le numéro est au format international
-          let formattedNumber = number;
-          
-          // Assurez-vous que le numéro est au format international (commençant par +)
-          if (!formattedNumber.startsWith('+')) {
-            // Si le numéro commence par 00, remplacer par +
-            if (formattedNumber.startsWith('00')) {
-              formattedNumber = '+' + formattedNumber.substring(2);
-            } else if (formattedNumber.startsWith('0')) {
-              // Si le numéro commence par 0, supposer que c'est un numéro marocain
-              formattedNumber = '+212' + formattedNumber.substring(1);
-            } else {
-              // Sinon, supposer que c'est un numéro marocain sans le 0
-              formattedNumber = '+212' + formattedNumber;
-            }
-          }
-          
-          console.log(`Envoi de message à ${formattedNumber}`);
+          console.log(`Envoi de message à ${number}`);
           
           const { data, error } = await supabase.functions.invoke('send-whatsapp', {
             body: {
-              to: formattedNumber,
+              to: number,
               message: message
             }
           });
           
           if (error) {
-            console.error("Erreur lors de l'envoi au numéro", formattedNumber, error);
+            console.error("Erreur lors de l'envoi au numéro", number, error);
             failCount++;
+            errorMessages.push(`${number}: ${error.message}`);
+          } else if (data && !data.success) {
+            console.error("Erreur retournée par la fonction", number, data);
+            failCount++;
+            errorMessages.push(`${number}: ${data.error || "Erreur inconnue"}`);
           } else {
-            console.log("Message envoyé avec succès au numéro", formattedNumber, data);
+            console.log("Message envoyé avec succès au numéro", number, data);
             successCount++;
           }
         } catch (err) {
           console.error("Exception lors de l'envoi au numéro", number, err);
           failCount++;
+          errorMessages.push(`${number}: ${err instanceof Error ? err.message : "Erreur inconnue"}`);
         }
         
         // Petite pause entre les envois pour éviter des limitations d'API
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 800));
       }
       
       if (successCount > 0) {
@@ -136,15 +126,18 @@ export function CommunicationWhatsAppButton({
       }
       
       if (failCount > 0) {
-        toast.error(`Échec de l'envoi pour ${failCount} contact(s)`, {
-          id: toastId
+        toast.error(`Échec de l'envoi pour ${failCount} contact(s): ${errorMessages.slice(0, 3).join(', ')}${errorMessages.length > 3 ? '...' : ''}`, {
+          id: toastId,
+          duration: 5000
         });
       }
       
-      setOpen(false);
+      if (successCount > 0) {
+        setOpen(false);
+      }
     } catch (error) {
       console.error("Erreur globale lors de l'envoi des messages", error);
-      toast.error("Une erreur est survenue lors de l'envoi des messages", {
+      toast.error(`Une erreur est survenue: ${error instanceof Error ? error.message : "Erreur inconnue"}`, {
         id: toastId
       });
     } finally {

@@ -23,9 +23,8 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       const message = `La recette d'aujourd'hui est de ${totalJour.toFixed(2)} DH`;
       
       // Format the phone number correctly for the WhatsApp API
-      // The API requires the phone number to be in the format +COUNTRYCODEPHONENUMBER
-      // For Morocco, the country code is 212
-      const phoneNumber = "+212664091486"; // Ensuring it starts with +212
+      // Using the improved formatting in the edge function
+      const phoneNumber = "0664091486"; // The edge function will add the Morocco country code
       
       console.log(`Sending WhatsApp message to ${phoneNumber}: ${message}`);
       
@@ -38,8 +37,14 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
 
       if (error) {
         console.error('Supabase function error:', error);
-        toast.error("Échec de l'envoi du message", { id: toastId });
+        toast.error(`Échec de l'envoi du message: ${error.message}`, { id: toastId });
         throw error;
+      }
+
+      if (data && !data.success) {
+        console.error('WhatsApp API error:', data.error);
+        toast.error(`Échec de l'envoi du message: ${data.error}`, { id: toastId });
+        throw new Error(data.error);
       }
 
       console.log('WhatsApp send response:', data);
