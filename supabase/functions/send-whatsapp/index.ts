@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -28,7 +27,18 @@ serve(async (req) => {
     }
 
     // Format phone number to ensure it starts with country code
-    const formattedPhone = to.startsWith('+') ? to : `+${to.replace(/^00/, '')}`
+    let formattedPhone = to.replace(/\s+/g, "").replace(/[^\d+]/g, "")
+    
+    // If the number doesn't start with a +, add it
+    if (!formattedPhone.startsWith('+')) {
+      // If it starts with 00, replace with +
+      if (formattedPhone.startsWith('00')) {
+        formattedPhone = '+' + formattedPhone.substring(2)
+      } else {
+        // Otherwise, just add the + prefix
+        formattedPhone = '+' + formattedPhone
+      }
+    }
     
     console.log(`Sending WhatsApp message to ${formattedPhone}: ${message}`)
 
@@ -52,6 +62,7 @@ serve(async (req) => {
     console.log('WhatsApp API response:', data)
 
     if (!response.ok) {
+      console.error('Error response from WhatsApp API:', data)
       throw new Error(data.error?.message || 'Erreur lors de l\'envoi du message WhatsApp')
     }
 

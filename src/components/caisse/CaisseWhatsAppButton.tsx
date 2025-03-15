@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { MessageSquare } from "lucide-react";
+import { toast } from "sonner";
+import { MessageSquare, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 
@@ -10,7 +10,6 @@ interface CaisseWhatsAppButtonProps {
 }
 
 export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
-  const { toast } = useToast();
   const [isSending, setIsSending] = useState(false);
 
   const sendWhatsAppMessage = async () => {
@@ -18,13 +17,15 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
     
     try {
       setIsSending(true);
+      const toastId = toast.loading("Envoi du message WhatsApp en cours...");
+      
       const today = new Date().toLocaleDateString('fr-FR');
       const message = `La recette d'aujourd'hui est de ${totalJour.toFixed(2)} DH`;
       
       // Format the phone number correctly for the WhatsApp API
       // The API requires the phone number to be in the format +COUNTRYCODEPHONENUMBER
       // For Morocco, the country code is 212
-      const phoneNumber = "212664091486";
+      const phoneNumber = "+212664091486"; // Ensuring it starts with +212
       
       console.log(`Sending WhatsApp message to ${phoneNumber}: ${message}`);
       
@@ -37,22 +38,18 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
 
       if (error) {
         console.error('Supabase function error:', error);
+        toast.error("Échec de l'envoi du message", { id: toastId });
         throw error;
       }
 
       console.log('WhatsApp send response:', data);
 
-      toast({
-        title: "Message envoyé",
-        description: "Le rapport a été envoyé avec succès par WhatsApp",
+      toast.success("Le rapport a été envoyé avec succès par WhatsApp", {
+        id: toastId
       });
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message WhatsApp:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible d'envoyer le message WhatsApp. Vérifiez la console pour plus de détails.",
-      });
+      toast.error("Impossible d'envoyer le message WhatsApp. Vérifiez les logs pour plus de détails.");
     } finally {
       setIsSending(false);
     }
@@ -65,8 +62,17 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       size="sm"
       disabled={isSending}
     >
-      <MessageSquare className="h-4 w-4 mr-2" />
-      {isSending ? "Envoi en cours..." : "WhatsApp"}
+      {isSending ? (
+        <>
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          Envoi en cours...
+        </>
+      ) : (
+        <>
+          <MessageSquare className="h-4 w-4 mr-2" />
+          WhatsApp
+        </>
+      )}
     </Button>
   );
 }

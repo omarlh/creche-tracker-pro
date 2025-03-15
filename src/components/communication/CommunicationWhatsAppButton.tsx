@@ -87,18 +87,37 @@ export function CommunicationWhatsAppButton({
       // Envoyer des messages à tous les numéros valides
       for (const number of validNumbers) {
         try {
+          // Vérifier si le numéro est au format international
+          let formattedNumber = number;
+          
+          // Assurez-vous que le numéro est au format international (commençant par +)
+          if (!formattedNumber.startsWith('+')) {
+            // Si le numéro commence par 00, remplacer par +
+            if (formattedNumber.startsWith('00')) {
+              formattedNumber = '+' + formattedNumber.substring(2);
+            } else if (formattedNumber.startsWith('0')) {
+              // Si le numéro commence par 0, supposer que c'est un numéro marocain
+              formattedNumber = '+212' + formattedNumber.substring(1);
+            } else {
+              // Sinon, supposer que c'est un numéro marocain sans le 0
+              formattedNumber = '+212' + formattedNumber;
+            }
+          }
+          
+          console.log(`Envoi de message à ${formattedNumber}`);
+          
           const { data, error } = await supabase.functions.invoke('send-whatsapp', {
             body: {
-              to: number,
+              to: formattedNumber,
               message: message
             }
           });
           
           if (error) {
-            console.error("Erreur lors de l'envoi au numéro", number, error);
+            console.error("Erreur lors de l'envoi au numéro", formattedNumber, error);
             failCount++;
           } else {
-            console.log("Message envoyé avec succès au numéro", number, data);
+            console.log("Message envoyé avec succès au numéro", formattedNumber, data);
             successCount++;
           }
         } catch (err) {
