@@ -13,11 +13,14 @@ serve(async (req) => {
   }
 
   try {
-    // Utiliser le secret 'creche' comme clé WhatsApp API
+    // Get the WhatsApp API token from the environment variable
     const apiKey = Deno.env.get('creche')
     if (!apiKey) {
       console.error('La clé API WhatsApp (creche) n\'est pas définie dans les variables d\'environnement')
-      throw new Error('La clé API WhatsApp n\'est pas configurée')
+      return new Response(
+        JSON.stringify({ success: false, error: 'La clé API WhatsApp n\'est pas configurée' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     // Get request body
@@ -25,7 +28,10 @@ serve(async (req) => {
 
     // Validate input
     if (!to || !message) {
-      throw new Error('Le numéro de téléphone et le message sont requis')
+      return new Response(
+        JSON.stringify({ success: false, error: 'Le numéro de téléphone et le message sont requis' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     // Format phone number to ensure it's in international format
@@ -49,9 +55,9 @@ serve(async (req) => {
     }
     
     console.log(`Tentative d'envoi du message WhatsApp à ${formattedPhone}: ${message}`)
-    console.log(`Utilisation de la clé API: ${apiKey.substring(0, 5)}...`)
+    console.log(`Utilisation de la clé API: ${apiKey ? 'Présente (masquée)' : 'Non définie'}`)
 
-    // Modification: Amélioration du handling des erreurs de l'API Facebook
+    // Call WhatsApp API
     try {
       const response = await fetch('https://graph.facebook.com/v17.0/171689289460681/messages', {
         method: 'POST',
@@ -73,6 +79,7 @@ serve(async (req) => {
       
       if (!response.ok) {
         console.error('Erreur de réponse de l\'API WhatsApp:', data)
+        console.error('Statut HTTP:', response.status)
         
         // Add more detailed error information
         let errorMessage = data.error?.message || 'Erreur lors de l\'envoi du message WhatsApp'
@@ -84,12 +91,13 @@ serve(async (req) => {
           errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
         } else if (data.error?.code === 190) {
           errorMessage = `Problème d'authentification: Vérifiez que le token d'accès est valide`
+          console.error('Problème d\'authentification détecté, vérifiez que la valeur du secret "creche" est correcte et valide')
         }
         
-        // Returning a successful response to the client but with error data
+        // Return a successful HTTP response with error details
         return new Response(
           JSON.stringify({ success: false, error: errorMessage }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
@@ -97,25 +105,22 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ success: true, data }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     } catch (fetchError) {
       console.error('Erreur de fetch API WhatsApp:', fetchError);
       return new Response(
         JSON.stringify({ success: false, error: `Erreur de connexion API: ${fetchError.message}` }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
   } catch (error) {
     console.error('Erreur lors de l\'envoi du message WhatsApp:', error)
-    // Returning a 200 status with error information to avoid non-2xx error
+    // Always return a 200 status with error information
     return new Response(
-      JSON.stringify({ error: error.message, success: false }),
-      { 
-        status: 200, // Change from 400 to 200
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+      JSON.stringify({ success: false, error: error.message || 'Erreur inconnue' }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })

@@ -43,7 +43,16 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
 
         if (data && !data.success) {
           console.error('Erreur API WhatsApp:', data.error);
-          toast.error(`Échec de l'envoi du message: ${data.error}`, { id: toastId });
+          
+          // Informations plus détaillées si c'est une erreur d'authentification
+          if (data.error && data.error.includes('authentification')) {
+            toast.error(
+              `${data.error}. Veuillez contacter l'administrateur pour vérifier la clé API WhatsApp.`, 
+              { id: toastId, duration: 6000 }
+            );
+          } else {
+            toast.error(`Échec de l'envoi du message: ${data.error}`, { id: toastId });
+          }
           return;
         }
 
