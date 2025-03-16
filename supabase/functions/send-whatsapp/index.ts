@@ -13,11 +13,11 @@ serve(async (req) => {
   }
 
   try {
-    // Get WhatsApp API key from env
-    const apiKey = Deno.env.get('WHATSAPP_API_KEY')
+    // Utiliser le secret 'creche' comme clé WhatsApp API
+    const apiKey = Deno.env.get('creche')
     if (!apiKey) {
-      console.error('WHATSAPP_API_KEY not set in environment variables')
-      throw new Error('WHATSAPP_API_KEY not set in environment variables')
+      console.error('La clé API WhatsApp (creche) n\'est pas définie dans les variables d\'environnement')
+      throw new Error('La clé API WhatsApp n\'est pas configurée')
     }
 
     // Get request body
@@ -48,8 +48,8 @@ serve(async (req) => {
       }
     }
     
-    console.log(`Attempting to send WhatsApp message to ${formattedPhone}: ${message}`)
-    console.log(`Using API key: ${apiKey.substring(0, 5)}...`)
+    console.log(`Tentative d'envoi du message WhatsApp à ${formattedPhone}: ${message}`)
+    console.log(`Utilisation de la clé API: ${apiKey.substring(0, 5)}...`)
 
     const response = await fetch('https://graph.facebook.com/v17.0/171689289460681/messages', {
       method: 'POST',
@@ -70,7 +70,7 @@ serve(async (req) => {
     const data = await response.json()
     
     if (!response.ok) {
-      console.error('Error response from WhatsApp API:', data)
+      console.error('Erreur de réponse de l\'API WhatsApp:', data)
       
       // Add more detailed error information
       let errorMessage = data.error?.message || 'Erreur lors de l\'envoi du message WhatsApp'
@@ -80,12 +80,14 @@ serve(async (req) => {
         errorMessage = `Numéro non inscrit au service WhatsApp: ${formattedPhone}`
       } else if (data.error?.code === 100) {
         errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
+      } else if (data.error?.code === 190) {
+        errorMessage = `Problème d'authentification: Vérifiez que le token d'accès est valide`
       }
       
       throw new Error(errorMessage)
     }
 
-    console.log('WhatsApp API success response:', data)
+    console.log('Réponse réussie de l\'API WhatsApp:', data)
 
     return new Response(
       JSON.stringify({ success: true, data }),
@@ -93,7 +95,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error sending WhatsApp message:', error)
+    console.error('Erreur lors de l\'envoi du message WhatsApp:', error)
     return new Response(
       JSON.stringify({ error: error.message, success: false }),
       { 

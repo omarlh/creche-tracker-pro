@@ -22,10 +22,10 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       const today = new Date().toLocaleDateString('fr-FR');
       const message = `La recette d'aujourd'hui est de ${totalJour.toFixed(2)} DH`;
       
-      // Always use the fixed number 212664091486
+      // Toujours utiliser le numéro fixe 212664091486
       const phoneNumber = "212664091486";
       
-      console.log(`Sending WhatsApp message to ${phoneNumber}: ${message}`);
+      console.log(`Envoi du message WhatsApp à ${phoneNumber}: ${message}`);
       
       const { data, error } = await supabase.functions.invoke('send-whatsapp', {
         body: {
@@ -35,18 +35,18 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       });
 
       if (error) {
-        console.error('Supabase function error:', error);
+        console.error('Erreur de fonction Supabase:', error);
         toast.error(`Échec de l'envoi du message: ${error.message}`, { id: toastId });
         return;
       }
 
       if (data && !data.success) {
-        console.error('WhatsApp API error:', data.error);
+        console.error('Erreur API WhatsApp:', data.error);
         toast.error(`Échec de l'envoi du message: ${data.error}`, { id: toastId });
         return;
       }
 
-      console.log('WhatsApp send response:', data);
+      console.log('Réponse d\'envoi WhatsApp:', data);
 
       toast.success("Le rapport a été envoyé avec succès par WhatsApp", {
         id: toastId
