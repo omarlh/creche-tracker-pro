@@ -44,12 +44,14 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
         if (data && !data.success) {
           console.error('Erreur API WhatsApp:', data.error);
           
-          // Informations plus détaillées si c'est une erreur d'authentification
+          // Message plus clair pour l'erreur d'authentification
           if (data.error && data.error.includes('authentification')) {
             toast.error(
-              `${data.error}. Veuillez contacter l'administrateur pour vérifier la clé API WhatsApp.`, 
-              { id: toastId, duration: 6000 }
+              `${data.error} Le secret "creche" configuré n'est pas un token d'API Meta Business valide.`, 
+              { id: toastId, duration: 8000 }
             );
+          } else if (data.error && data.error.includes('creche')) {
+            toast.error(data.error, { id: toastId, duration: 8000 });
           } else {
             toast.error(`Échec de l'envoi du message: ${data.error}`, { id: toastId });
           }

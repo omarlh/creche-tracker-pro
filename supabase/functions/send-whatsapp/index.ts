@@ -18,7 +18,22 @@ serve(async (req) => {
     if (!apiKey) {
       console.error('La clé API WhatsApp (creche) n\'est pas définie dans les variables d\'environnement')
       return new Response(
-        JSON.stringify({ success: false, error: 'La clé API WhatsApp n\'est pas configurée' }),
+        JSON.stringify({ 
+          success: false, 
+          error: 'La clé API WhatsApp n\'est pas configurée'
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Check if the apiKey looks like it might be a password instead of a token
+    if (apiKey.length < 30 || apiKey.includes('@')) {
+      console.error('La clé API "creche" ne semble pas être un token API WhatsApp valide')
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'La clé API "creche" ne semble pas être un token API Meta/WhatsApp valide. Veuillez fournir un token d\'API Meta Business pour WhatsApp.'
+        }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -55,7 +70,7 @@ serve(async (req) => {
     }
     
     console.log(`Tentative d'envoi du message WhatsApp à ${formattedPhone}: ${message}`)
-    console.log(`Utilisation de la clé API: ${apiKey ? 'Présente (masquée)' : 'Non définie'}`)
+    console.log(`Utilisation de la clé API: ${apiKey ? 'Présente (longueur: ' + apiKey.length + ')' : 'Non définie'}`)
 
     // Call WhatsApp API
     try {
@@ -90,8 +105,8 @@ serve(async (req) => {
         } else if (data.error?.code === 100) {
           errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
         } else if (data.error?.code === 190) {
-          errorMessage = `Problème d'authentification: Vérifiez que le token d'accès est valide`
-          console.error('Problème d\'authentification détecté, vérifiez que la valeur du secret "creche" est correcte et valide')
+          errorMessage = `Problème d'authentification: La clé "creche" n'est pas un token API Meta valide. Vous devez configurer un token d'API Meta Business pour WhatsApp.`
+          console.error('IMPORTANT: La valeur du secret "creche" n\'est pas un token API Meta valide. Vous utilisez peut-être un mot de passe ou une autre valeur incorrecte.')
         }
         
         // Return a successful HTTP response with error details
