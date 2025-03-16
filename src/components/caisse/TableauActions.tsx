@@ -1,6 +1,4 @@
 
-import { CaisseWhatsAppButton } from "./CaisseWhatsAppButton";
-
 interface TableauActionsProps {
   totalJour: number;
   onExport: () => void;
@@ -13,7 +11,7 @@ export function TableauActions({ totalJour, onExport }: TableauActionsProps) {
         Total de la journée: <span className="text-primary">{totalJour.toFixed(2)} DH</span>
       </div>
       <div className="flex gap-2">
-        <CaisseWhatsAppButton totalJour={totalJour} />
+        {/* WhatsApp button removed */}
       </div>
     </div>
   );

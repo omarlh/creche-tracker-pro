@@ -4,7 +4,6 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { CaisseJournaliereTableau } from "@/components/caisse/CaisseJournaliereTableau";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import { CaisseWhatsAppButton } from "@/components/caisse/CaisseWhatsAppButton";
 
 export default function CaisseJournaliere() {
   const [totalJour, setTotalJour] = useState(0);
@@ -26,7 +25,6 @@ export default function CaisseJournaliere() {
                   <Eye className="h-4 w-4 mr-2" />
                   Aperçu
                 </Button>
-                <CaisseWhatsAppButton totalJour={totalJour} />
               </div>
             </div>
             <CaisseJournaliereTableau onTotalUpdate={handleTotalUpdate} />
