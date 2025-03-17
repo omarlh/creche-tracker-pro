@@ -44,16 +44,15 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
         if (data && !data.success) {
           console.error('Erreur API WhatsApp:', data.error);
           
-          // Message plus clair pour l'erreur d'authentification
           if (data.error && data.error.includes('authentification')) {
             toast.error(
-              `${data.error} Le secret "3pommes_whatsapp" configuré n'est pas un token d'API Meta Business valide.`, 
+              `Problème d'authentification: Le token d'API Meta Business pour WhatsApp n'est pas valide.`, 
               { id: toastId, duration: 8000 }
             );
-          } else if (data.error && data.error.includes('3pommes_whatsapp')) {
+          } else if (data.error) {
             toast.error(data.error, { id: toastId, duration: 8000 });
           } else {
-            toast.error(`Échec de l'envoi du message: ${data.error}`, { id: toastId });
+            toast.error(`Échec de l'envoi du message WhatsApp`, { id: toastId });
           }
           return;
         }
