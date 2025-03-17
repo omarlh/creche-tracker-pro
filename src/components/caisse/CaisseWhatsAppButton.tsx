@@ -22,7 +22,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       const today = new Date().toLocaleDateString('fr-FR');
       const message = `La recette d'aujourd'hui est de ${totalJour.toFixed(2)} DH`;
       
-      // Toujours utiliser le numéro fixe 212664091486
+      // Utiliser le numéro fixe 212664091486
       const phoneNumber = "212664091486";
       
       console.log(`Envoi du message WhatsApp à ${phoneNumber}: ${message}`);
