@@ -13,10 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    // Get the WhatsApp API token from the environment variable
-    const apiKey = Deno.env.get('creche')
+    // Get the WhatsApp API token from the new environment variable
+    const apiKey = Deno.env.get('3pommes_whatsapp')
     if (!apiKey) {
-      console.error('La clé API WhatsApp (creche) n\'est pas définie dans les variables d\'environnement')
+      console.error('La clé API WhatsApp (3pommes_whatsapp) n\'est pas définie dans les variables d\'environnement')
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -28,11 +28,11 @@ serve(async (req) => {
 
     // Check if the apiKey looks like it might be a password instead of a token
     if (apiKey.length < 30 || apiKey.includes('@')) {
-      console.error('La clé API "creche" ne semble pas être un token API WhatsApp valide')
+      console.error('La clé API "3pommes_whatsapp" ne semble pas être un token API WhatsApp valide')
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'La clé API "creche" ne semble pas être un token API Meta/WhatsApp valide. Veuillez fournir un token d\'API Meta Business pour WhatsApp.'
+          error: 'La clé API "3pommes_whatsapp" ne semble pas être un token API Meta/WhatsApp valide. Veuillez fournir un token d\'API Meta Business pour WhatsApp.'
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
@@ -105,8 +105,8 @@ serve(async (req) => {
         } else if (data.error?.code === 100) {
           errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
         } else if (data.error?.code === 190) {
-          errorMessage = `Problème d'authentification: La clé "creche" n'est pas un token API Meta valide. Vous devez configurer un token d'API Meta Business pour WhatsApp.`
-          console.error('IMPORTANT: La valeur du secret "creche" n\'est pas un token API Meta valide. Vous utilisez peut-être un mot de passe ou une autre valeur incorrecte.')
+          errorMessage = `Problème d'authentification: La clé "3pommes_whatsapp" n'est pas un token API Meta valide. Vous devez configurer un token d'API Meta Business pour WhatsApp.`
+          console.error('IMPORTANT: La valeur du secret "3pommes_whatsapp" n\'est pas un token API Meta valide. Vous utilisez peut-être un mot de passe ou une autre valeur incorrecte.')
         }
         
         // Return a successful HTTP response with error details

@@ -47,10 +47,10 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
           // Message plus clair pour l'erreur d'authentification
           if (data.error && data.error.includes('authentification')) {
             toast.error(
-              `${data.error} Le secret "creche" configuré n'est pas un token d'API Meta Business valide.`, 
+              `${data.error} Le secret "3pommes_whatsapp" configuré n'est pas un token d'API Meta Business valide.`, 
               { id: toastId, duration: 8000 }
             );
-          } else if (data.error && data.error.includes('creche')) {
+          } else if (data.error && data.error.includes('3pommes_whatsapp')) {
             toast.error(data.error, { id: toastId, duration: 8000 });
           } else {
             toast.error(`Échec de l'envoi du message: ${data.error}`, { id: toastId });
