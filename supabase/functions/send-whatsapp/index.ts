@@ -15,8 +15,19 @@ serve(async (req) => {
   try {
     // Get the WhatsApp API token from the environment variable
     const apiKey = Deno.env.get('3pommes_whatsapp')
+    
+    // Log the API key (only first and last few characters for security)
+    if (apiKey) {
+      const keyLength = apiKey.length;
+      const maskedKey = keyLength > 10 
+        ? `${apiKey.substring(0, 4)}...${apiKey.substring(keyLength - 4)}`
+        : '***';
+      console.log(`Token API trouvé (masqué): ${maskedKey}, longueur: ${keyLength}`);
+    } else {
+      console.error('La clé API WhatsApp (3pommes_whatsapp) n\'est pas définie dans les variables d\'environnement');
+    }
+    
     if (!apiKey) {
-      console.error('La clé API WhatsApp (3pommes_whatsapp) n\'est pas définie dans les variables d\'environnement')
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -58,7 +69,6 @@ serve(async (req) => {
     }
     
     console.log(`Tentative d'envoi du message WhatsApp à ${formattedPhone}: ${message}`)
-    console.log(`Utilisation de la clé API: ${apiKey ? 'Présente (longueur: ' + apiKey.length + ')' : 'Non définie'}`)
 
     // Call WhatsApp API
     try {
@@ -78,7 +88,13 @@ serve(async (req) => {
         })
       });
 
+      console.log('Statut de réponse de l\'API WhatsApp:', response.status);
+      
+      // Log response headers to debug
+      console.log('En-têtes de réponse:', JSON.stringify(Array.from(response.headers.entries())));
+
       const data = await response.json()
+      console.log('Corps de réponse de l\'API WhatsApp:', JSON.stringify(data));
       
       if (!response.ok) {
         console.error('Erreur de réponse de l\'API WhatsApp:', data)
@@ -94,12 +110,12 @@ serve(async (req) => {
           errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
         } else if (data.error?.code === 190) {
           errorMessage = `Problème d'authentification: Le token d'API Meta Business pour WhatsApp n'est pas valide.`
-          console.error('IMPORTANT: La valeur du secret "3pommes_whatsapp" n\'est pas un token API Meta valide.')
+          console.error('IMPORTANT: La valeur du secret "3pommes_whatsapp" n\'est pas un token API Meta valide ou a expiré.')
         }
         
         // Return a successful HTTP response with error details
         return new Response(
-          JSON.stringify({ success: false, error: errorMessage }),
+          JSON.stringify({ success: false, error: errorMessage, details: data.error }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
@@ -113,7 +129,11 @@ serve(async (req) => {
     } catch (fetchError) {
       console.error('Erreur de fetch API WhatsApp:', fetchError);
       return new Response(
-        JSON.stringify({ success: false, error: `Erreur de connexion API: ${fetchError.message}` }),
+        JSON.stringify({ 
+          success: false, 
+          error: `Erreur de connexion API: ${fetchError.message}`,
+          stack: fetchError.stack 
+        }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -122,7 +142,11 @@ serve(async (req) => {
     console.error('Erreur lors de l\'envoi du message WhatsApp:', error)
     // Always return a 200 status with error information
     return new Response(
-      JSON.stringify({ success: false, error: error.message || 'Erreur inconnue' }),
+      JSON.stringify({ 
+        success: false, 
+        error: error.message || 'Erreur inconnue',
+        stack: error.stack 
+      }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

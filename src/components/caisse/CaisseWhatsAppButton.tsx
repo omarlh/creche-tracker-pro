@@ -37,16 +37,16 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
 
         if (error) {
           console.error('Erreur de fonction Supabase:', error);
-          toast.error(`Échec de l'envoi du message: ${error.message}`, { id: toastId });
+          toast.error(`Échec de l'appel à la fonction: ${error.message}`, { id: toastId });
           return;
         }
 
         if (data && !data.success) {
-          console.error('Erreur API WhatsApp:', data.error);
+          console.error('Erreur API WhatsApp:', data.error, data.details);
           
           if (data.error && data.error.includes('authentification')) {
             toast.error(
-              `Problème d'authentification: Le token d'API Meta Business pour WhatsApp n'est pas valide.`, 
+              `Problème d'authentification: Le token d'API Meta Business pour WhatsApp n'est pas valide ou a expiré.`, 
               { id: toastId, duration: 8000 }
             );
           } else if (data.error) {
