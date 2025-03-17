@@ -13,10 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    // Get the WhatsApp API token from the environment variable
-    const apiKey = Deno.env.get('3pommes_whatsapp')
+    // Try different API keys in order of preference
+    const apiKey = Deno.env.get('3pommes_whatsapp') || Deno.env.get('WHATSAPP_API_KEY') || Deno.env.get('creche')
     
-    // Log the API key (only first and last few characters for security)
+    // Log details about the API key without revealing it completely
     if (apiKey) {
       const keyLength = apiKey.length;
       const maskedKey = keyLength > 10 
@@ -24,7 +24,7 @@ serve(async (req) => {
         : '***';
       console.log(`Token API trouvé (masqué): ${maskedKey}, longueur: ${keyLength}`);
     } else {
-      console.error('La clé API WhatsApp (3pommes_whatsapp) n\'est pas définie dans les variables d\'environnement');
+      console.error('Aucune clé API WhatsApp n\'est définie dans les variables d\'environnement');
     }
     
     if (!apiKey) {
@@ -72,6 +72,7 @@ serve(async (req) => {
 
     // Call WhatsApp API
     try {
+      // Use the standard Meta WhatsApp API endpoint
       const response = await fetch('https://graph.facebook.com/v17.0/171689289460681/messages', {
         method: 'POST',
         headers: {
@@ -90,7 +91,7 @@ serve(async (req) => {
 
       console.log('Statut de réponse de l\'API WhatsApp:', response.status);
       
-      // Log response headers to debug
+      // Log response headers for debugging
       console.log('En-têtes de réponse:', JSON.stringify(Array.from(response.headers.entries())));
 
       const data = await response.json()
@@ -109,8 +110,8 @@ serve(async (req) => {
         } else if (data.error?.code === 100) {
           errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
         } else if (data.error?.code === 190) {
-          errorMessage = `Problème d'authentification: Le token d'API Meta Business pour WhatsApp n'est pas valide.`
-          console.error('IMPORTANT: La valeur du secret "3pommes_whatsapp" n\'est pas un token API Meta valide ou a expiré.')
+          errorMessage = `Problème d'authentification: Le token d'API Meta Business pour WhatsApp n'est pas valide ou a expiré.`
+          console.error('IMPORTANT: Aucun des tokens API WhatsApp disponibles n\'est valide ou ils ont expiré. Veuillez mettre à jour les secrets dans Supabase.')
         }
         
         // Return a successful HTTP response with error details

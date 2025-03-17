@@ -46,7 +46,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
           
           if (data.error && data.error.includes('authentification')) {
             toast.error(
-              `Problème d'authentification: Le token d'API Meta Business pour WhatsApp n'est pas valide ou a expiré.`, 
+              `Problème d'authentification WhatsApp: Veuillez contacter l'administrateur pour mettre à jour le token API Meta Business.`, 
               { id: toastId, duration: 8000 }
             );
           } else if (data.error) {
