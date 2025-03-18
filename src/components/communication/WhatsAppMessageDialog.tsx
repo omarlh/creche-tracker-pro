@@ -32,6 +32,7 @@ export function WhatsAppMessageDialog({
   const handleSendMessage = async () => {
     const result = await sendWhatsAppMessages(message, enfants);
     if (result.success) {
+      setMessage("");
       onOpenChange(false);
     }
   };
@@ -68,7 +69,7 @@ export function WhatsAppMessageDialog({
         <Button 
           type="button" 
           onClick={handleSendMessage}
-          disabled={isSending}
+          disabled={isSending || !message.trim()}
         >
           {isSending ? (
             <>

@@ -27,50 +27,45 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       
       console.log(`Envoi du message WhatsApp à ${phoneNumber}: ${message}`);
       
-      try {
-        const { data, error } = await supabase.functions.invoke('send-whatsapp', {
-          body: {
-            to: phoneNumber,
-            message
-          }
-        });
-
-        if (error) {
-          console.error('Erreur de fonction Supabase:', error);
-          toast.error(`Échec de l'appel à la fonction: ${error.message}`, { id: toastId });
-          return;
+      const { data, error } = await supabase.functions.invoke('send-whatsapp', {
+        body: {
+          to: phoneNumber,
+          message
         }
+      });
 
-        if (data && !data.success) {
-          console.error('Erreur API WhatsApp:', data.error, data.details);
-          
-          if (data.error && data.error.includes('authentification')) {
-            toast.error(
-              `Problème d'authentification WhatsApp: Veuillez contacter l'administrateur pour mettre à jour le token API Meta Business.`, 
-              { id: toastId, duration: 8000 }
-            );
-          } else if (data.error) {
-            toast.error(data.error, { id: toastId, duration: 8000 });
-          } else {
-            toast.error(`Échec de l'envoi du message WhatsApp`, { id: toastId });
-          }
-          return;
-        }
-
-        console.log('Réponse d\'envoi WhatsApp:', data);
-
-        toast.success("Le rapport a été envoyé avec succès par WhatsApp", {
-          id: toastId
-        });
-      } catch (e) {
-        console.error('Exception lors de l\'appel de la fonction Edge:', e);
-        toast.error(`Erreur lors de l'appel de la fonction: ${e instanceof Error ? e.message : 'Erreur inconnue'}`, {
-          id: toastId
-        });
+      if (error) {
+        console.error('Erreur de fonction Supabase:', error);
+        toast.error(`Échec de l'appel à la fonction: ${error.message}`, { id: toastId });
+        return;
       }
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi du message WhatsApp:', error);
-      toast.error(`Impossible d'envoyer le message WhatsApp: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+
+      if (data && !data.success) {
+        console.error('Erreur API WhatsApp:', data.error, data.details);
+        
+        if (data.error && data.error.includes('token')) {
+          toast.error(
+            `Problème d'authentification avec l'API WhatsApp. Veuillez contacter l'administrateur.`, 
+            { id: toastId, duration: 8000 }
+          );
+        } else if (data.error) {
+          toast.error(data.error, { id: toastId, duration: 5000 });
+        } else {
+          toast.error(`Échec de l'envoi du message WhatsApp`, { id: toastId });
+        }
+        return;
+      }
+
+      console.log('Réponse d\'envoi WhatsApp:', data);
+
+      toast.success("Le rapport a été envoyé avec succès par WhatsApp", {
+        id: toastId
+      });
+    } catch (e) {
+      console.error('Exception lors de l\'appel de la fonction Edge:', e);
+      toast.error(`Erreur lors de l'appel de la fonction: ${e instanceof Error ? e.message : 'Erreur inconnue'}`, {
+        id: toastId || undefined
+      });
     } finally {
       setIsSending(false);
     }

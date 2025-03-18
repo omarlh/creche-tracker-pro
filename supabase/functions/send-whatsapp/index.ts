@@ -13,8 +13,8 @@ serve(async (req) => {
   }
 
   try {
-    // Try different API keys in order of preference
-    const apiKey = Deno.env.get('3pommes_whatsapp') || Deno.env.get('WHATSAPP_API_KEY') || Deno.env.get('creche')
+    // Use the creche secret key by default (which worked before)
+    const apiKey = Deno.env.get('creche')
     
     // Log details about the API key without revealing it completely
     if (apiKey) {
@@ -24,14 +24,14 @@ serve(async (req) => {
         : '***';
       console.log(`Token API trouvé (masqué): ${maskedKey}, longueur: ${keyLength}`);
     } else {
-      console.error('Aucune clé API WhatsApp n\'est définie dans les variables d\'environnement');
+      console.error('La clé API WhatsApp n\'est pas configurée');
     }
     
     if (!apiKey) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'La clé API WhatsApp n\'est pas configurée. Veuillez configurer le secret "3pommes_whatsapp" dans les paramètres de fonction.'
+          error: 'La clé API WhatsApp n\'est pas configurée. Veuillez configurer le secret "creche" dans les paramètres de fonction.'
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
@@ -110,8 +110,7 @@ serve(async (req) => {
         } else if (data.error?.code === 100) {
           errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
         } else if (data.error?.code === 190) {
-          errorMessage = `Problème d'authentification: Le token d'API Meta Business pour WhatsApp n'est pas valide ou a expiré.`
-          console.error('IMPORTANT: Aucun des tokens API WhatsApp disponibles n\'est valide ou ils ont expiré. Veuillez mettre à jour les secrets dans Supabase.')
+          errorMessage = `Le token WhatsApp n'est pas valide. Veuillez vérifier le secret "creche" dans les paramètres.`
         }
         
         // Return a successful HTTP response with error details

@@ -56,6 +56,7 @@ export function useWhatsAppSender() {
       let successCount = 0;
       let failCount = 0;
       let errorMessages: string[] = [];
+      let hasAuthError = false;
       
       // Envoyer des messages à tous les numéros valides
       for (const number of validNumbers) {
@@ -77,9 +78,19 @@ export function useWhatsAppSender() {
             console.error("Erreur retournée par la fonction", number, data);
             failCount++;
             errorMessages.push(`${number}: ${data.error || "Erreur inconnue"}`);
+            
+            // Check for auth errors to report them only once
+            if (data.error && data.error.includes('token')) {
+              hasAuthError = true;
+            }
           } else {
             console.log("Message envoyé avec succès au numéro", number, data);
             successCount++;
+          }
+          
+          // If we've encountered an auth error, stop trying with other numbers
+          if (hasAuthError) {
+            break;
           }
         } catch (err) {
           console.error("Exception lors de l'envoi au numéro", number, err);
@@ -88,7 +99,18 @@ export function useWhatsAppSender() {
         }
         
         // Petite pause entre les envois pour éviter des limitations d'API
-        await new Promise(resolve => setTimeout(resolve, 800));
+        if (!hasAuthError) {
+          await new Promise(resolve => setTimeout(resolve, 800));
+        }
+      }
+      
+      // If there's an auth error, show it prominently
+      if (hasAuthError) {
+        toast.error("Problème d'authentification avec l'API WhatsApp. Veuillez contacter l'administrateur.", {
+          id: toastId,
+          duration: 8000
+        });
+        return { success: false };
       }
       
       if (successCount > 0) {
@@ -97,7 +119,7 @@ export function useWhatsAppSender() {
         });
       }
       
-      if (failCount > 0) {
+      if (failCount > 0 && !hasAuthError) {
         toast.error(`Échec de l'envoi pour ${failCount} contact(s): ${errorMessages.slice(0, 3).join(', ')}${errorMessages.length > 3 ? '...' : ''}`, {
           id: toastId,
           duration: 5000
