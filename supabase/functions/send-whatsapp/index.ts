@@ -13,10 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    // Use the creche secret key by default (which worked before)
+    // Get the WhatsApp API token from environment variables
     const apiKey = Deno.env.get('creche')
     
-    // Log details about the API key without revealing it completely
+    // Log token information for debugging (safely)
     if (apiKey) {
       const keyLength = apiKey.length;
       const maskedKey = keyLength > 10 
@@ -68,7 +68,8 @@ serve(async (req) => {
       }
     }
     
-    console.log(`Tentative d'envoi du message WhatsApp à ${formattedPhone}: ${message}`)
+    console.log(`Tentative d'envoi du message WhatsApp à ${formattedPhone}: ${message}`);
+    console.log(`Utilisation du token: ${maskedKey}`);
 
     // Call WhatsApp API
     try {
