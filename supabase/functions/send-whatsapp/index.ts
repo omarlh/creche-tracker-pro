@@ -14,20 +14,20 @@ serve(async (req) => {
 
   try {
     // Define maskedKey at the beginning so it's available throughout the function
-    let maskedKey = "***";
+    let maskedKey = "***"
     
     // Get the WhatsApp API token from environment variables
     const apiKey = Deno.env.get('creche')
     
     // Log token information for debugging (safely)
     if (apiKey) {
-      const keyLength = apiKey.length;
+      const keyLength = apiKey.length
       maskedKey = keyLength > 10 
         ? `${apiKey.substring(0, 4)}...${apiKey.substring(keyLength - 4)}`
-        : '***';
-      console.log(`Token API trouvé (masqué): ${maskedKey}, longueur: ${keyLength}`);
+        : '***'
+      console.log(`Token API trouvé (masqué): ${maskedKey}, longueur: ${keyLength}`)
     } else {
-      console.error('La clé API WhatsApp n\'est pas configurée');
+      console.error('La clé API WhatsApp n\'est pas configurée')
     }
     
     if (!apiKey) {
@@ -71,8 +71,8 @@ serve(async (req) => {
       }
     }
     
-    console.log(`Tentative d'envoi du message WhatsApp à ${formattedPhone}: ${message}`);
-    console.log(`Utilisation du token: ${maskedKey}`);
+    console.log(`Tentative d'envoi du message WhatsApp à ${formattedPhone}: ${message}`)
+    console.log(`Utilisation du token: ${maskedKey}`)
 
     // Call WhatsApp API
     try {
@@ -91,15 +91,15 @@ serve(async (req) => {
             body: message
           }
         })
-      });
+      })
 
-      console.log('Statut de réponse de l\'API WhatsApp:', response.status);
+      console.log('Statut de réponse de l\'API WhatsApp:', response.status)
       
       // Log response headers for debugging
-      console.log('En-têtes de réponse:', JSON.stringify(Array.from(response.headers.entries())));
+      console.log('En-têtes de réponse:', JSON.stringify(Array.from(response.headers.entries())))
 
       const data = await response.json()
-      console.log('Corps de réponse de l\'API WhatsApp:', JSON.stringify(data));
+      console.log('Corps de réponse de l\'API WhatsApp:', JSON.stringify(data))
       
       if (!response.ok) {
         console.error('Erreur de réponse de l\'API WhatsApp:', data)
@@ -131,7 +131,7 @@ serve(async (req) => {
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     } catch (fetchError) {
-      console.error('Erreur de fetch API WhatsApp:', fetchError);
+      console.error('Erreur de fetch API WhatsApp:', fetchError)
       return new Response(
         JSON.stringify({ 
           success: false, 
