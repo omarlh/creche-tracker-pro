@@ -15,9 +15,11 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
   const sendWhatsAppMessage = async () => {
     if (isSending) return;
     
+    let toastId: string | undefined;
+    
     try {
       setIsSending(true);
-      const toastId = toast.loading("Envoi du message WhatsApp en cours...");
+      toastId = toast.loading("Envoi du message WhatsApp en cours...");
       
       const today = new Date().toLocaleDateString('fr-FR');
       const message = `La recette d'aujourd'hui est de ${totalJour.toFixed(2)} DH`;
@@ -64,7 +66,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
     } catch (e) {
       console.error('Exception lors de l\'appel de la fonction Edge:', e);
       toast.error(`Erreur lors de l'appel de la fonction: ${e instanceof Error ? e.message : 'Erreur inconnue'}`, {
-        id: toastId || undefined
+        id: toastId
       });
     } finally {
       setIsSending(false);

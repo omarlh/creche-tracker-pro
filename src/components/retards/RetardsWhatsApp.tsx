@@ -16,9 +16,11 @@ export function RetardsWhatsApp({ retard }: RetardsWhatsAppProps) {
   const handleSendWhatsApp = async () => {
     if (isSending) return;
     
+    let toastId: string | undefined;
+    
     try {
       setIsSending(true);
-      const toastId = toast.loading("Envoi du message WhatsApp en cours...");
+      toastId = toast.loading("Envoi du message WhatsApp en cours...");
       
       const message = `Bonjour, nous vous rappelons que le paiement de ${retard.montantDu} DH pour ${retard.enfantPrenom} ${retard.enfantNom} est en retard de ${retard.joursRetard} jours. Merci de régulariser la situation dès que possible.`;
       
@@ -61,7 +63,7 @@ export function RetardsWhatsApp({ retard }: RetardsWhatsAppProps) {
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message WhatsApp:', error);
       toast.error(`Impossible d'envoyer le message WhatsApp: ${error instanceof Error ? error.message : 'Erreur inconnue'}`, { 
-        id: toastId || undefined 
+        id: toastId 
       });
     } finally {
       setIsSending(false);
