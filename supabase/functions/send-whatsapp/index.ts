@@ -16,10 +16,13 @@ serve(async (req) => {
     // Get the WhatsApp API token from environment variables
     const apiKey = Deno.env.get('creche')
     
+    // Define maskedKey at the beginning so it's available throughout the function
+    let maskedKey = "***";
+    
     // Log token information for debugging (safely)
     if (apiKey) {
       const keyLength = apiKey.length;
-      const maskedKey = keyLength > 10 
+      maskedKey = keyLength > 10 
         ? `${apiKey.substring(0, 4)}...${apiKey.substring(keyLength - 4)}`
         : '***';
       console.log(`Token API trouvé (masqué): ${maskedKey}, longueur: ${keyLength}`);
