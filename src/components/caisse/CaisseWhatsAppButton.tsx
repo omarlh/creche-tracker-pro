@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { MessageSquare, Loader2 } from "lucide-react";
@@ -15,7 +14,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
   const sendWhatsAppMessage = async () => {
     if (isSending) return;
     
-    let toastId: string | undefined;
+    let toastId: string | number;
     
     try {
       setIsSending(true);
