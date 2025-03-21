@@ -13,32 +13,27 @@ serve(async (req) => {
   }
 
   try {
-    // Define maskedKey at the beginning so it's available throughout the function
-    let maskedKey = "***"
-    
-    // Get the WhatsApp API token from environment variables - try the new key first, then fall back to the old one
-    const apiKey = Deno.env.get('WHATSAPP_TOKEN') || Deno.env.get('creche')
+    // Get the WhatsApp API token from environment variables
+    const apiToken = Deno.env.get('WHATSAPP_TOKEN')
     
     // Log token information for debugging (safely)
-    if (apiKey) {
-      const keyLength = apiKey.length
-      maskedKey = keyLength > 10 
-        ? `${apiKey.substring(0, 4)}...${apiKey.substring(keyLength - 4)}`
-        : '***'
-      console.log(`Token API trouvé (masqué): ${maskedKey}, longueur: ${keyLength}`)
-    } else {
+    if (!apiToken) {
       console.error('La clé API WhatsApp n\'est pas configurée')
-    }
-    
-    if (!apiKey) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'La clé API WhatsApp n\'est pas configurée. Veuillez configurer le secret "WHATSAPP_TOKEN" dans les paramètres de fonction.'
+          error: 'La clé API WhatsApp n\'est pas configurée. Veuillez configurer WHATSAPP_TOKEN avec une clé valide.'
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+    
+    // Get token length for logs (without revealing the actual token)
+    const tokenLength = apiToken.length
+    const maskedToken = tokenLength > 10 
+      ? `${apiToken.substring(0, 4)}...${apiToken.substring(tokenLength - 4)}`
+      : '***'
+    console.log(`Token API trouvé (masqué): ${maskedToken}, longueur: ${tokenLength}`)
 
     // Get request body
     const { to, message } = await req.json()
@@ -56,31 +51,29 @@ serve(async (req) => {
     
     // Handle Morocco phone numbers specifically
     if (formattedPhone.startsWith('0') && formattedPhone.length === 10) {
-      // Assuming it's a Moroccan number starting with 0
       formattedPhone = '+212' + formattedPhone.substring(1)
     } else if (!formattedPhone.startsWith('+')) {
-      // If no leading '+', add it with Morocco country code if it looks like a Moroccan number
       if (formattedPhone.startsWith('212')) {
         formattedPhone = '+' + formattedPhone
       } else if (formattedPhone.startsWith('00')) {
-        // Handle 00 international prefix
         formattedPhone = '+' + formattedPhone.substring(2)
       } else {
-        // Assume it's a Moroccan number without prefix
         formattedPhone = '+212' + formattedPhone
       }
     }
     
     console.log(`Tentative d'envoi du message WhatsApp à ${formattedPhone}: ${message}`)
-    console.log(`Utilisation du token: ${maskedKey}`)
+    console.log(`Utilisation du token: ${maskedToken}`)
 
-    // Call WhatsApp API
+    // Call WhatsApp API with more debugging
     try {
-      // Use the standard Meta WhatsApp API endpoint
+      console.log("Appel de l'API WhatsApp Business (Graph API)...")
+      
+      // Use the standard Meta WhatsApp API endpoint (Cloud API)
       const response = await fetch('https://graph.facebook.com/v17.0/171689289460681/messages', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${apiToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -94,8 +87,6 @@ serve(async (req) => {
       })
 
       console.log('Statut de réponse de l\'API WhatsApp:', response.status)
-      
-      // Log response headers for debugging
       console.log('En-têtes de réponse:', JSON.stringify(Array.from(response.headers.entries())))
 
       const data = await response.json()
@@ -103,7 +94,6 @@ serve(async (req) => {
       
       if (!response.ok) {
         console.error('Erreur de réponse de l\'API WhatsApp:', data)
-        console.error('Statut HTTP:', response.status)
         
         // Add more detailed error information
         let errorMessage = data.error?.message || 'Erreur lors de l\'envoi du message WhatsApp'
@@ -114,10 +104,9 @@ serve(async (req) => {
         } else if (data.error?.code === 100) {
           errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
         } else if (data.error?.code === 190) {
-          errorMessage = `Le token WhatsApp n'est pas valide. Veuillez vérifier les secrets "WHATSAPP_TOKEN" ou "creche" dans les paramètres.`
+          errorMessage = `Token d'accès invalide. Veuillez vérifier que le secret WHATSAPP_TOKEN est correctement configuré avec un Permanent Access Token valide de l'API WhatsApp Business.`
         }
         
-        // Return a successful HTTP response with error details
         return new Response(
           JSON.stringify({ success: false, error: errorMessage, details: data.error }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -144,7 +133,6 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Erreur lors de l\'envoi du message WhatsApp:', error)
-    // Always return a 200 status with error information
     return new Response(
       JSON.stringify({ 
         success: false, 

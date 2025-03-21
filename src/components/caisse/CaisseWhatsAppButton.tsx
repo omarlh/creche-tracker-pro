@@ -46,7 +46,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
 
       if (error) {
         console.error('Erreur de fonction Supabase:', error);
-        toast.error(`Échec de l'appel à la fonction: ${error.message}`, { id: toastId });
+        toast.error(`Échec de l'appel à la fonction: ${error.message}`, { id: toastId, duration: 7000 });
         return;
       }
 
@@ -55,13 +55,13 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
         
         if (data.error && data.error.includes('token')) {
           toast.error(
-            `Problème d'authentification avec l'API WhatsApp. Veuillez contacter l'administrateur.`, 
-            { id: toastId, duration: 8000 }
+            `Problème d'authentification avec l'API WhatsApp. Veuillez contacter l'administrateur pour vérifier la configuration de WHATSAPP_TOKEN.`, 
+            { id: toastId, duration: 10000 }
           );
         } else if (data.error) {
-          toast.error(data.error, { id: toastId, duration: 5000 });
+          toast.error(data.error, { id: toastId, duration: 7000 });
         } else {
-          toast.error(`Échec de l'envoi du message WhatsApp`, { id: toastId });
+          toast.error(`Échec de l'envoi du message WhatsApp`, { id: toastId, duration: 5000 });
         }
         return;
       }
@@ -69,7 +69,8 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       console.log('Réponse d\'envoi WhatsApp:', data);
 
       toast.success("Le message a été envoyé avec succès par WhatsApp", {
-        id: toastId
+        id: toastId,
+        duration: 5000
       });
       
       setIsDialogOpen(false);
@@ -77,7 +78,8 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
     } catch (e) {
       console.error('Exception lors de l\'appel de la fonction Edge:', e);
       toast.error(`Erreur lors de l'appel de la fonction: ${e instanceof Error ? e.message : 'Erreur inconnue'}`, {
-        id: toastId
+        id: toastId,
+        duration: 7000
       });
     } finally {
       setIsSending(false);
