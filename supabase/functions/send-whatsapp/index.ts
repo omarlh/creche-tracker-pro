@@ -14,7 +14,15 @@ serve(async (req) => {
 
   try {
     // Get the WhatsApp API token from environment variables
-    const apiToken = Deno.env.get('WHATSAPP_TOKEN')
+    let apiToken = Deno.env.get('WHATSAPP_TOKEN');
+    
+    // Diagnostic logs - Don't log the actual token for security
+    console.log(`API Token found?: ${apiToken ? 'Yes' : 'No'}`);
+    if (!apiToken) {
+      console.log('Trying fallback token "creche"');
+      apiToken = Deno.env.get('creche'); // Try fallback
+      console.log(`Fallback token found?: ${apiToken ? 'Yes' : 'No'}`);
+    }
     
     // Log token information for debugging (safely)
     if (!apiToken) {
@@ -65,6 +73,38 @@ serve(async (req) => {
     console.log(`Tentative d'envoi du message WhatsApp à ${formattedPhone}: ${message}`)
     console.log(`Utilisation du token: ${maskedToken}`)
 
+    // Test the token validity with a simple call to the Graph API
+    try {
+      console.log("Test de validité du token avant l'envoi du message...");
+      const testResponse = await fetch('https://graph.facebook.com/v17.0/me', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${apiToken}`
+        }
+      });
+      
+      const testData = await testResponse.json();
+      console.log(`Résultat du test de token: Status ${testResponse.status}`);
+      console.log(`Response body:`, JSON.stringify(testData));
+      
+      if (!testResponse.ok) {
+        if (testData.error && testData.error.code === 190) {
+          return new Response(
+            JSON.stringify({ 
+              success: false, 
+              error: `Le token d'accès n'est pas valide. Veuillez vérifier que vous utilisez un token d'accès permanent pour l'API WhatsApp Business Cloud.`,
+              details: testData.error
+            }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+      } else {
+        console.log("Token validé avec succès! App ID:", testData.id);
+      }
+    } catch (tokenError) {
+      console.error('Erreur lors de la validation du token:', tokenError);
+    }
+
     // Call WhatsApp API with more debugging
     try {
       console.log("Appel de l'API WhatsApp Business (Graph API)...")
@@ -105,6 +145,8 @@ serve(async (req) => {
           errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
         } else if (data.error?.code === 190) {
           errorMessage = `Token d'accès invalide. Veuillez vérifier que le secret WHATSAPP_TOKEN est correctement configuré avec un Permanent Access Token valide de l'API WhatsApp Business.`
+        } else if (data.error?.code === 10) {
+          errorMessage = `Erreur d'autorisation: le token semble valide mais manque des autorisations nécessaires pour l'envoi de messages WhatsApp.`
         }
         
         return new Response(

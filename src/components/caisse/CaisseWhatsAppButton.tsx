@@ -23,6 +23,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
   const [isSending, setIsSending] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
 
   const sendWhatsAppMessage = async () => {
     if (isSending) return;
@@ -31,6 +32,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
     
     try {
       setIsSending(true);
+      setErrorDetails(null);
       toastId = toast.loading("Envoi du message WhatsApp en cours...");
       
       const phoneNumber = "212664091486"; // Numéro de destination
@@ -47,6 +49,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       if (error) {
         console.error('Erreur de fonction Supabase:', error);
         toast.error(`Échec de l'appel à la fonction: ${error.message}`, { id: toastId, duration: 7000 });
+        setErrorDetails(`Détails de l'erreur: ${JSON.stringify(error)}`);
         return;
       }
 
@@ -58,8 +61,10 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
             `Problème d'authentification avec l'API WhatsApp. Veuillez contacter l'administrateur pour vérifier la configuration de WHATSAPP_TOKEN.`, 
             { id: toastId, duration: 10000 }
           );
+          setErrorDetails(`Détails: ${JSON.stringify(data.details || {})}`);
         } else if (data.error) {
           toast.error(data.error, { id: toastId, duration: 7000 });
+          setErrorDetails(`Détails: ${JSON.stringify(data.details || {})}`);
         } else {
           toast.error(`Échec de l'envoi du message WhatsApp`, { id: toastId, duration: 5000 });
         }
@@ -81,6 +86,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
         id: toastId,
         duration: 7000
       });
+      setErrorDetails(`Exception: ${e instanceof Error ? e.stack : 'Détails non disponibles'}`);
     } finally {
       setIsSending(false);
     }
@@ -89,6 +95,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
   const handleOpenDialog = () => {
     const today = new Date().toLocaleDateString('fr-FR');
     setMessage(`La recette d'aujourd'hui (${today}) est de ${totalJour.toFixed(2)} DH`);
+    setErrorDetails(null);
     setIsDialogOpen(true);
   };
 
@@ -122,6 +129,13 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
                 onChange={(e) => setMessage(e.target.value)}
               />
             </div>
+            
+            {errorDetails && (
+              <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800 whitespace-pre-wrap">
+                <p className="font-semibold mb-1">Informations de débogage:</p>
+                {errorDetails}
+              </div>
+            )}
           </div>
           <DialogFooter className="flex flex-col sm:flex-row sm:justify-between">
             <Button
