@@ -33,7 +33,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       setIsSending(true);
       toastId = toast.loading("Envoi du message WhatsApp en cours...");
       
-      const phoneNumber = "212664091486";
+      const phoneNumber = "212664091486"; // Numéro de destination
       
       console.log(`Envoi du message WhatsApp à ${phoneNumber}: ${message}`);
       

@@ -16,8 +16,8 @@ serve(async (req) => {
     // Define maskedKey at the beginning so it's available throughout the function
     let maskedKey = "***"
     
-    // Get the WhatsApp API token from environment variables
-    const apiKey = Deno.env.get('creche')
+    // Get the WhatsApp API token from environment variables - try the new key first, then fall back to the old one
+    const apiKey = Deno.env.get('WHATSAPP_TOKEN') || Deno.env.get('creche')
     
     // Log token information for debugging (safely)
     if (apiKey) {
@@ -34,7 +34,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'La clé API WhatsApp n\'est pas configurée. Veuillez configurer le secret "creche" dans les paramètres de fonction.'
+          error: 'La clé API WhatsApp n\'est pas configurée. Veuillez configurer le secret "WHATSAPP_TOKEN" dans les paramètres de fonction.'
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
@@ -114,7 +114,7 @@ serve(async (req) => {
         } else if (data.error?.code === 100) {
           errorMessage = `Paramètre invalide: ${data.error?.error_data?.details || formattedPhone}`
         } else if (data.error?.code === 190) {
-          errorMessage = `Le token WhatsApp n'est pas valide. Veuillez vérifier le secret "creche" dans les paramètres.`
+          errorMessage = `Le token WhatsApp n'est pas valide. Veuillez vérifier les secrets "WHATSAPP_TOKEN" ou "creche" dans les paramètres.`
         }
         
         // Return a successful HTTP response with error details
