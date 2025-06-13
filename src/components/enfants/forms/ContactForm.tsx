@@ -1,6 +1,6 @@
 
 import { Input } from "@/components/ui/input";
-import { type Enfant } from "@/data/enfants";
+import { type Enfant } from "@/types/enfant.types";
 
 interface ContactFormProps {
   selectedEnfant: Enfant | null;

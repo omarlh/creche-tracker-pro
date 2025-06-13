@@ -90,8 +90,8 @@ const Enfants = () => {
     setSearchedEnfant(found || null);
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    handleEnfantSubmit(e, selectedEnfant, showPaiementForm, setIsSheetOpen, setShowPaiementForm, toast);
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    await handleEnfantSubmit(e, selectedEnfant, showPaiementForm, setIsSheetOpen, setShowPaiementForm, toast);
   };
 
   const handlePrint = (enfant: Enfant) => {
