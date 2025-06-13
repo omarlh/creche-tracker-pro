@@ -35,7 +35,13 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
       setErrorDetails(null);
       toastId = toast.loading("Envoi du message WhatsApp en cours...");
       
-      const phoneNumber = "212664091486"; // Numéro de destination
+      // Numéro formaté correctement pour le Maroc
+      let phoneNumber = "212664091486";
+      
+      // S'assurer que le numéro est au format international correct
+      if (!phoneNumber.startsWith('+')) {
+        phoneNumber = '+' + phoneNumber;
+      }
       
       console.log(`Envoi du message WhatsApp à ${phoneNumber}: ${message}`);
       
@@ -58,10 +64,13 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
         
         if (data.error && data.error.includes('token')) {
           toast.error(
-            `Problème d'authentification avec l'API WhatsApp. Veuillez contacter l'administrateur pour vérifier la configuration de WHATSAPP_TOKEN.`, 
+            `Problème d'authentification avec l'API WhatsApp. Le token WHATSAPP_TOKEN doit être configuré avec un token d'accès permanent valide de l'API WhatsApp Business Cloud.`, 
             { id: toastId, duration: 10000 }
           );
-          setErrorDetails(`Détails: ${JSON.stringify(data.details || {})}`);
+          setErrorDetails(`Le token actuel semble invalide. Veuillez configurer un nouveau token d'accès permanent depuis Meta Business.`);
+        } else if (data.error && data.error.includes('131047')) {
+          toast.error(`Le numéro ${phoneNumber} n'est pas inscrit au service WhatsApp Business`, { id: toastId, duration: 7000 });
+          setErrorDetails(`Code erreur 131047: Numéro non inscrit au service WhatsApp Business`);
         } else if (data.error) {
           toast.error(data.error, { id: toastId, duration: 7000 });
           setErrorDetails(`Détails: ${JSON.stringify(data.details || {})}`);
@@ -94,7 +103,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
 
   const handleOpenDialog = () => {
     const today = new Date().toLocaleDateString('fr-FR');
-    setMessage(`La recette d'aujourd'hui (${today}) est de ${totalJour.toFixed(2)} DH`);
+    setMessage(`🏫 Crèche - Recette du ${today}\n\n💰 Total de la journée: ${totalJour.toFixed(2)} DH\n\n📊 Rapport de caisse journalière généré automatiquement.`);
     setErrorDetails(null);
     setIsDialogOpen(true);
   };
@@ -115,7 +124,7 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
           <DialogHeader>
             <DialogTitle>Envoyer un message WhatsApp</DialogTitle>
             <DialogDescription>
-              Le message sera envoyé au numéro de téléphone fixe
+              Le message sera envoyé au numéro +212664091486
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -131,9 +140,14 @@ export function CaisseWhatsAppButton({ totalJour }: CaisseWhatsAppButtonProps) {
             </div>
             
             {errorDetails && (
-              <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800 whitespace-pre-wrap">
-                <p className="font-semibold mb-1">Informations de débogage:</p>
-                {errorDetails}
+              <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+                <p className="font-semibold mb-2">⚠️ Informations importantes:</p>
+                <p className="whitespace-pre-wrap">{errorDetails}</p>
+                {errorDetails.includes('token') && (
+                  <p className="mt-2 text-blue-600">
+                    💡 Pour configurer un nouveau token: Meta Business → WhatsApp API → Tokens d'accès
+                  </p>
+                )}
               </div>
             )}
           </div>
