@@ -1,6 +1,6 @@
 
 import { Paiement } from "@/data/paiements";
-import { Enfant } from "@/data/enfants";
+import { Enfant } from "@/types/enfant.types";
 
 export const usePaiementFilter = () => {
   const filterPaiements = (
@@ -9,6 +9,8 @@ export const usePaiementFilter = () => {
     searchTerm: string,
     selectedEnfant: string
   ) => {
+    console.log("Filtering paiements:", { paiements, enfants, searchTerm, selectedEnfant });
+    
     return paiements.filter(paiement => {
       const enfant = enfants.find(e => e.id === paiement.enfantId);
       const nomComplet = enfant ? `${enfant.prenom} ${enfant.nom}`.toLowerCase() : '';

@@ -28,6 +28,8 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
       set({ enfants: formattedEnfants });
     } catch (error) {
       console.error("Error in fetchEnfants:", error);
+      // Set empty array to prevent undefined issues
+      set({ enfants: [] });
     }
   },
 
@@ -39,6 +41,7 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
       await store.fetchEnfants();
     } catch (error) {
       console.error("Error in ajouterEnfant:", error);
+      throw error;
     }
   },
 
@@ -50,6 +53,7 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
       await store.fetchEnfants();
     } catch (error) {
       console.error("Error in modifierEnfant:", error);
+      throw error;
     }
   },
 
@@ -61,6 +65,7 @@ export const useEnfantStore = create<EnfantStore>((set, get) => ({
       await store.fetchEnfants();
     } catch (error) {
       console.error("Error in supprimerEnfant:", error);
+      throw error;
     }
   },
 

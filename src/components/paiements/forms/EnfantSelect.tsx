@@ -9,25 +9,42 @@ interface EnfantSelectProps {
 }
 
 export const EnfantSelect = ({ selectedEnfantId, onEnfantChange, enfants = [] }: EnfantSelectProps) => {
+  console.log("EnfantSelect - enfants:", enfants);
+  console.log("EnfantSelect - selectedEnfantId:", selectedEnfantId);
+  
   return (
     <div className="space-y-2">
       <Label htmlFor="enfant">Enfant</Label>
       <Select 
-        value={selectedEnfantId?.toString() || undefined} 
-        onValueChange={(value) => onEnfantChange(value ? parseInt(value) : null)}
+        value={selectedEnfantId?.toString() || ""} 
+        onValueChange={(value) => {
+          console.log("Selected value:", value);
+          onEnfantChange(value ? parseInt(value) : null);
+        }}
       >
         <SelectTrigger id="enfant">
           <SelectValue placeholder="Sélectionner un enfant" />
         </SelectTrigger>
-        <SelectContent className="bg-white">
-          {enfants.map((enfant) => (
-            <SelectItem key={enfant.id} value={enfant.id.toString()}>
-              {enfant.prenom} {enfant.nom}
+        <SelectContent className="bg-white z-50">
+          <SelectItem value="">Sélectionner un enfant</SelectItem>
+          {enfants.length > 0 ? (
+            enfants.map((enfant) => (
+              <SelectItem key={enfant.id} value={enfant.id.toString()}>
+                {enfant.prenom} {enfant.nom}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="no-data" disabled>
+              Aucun enfant trouvé
             </SelectItem>
-          ))}
+          )}
         </SelectContent>
       </Select>
+      {enfants.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          Aucun enfant disponible. Veuillez d'abord ajouter des enfants.
+        </p>
+      )}
     </div>
   );
 };
-

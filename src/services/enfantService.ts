@@ -2,133 +2,126 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Enfant, EnfantRow } from "@/types/enfant.types";
 
-// Fonction utilitaire pour normaliser les années scolaires
-const normalizeSchoolYear = (year: string | undefined): string => {
-  if (!year) return "";
-  // Remplacer les / par des - et s'assurer qu'il n'y a pas d'espaces
-  return year.trim().replace('/', '-');
-};
-
-export const formatEnfantFromRow = (enfant: EnfantRow): Enfant => {
-  // Normaliser l'année scolaire lors de la conversion depuis la BD
-  const anneeScolaire = normalizeSchoolYear(enfant.annee_scolaire || "2024-2025");
-  
-  return {
-    id: enfant.id,
-    nom: enfant.nom,
-    prenom: enfant.prenom,
-    dateNaissance: enfant.date_naissance || undefined,
-    dateInscription: enfant.date_inscription || undefined,
-    dateFinInscription: enfant.date_fin_inscription || undefined,
-    classe: enfant.classe as Enfant["classe"],
-    gsmMaman: enfant.gsm_maman || undefined,
-    gsmPapa: enfant.gsm_papa || undefined,
-    anneeScolaire: anneeScolaire,
-    fraisScolariteMensuel: enfant.frais_scolarite_mensuel || undefined,
-    fraisInscription: {
-      montantTotal: enfant.montant_total || 0,
-      montantPaye: enfant.montant_paye || 0,
-      paiements: (enfant.paiements_inscription || []).map(p => ({
-        id: p.id,
-        montant: p.montant,
-        datePaiement: p.date_paiement || '',
-        methodePaiement: p.methode_paiement as "carte" | "especes" | "cheque" | "virement",
-      }))
-    },
-    statut: enfant.statut as "actif" | "inactif",
-    dernierPaiement: enfant.dernier_paiement || undefined,
-    assurance_declaree: enfant.assurance_declaree || false,
-    date_assurance: enfant.date_assurance || undefined,
-  };
-};
-
-export const fetchEnfantsFromDB = async () => {
-  console.log("Fetching enfants from database...");
-  
+export const fetchEnfantsFromDB = async (): Promise<Enfant[]> => {
   try {
-    const { data: enfantsData, error } = await supabase
+    console.log("Fetching enfants from database...");
+    
+    // Remove created_at from the query since it doesn't exist in the table
+    const { data: enfantsData, error: enfantsError } = await supabase
       .from('enfants')
-      .select('*, paiements_inscription(*)')
-      .order('created_at', { ascending: false });
+      .select(`
+        *
+      `)
+      .order('nom', { ascending: true });
 
-    if (error) {
-      console.error("Supabase error fetching enfants:", error);
-      throw new Error(`Erreur de base de données: ${error.message}`);
+    if (enfantsError) {
+      console.error("Supabase error fetching enfants:", enfantsError);
+      throw new Error(`Erreur de base de données: ${enfantsError.message}`);
     }
 
-    console.log("Successfully fetched enfants:", enfantsData?.length || 0);
-    return (enfantsData as EnfantRow[])?.map(formatEnfantFromRow) || [];
+    // Fetch payments for inscription for each enfant
+    const { data: paiementsInscription, error: paiementsError } = await supabase
+      .from('paiements_inscription')
+      .select('*');
+
+    if (paiementsError) {
+      console.error("Error fetching paiements inscription:", paiementsError);
+    }
+
+    const formattedEnfants: Enfant[] = (enfantsData as EnfantRow[]).map(row => {
+      const paiementsEnfant = paiementsInscription?.filter(p => p.enfant_id === row.id) || [];
+      
+      return {
+        id: row.id,
+        nom: row.nom,
+        prenom: row.prenom,
+        dateNaissance: row.date_naissance || undefined,
+        dateInscription: row.date_inscription || undefined,
+        dateFinInscription: row.date_fin_inscription || undefined,
+        classe: row.classe as "TPS" | "PS" | "MS" | "GS" || undefined,
+        gsmMaman: row.gsm_maman || undefined,
+        gsmPapa: row.gsm_papa || undefined,
+        anneeScolaire: row.annee_scolaire || undefined,
+        fraisInscription: {
+          montantTotal: row.montant_total || 0,
+          montantPaye: row.montant_paye || 0,
+          paiements: paiementsEnfant.map(p => ({
+            id: p.id,
+            montant: p.montant,
+            datePaiement: p.date_paiement || '',
+            methodePaiement: p.methode_paiement as "carte" | "especes" | "cheque" | "virement" || "especes"
+          }))
+        },
+        fraisScolariteMensuel: row.frais_scolarite_mensuel || 0,
+        statut: row.statut as "actif" | "inactif" || "actif",
+        dernierPaiement: row.dernier_paiement || undefined,
+        assurance_declaree: row.assurance_declaree || false,
+        date_assurance: row.date_assurance || undefined
+      };
+    });
+
+    console.log("Formatted enfants:", formattedEnfants);
+    return formattedEnfants;
   } catch (error) {
     console.error("Network error fetching enfants:", error);
     throw error;
   }
 };
 
-export const addEnfantToDB = async (enfant: Omit<Enfant, "id">) => {
-  console.log("Adding enfant to database:", enfant);
-  
+export const addEnfantToDB = async (enfant: Omit<Enfant, "id">): Promise<void> => {
   try {
-    const currentDate = new Date().toISOString().split('T')[0];
-    
-    const { data: newEnfant, error } = await supabase
+    const { data, error } = await supabase
       .from('enfants')
       .insert([{
         nom: enfant.nom,
         prenom: enfant.prenom,
         date_naissance: enfant.dateNaissance,
-        date_inscription: enfant.dateInscription || currentDate,
+        date_inscription: enfant.dateInscription,
         date_fin_inscription: enfant.dateFinInscription,
         classe: enfant.classe,
         gsm_maman: enfant.gsmMaman,
         gsm_papa: enfant.gsmPapa,
-        annee_scolaire: enfant.anneeScolaire || "2024-2025",
-        montant_total: enfant.fraisInscription?.montantTotal || 300,
+        annee_scolaire: enfant.anneeScolaire,
+        montant_total: enfant.fraisInscription?.montantTotal || 0,
         montant_paye: enfant.fraisInscription?.montantPaye || 0,
-        frais_scolarite_mensuel: enfant.fraisScolariteMensuel || 800,
-        statut: enfant.statut || "actif",
+        frais_scolarite_mensuel: enfant.fraisScolariteMensuel,
+        statut: enfant.statut,
         dernier_paiement: enfant.dernierPaiement,
-        assurance_declaree: enfant.assurance_declaree || false,
-        date_assurance: enfant.date_assurance,
+        assurance_declaree: enfant.assurance_declaree,
+        date_assurance: enfant.date_assurance
       }])
       .select()
       .single();
 
     if (error) {
-      console.error("Supabase error adding enfant:", error);
+      console.error("Error adding enfant:", error);
       throw new Error(`Erreur lors de l'ajout: ${error.message}`);
     }
 
-    console.log("Successfully added enfant:", newEnfant);
+    // Add inscription payments if any
+    if (enfant.fraisInscription?.paiements && enfant.fraisInscription.paiements.length > 0) {
+      const paiementsToInsert = enfant.fraisInscription.paiements.map(p => ({
+        enfant_id: data.id,
+        montant: p.montant,
+        date_paiement: p.datePaiement,
+        methode_paiement: p.methodePaiement
+      }));
 
-    // Add payment records if any
-    if (enfant.fraisInscription?.paiements?.length) {
       const { error: paiementError } = await supabase
         .from('paiements_inscription')
-        .insert(
-          enfant.fraisInscription.paiements.map(p => ({
-            enfant_id: newEnfant.id,
-            montant: p.montant,
-            date_paiement: p.datePaiement,
-            methode_paiement: p.methodePaiement,
-          }))
-        );
+        .insert(paiementsToInsert);
 
       if (paiementError) {
-        console.error("Error adding paiements:", paiementError);
-        // Don't throw here, the main record was created successfully
+        console.error("Error adding paiements inscription:", paiementError);
       }
     }
-
-    return newEnfant;
   } catch (error) {
-    console.error("Network error adding enfant:", error);
+    console.error("Error in addEnfantToDB:", error);
     throw error;
   }
 };
 
-export const updateEnfantInDB = async (enfant: Enfant) => {
-  console.log("Updating enfant in database:", enfant);
-  
+export const updateEnfantInDB = async (enfant: Enfant): Promise<void> => {
   try {
     const { error } = await supabase
       .from('enfants')
@@ -141,65 +134,47 @@ export const updateEnfantInDB = async (enfant: Enfant) => {
         classe: enfant.classe,
         gsm_maman: enfant.gsmMaman,
         gsm_papa: enfant.gsmPapa,
-        annee_scolaire: enfant.anneeScolaire || "2024-2025",
-        montant_total: enfant.fraisInscription?.montantTotal,
-        montant_paye: enfant.fraisInscription?.montantPaye,
+        annee_scolaire: enfant.anneeScolaire,
+        montant_total: enfant.fraisInscription?.montantTotal || 0,
+        montant_paye: enfant.fraisInscription?.montantPaye || 0,
         frais_scolarite_mensuel: enfant.fraisScolariteMensuel,
         statut: enfant.statut,
         dernier_paiement: enfant.dernierPaiement,
         assurance_declaree: enfant.assurance_declaree,
-        date_assurance: enfant.date_assurance,
+        date_assurance: enfant.date_assurance
       })
       .eq('id', enfant.id);
 
     if (error) {
-      console.error("Supabase error updating enfant:", error);
+      console.error("Error updating enfant:", error);
       throw new Error(`Erreur lors de la modification: ${error.message}`);
     }
-
-    console.log("Successfully updated enfant");
-
-    // Update payment records if any
-    if (enfant.fraisInscription?.paiements?.length) {
-      const { error: paiementError } = await supabase
-        .from('paiements_inscription')
-        .upsert(
-          enfant.fraisInscription.paiements.map(p => ({
-            id: p.id,
-            enfant_id: enfant.id,
-            montant: p.montant,
-            date_paiement: p.datePaiement,
-            methode_paiement: p.methodePaiement,
-          }))
-        );
-
-      if (paiementError) {
-        console.error("Error updating paiements:", paiementError);
-      }
-    }
   } catch (error) {
-    console.error("Network error updating enfant:", error);
+    console.error("Error in updateEnfantInDB:", error);
     throw error;
   }
 };
 
-export const deleteEnfantFromDB = async (id: number) => {
-  console.log("Deleting enfant from database:", id);
-  
+export const deleteEnfantFromDB = async (id: number): Promise<void> => {
   try {
+    // First delete related paiements_inscription
+    await supabase
+      .from('paiements_inscription')
+      .delete()
+      .eq('enfant_id', id);
+
+    // Then delete the enfant
     const { error } = await supabase
       .from('enfants')
       .delete()
       .eq('id', id);
 
     if (error) {
-      console.error("Supabase error deleting enfant:", error);
+      console.error("Error deleting enfant:", error);
       throw new Error(`Erreur lors de la suppression: ${error.message}`);
     }
-
-    console.log("Successfully deleted enfant");
   } catch (error) {
-    console.error("Network error deleting enfant:", error);
+    console.error("Error in deleteEnfantFromDB:", error);
     throw error;
   }
 };
