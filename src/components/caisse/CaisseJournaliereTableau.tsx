@@ -25,7 +25,20 @@ export function CaisseJournaliereTableau() {
     window.print();
   };
 
-  if (loading) return <div className="flex items-center justify-center p-8">Chargement...</div>;
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center space-y-2">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground">Chargement des données...</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const caisseData = getCaisseData();
 
@@ -47,8 +60,21 @@ export function CaisseJournaliereTableau() {
           />
           
           {error ? (
-            <div className="text-destructive p-4 rounded-md bg-destructive/10 border border-destructive/20">
-              {error}
+            <div className="text-destructive p-6 rounded-md bg-destructive/10 border border-destructive/20">
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-destructive/20 flex items-center justify-center">
+                    <span className="text-destructive text-sm font-bold">!</span>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold mb-1">Erreur de connexion</h4>
+                    <p className="text-sm">{error}</p>
+                    <p className="text-sm mt-2 text-muted-foreground">
+                      Vérifiez que votre instance Cloud est démarrée dans les paramètres.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <>
