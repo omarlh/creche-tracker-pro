@@ -38,7 +38,7 @@ export function useCaisseJournaliere() {
 
       if (paiementsError) {
         console.error('Erreur Supabase (paiements):', paiementsError);
-        throw paiementsError;
+        throw new Error(`Erreur de connexion à la base de données: ${paiementsError.message}`);
       }
 
       // Get inscription payments
@@ -50,7 +50,7 @@ export function useCaisseJournaliere() {
 
       if (inscriptionsError) {
         console.error('Erreur Supabase (paiements_inscription):', inscriptionsError);
-        throw inscriptionsError;
+        throw new Error(`Erreur de connexion à la base de données: ${inscriptionsError.message}`);
       }
 
       // Format all payments and add type information
@@ -74,11 +74,12 @@ export function useCaisseJournaliere() {
       
     } catch (err: any) {
       console.error('Erreur complète:', err);
-      setError('Erreur lors du chargement des paiements');
+      const errorMessage = err.message || 'Erreur inconnue lors du chargement des paiements';
+      setError(errorMessage);
       toast({
         variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger les paiements. Veuillez réessayer."
+        title: "Erreur de connexion",
+        description: "Impossible de se connecter à la base de données. Vérifiez que votre instance Cloud est démarrée."
       });
     } finally {
       setLoading(false);
