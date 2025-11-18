@@ -1,16 +1,15 @@
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { CaisseJournaliereHeader } from "./CaisseJournaliereHeader";
 import { TableauHeader } from "./TableauHeader";
 import { TableauActions } from "./TableauActions";
 import { PaiementsDetailParDate } from "./PaiementsDetailParDate";
 import { CaisseSummaryTable } from "./CaisseSummaryTable";
 import { useCaisseJournaliere } from "@/hooks/caisse/useCaisseJournaliere";
+import { useState } from "react";
 
-interface CaisseJournaliereTableauProps {
-  onTotalUpdate?: (total: number) => void;
-}
-
-export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTableauProps) {
+export function CaisseJournaliereTableau() {
+  const [searchTerm, setSearchTerm] = useState("");
   const {
     loading,
     error,
@@ -22,30 +21,33 @@ export function CaisseJournaliereTableau({ onTotalUpdate }: CaisseJournaliereTab
     getCaisseData,
   } = useCaisseJournaliere();
 
-  // Pass total to parent component if needed
-  if (onTotalUpdate) {
-    onTotalUpdate(totalJour);
-  }
+  const handlePrint = () => {
+    window.print();
+  };
 
-  if (loading) return <div>Chargement...</div>;
+  if (loading) return <div className="flex items-center justify-center p-8">Chargement...</div>;
 
   const caisseData = getCaisseData();
 
   return (
     <Card>
-      <CardHeader>
-        <h2 className="text-3xl font-bold tracking-tight">Caisse Journalière</h2>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <div className="space-y-4">
+          <CaisseJournaliereHeader
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            onPrint={handlePrint}
+          />
+          
           <TableauHeader
             startDate={startDate}
             endDate={endDate}
             onStartDateChange={setStartDate}
             onEndDateChange={setEndDate}
           />
+          
           {error ? (
-            <div className="text-red-500 p-4 rounded-md bg-red-50">
+            <div className="text-destructive p-4 rounded-md bg-destructive/10 border border-destructive/20">
               {error}
             </div>
           ) : (
