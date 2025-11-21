@@ -14,7 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      paiements: {
+        Row: {
+          annee_scolaire: string | null
+          created_at: string | null
+          date_paiement: string
+          enfant_id: number
+          id: number
+          methode_paiement: string
+          mois_concerne: string | null
+          montant: number
+        }
+        Insert: {
+          annee_scolaire?: string | null
+          created_at?: string | null
+          date_paiement?: string
+          enfant_id: number
+          id?: number
+          methode_paiement?: string
+          mois_concerne?: string | null
+          montant: number
+        }
+        Update: {
+          annee_scolaire?: string | null
+          created_at?: string | null
+          date_paiement?: string
+          enfant_id?: number
+          id?: number
+          methode_paiement?: string
+          mois_concerne?: string | null
+          montant?: number
+        }
+        Relationships: []
+      }
+      paiements_inscription: {
+        Row: {
+          annee_scolaire: string | null
+          created_at: string | null
+          date_paiement: string
+          enfant_id: number
+          id: number
+          methode_paiement: string
+          montant: number
+        }
+        Insert: {
+          annee_scolaire?: string | null
+          created_at?: string | null
+          date_paiement?: string
+          enfant_id: number
+          id?: number
+          methode_paiement?: string
+          montant: number
+        }
+        Update: {
+          annee_scolaire?: string | null
+          created_at?: string | null
+          date_paiement?: string
+          enfant_id?: number
+          id?: number
+          methode_paiement?: string
+          montant?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
